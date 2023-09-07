@@ -20,9 +20,9 @@ TARGET = TMA-1
 # building variables
 ######################################
 # debug build?
-DEBUG = 1
+# DEBUG 1
 # optimization
-OPT = -Og
+# OPT = -Og
 
 
 #######################################
@@ -212,7 +212,7 @@ $(BUILD_DIR):
 # clean up
 #######################################
 clean:
-	-rm -fR $(BUILD_DIR)
+	-del /Q $(BUILD_DIR)
   
 #######################################
 # dependencies
