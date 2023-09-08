@@ -38,10 +38,19 @@ def build_stm32():
         os.makedirs('./build', exist_ok=True)
         shutil.copyfile('../device/TMA-1/build/TMA-1.elf', './build/TMA-1.elf')
 
+    else:
+        print("ERROR: No built binary found!!!")
+
     print("binary copied to build/TMA-1.elf")
 
 def flash_stm32():
-    spawn(['openocd', '-f' '../device/TMA-1/TMA-1.cfg', '-f', './TMA-1.cfg'])
+    if os.path.exists('../device/TMA-1/TMA-1.cfg'):
+        shutil.copyfile('../device/TMA-1/TMA-1.cfg', './TMA-1.cfg')
+
+    else:
+        print("ERROR: No OpenOCD config file found!!!")
+
+    spawn(['openocd', '-f', './config/TMA-1.cfg'])
     return
 ##### STM32 build and flash process END #####
 
