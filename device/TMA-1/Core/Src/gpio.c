@@ -53,12 +53,22 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, LED_CUSTOM0_Pin|LED_CUSTOM1_Pin|LED_ERR_Pin|LED_HEARTBEAT_Pin
+  HAL_GPIO_WritePin(GPIOA, LED_ONBOARD_0_Pin|LED_ONBOARD_1_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOE, LED_CUSTOM_0_Pin|LED_CUSTOM_1_Pin|LED_ERR_Pin|LED_HEARTBEAT_Pin
                           |LED_SD_Pin|LED_CAN_Pin|LED_ESP_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PAPin PAPin */
+  GPIO_InitStruct.Pin = LED_ONBOARD_0_Pin|LED_ONBOARD_1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PEPin PEPin PEPin PEPin
                            PEPin PEPin PEPin */
-  GPIO_InitStruct.Pin = LED_CUSTOM0_Pin|LED_CUSTOM1_Pin|LED_ERR_Pin|LED_HEARTBEAT_Pin
+  GPIO_InitStruct.Pin = LED_CUSTOM_0_Pin|LED_CUSTOM_1_Pin|LED_ERR_Pin|LED_HEARTBEAT_Pin
                           |LED_SD_Pin|LED_CAN_Pin|LED_ESP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
