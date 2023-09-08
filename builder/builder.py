@@ -1,21 +1,22 @@
 import os
-import shutil
 import json
+import shutil
 import subprocess
 
 import toolchain
 
-toolchain_path = os.path.abspath('./toolchain')
-
+# read build_config.json
 build_config = ''
 with open("build_config.json", "r") as file:
     build_config = json.load(file)
 
+# spawn a subprocess
 def spawn(argv):
     p = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
     while p.poll() == None:
         print(p.stdout.readline(), end='')
 
+##### STM32 build and flash process START #####
 def build_stm32():
     # step into STM32CubeMX project folder
     os.chdir('../device/TMA-1')
@@ -39,50 +40,38 @@ def build_stm32():
 
     print("binary copied to build/TMA-1.elf")
 
+def flash_stm32():
+    spawn(['openocd', '-f' '../device/TMA-1/TMA-1.cfg', '-f', './TMA-1.cfg'])
+    return
+##### STM32 build and flash process END #####
 
+##### ESP32 build and flash process START #####
 def build_esp32():
     return
 
-def upload_stm32():
-    openocd = subprocess.Popen(['openocd', '-f' '../device/TMA-1/TMA-1.cfg'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-    gdb = subprocess.Popen(['arm-none-eabi-gdb', '-x', 'gdb.txt'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-    
-    while True:
-        if openocd.poll() == None:
-            print(openocd.stdout.readline(), end='')
-
-        if gdb.poll() == None:
-            print(gdb.stdout.readline(), end='')
-
-        if openocd.poll() != None and gdb.poll != None:
-            break
-
+def flash_esp32():
     return
+##### ESP32 build and flash process END #####
 
-def upload_esp32():
-    return
-
+# Monolith TMA-1 software build and flash process
 def build():
-    # install toolchain
-    if not os.path.exists(toolchain.path_make) or \
-       not os.path.exists(toolchain.path_arm) or \
-       not os.path.exists(toolchain.path_openocd):
-        print('Missing toolchain detected! Installing them first...')
-        toolchain.config()
-        print('Toolchain installation completed!')
-
-    # configure toolchain PATH
-    os.environ["PATH"] = os.getenv("PATH") + f'{toolchain_path}\\arm\\bin;{toolchain_path}\\make\\bin;{toolchain_path}\\openocd\\bin;'
+    toolchain.validate()
 
     build_stm32()
-    upload_stm32()
+    flash_stm32()
 
     build_esp32()
-    upload_esp32()
+    flash_esp32()
 
+# clean build directories
 def clean():
+    # build directory
     if os.path.exists('./build'):
         shutil.rmtree('./build')
+
+    # STM32CubeMX build directory
+    if os.path.exists('../device/TMA-1/build'):
+        shutil.rmtree('../device/TMA-1/build')
 
 if __name__ == "__main__":
     build()

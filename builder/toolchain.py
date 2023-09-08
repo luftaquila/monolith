@@ -4,12 +4,16 @@ import py7zr
 import shutil
 import requests
 
-path_cache = './toolchain/.cache'
 path_toolchain = './toolchain'
+path_toolchain_abs = os.path.abspath('./toolchain')
+
+path_cache = './toolchain/.cache'
+
 path_openocd = './toolchain/openocd'
 path_make = './toolchain/make'
 path_arm = './toolchain/arm'
 
+# download file from web url
 def download(name, path, url):
     with open(f'{path}/{name}', 'wb') as file:
         response = requests.get(url, allow_redirects=True, stream=True)
@@ -32,6 +36,8 @@ def download(name, path, url):
                 sys.stdout.flush()
             print()
 
+
+##### GNU make for Windows configure process START #####
 def config_make():
     print("installing GNU make for Windows...")
 
@@ -55,7 +61,10 @@ def config_make():
     os.rename(f'{path_cache}/make_executable/bin/make.exe', f'{path_make}/bin/make.exe')
 
     print("GNU make for Windows installed!")
+##### GNU make for Windows configure process END #####
 
+
+##### ARM GNU toolchain configure process START #####
 def config_arm_toolchain():
     print("installing ARM GNU toolchain...")
 
@@ -74,7 +83,10 @@ def config_arm_toolchain():
     os.rename(f'{path_cache}/arm_toolchain/gcc-arm-none-eabi-10.3-2021.10', path_arm)
         
     print("ARM GNU toolchain installed!")
+##### ARM GNU toolchain configure process END #####
 
+
+##### OpenOCD for Windows configure process START #####
 def config_openocd():
     print("installing OpenOCD for Windows...")
 
@@ -94,14 +106,41 @@ def config_openocd():
         os.rename(f'{path_toolchain}/OpenOCD-20230712-0.12.0', f'{path_toolchain}/openocd')
         
     print("OpenOCD for Windows installed!")
+##### OpenOCD for Windows configure process END #####
 
-
+# toolchain installation process
 def config():
     os.makedirs(path_cache, exist_ok=True)
 
-    config_make()
     config_arm_toolchain()
+    config_make()
     config_openocd()
+
+# check toolchain installation
+def validate():
+    if not os.path.exists(path_arm) or \
+       not os.path.exists(path_make) or \
+       not os.path.exists(path_openocd):
+        print('Missing toolchain detected! Installing them first...')
+        config()
+        print('Toolchain installation completed!')
+
+    # configure toolchain PATH
+    os.environ["PATH"] = os.getenv("PATH") + \
+                            f'{path_toolchain_abs}\\arm\\bin;' + \
+                            f'{path_toolchain_abs}\\make\\bin;' + \
+                            f'{path_toolchain_abs}\\openocd\\bin;'
+
+# clean toolchain directories
+def clean():
+    if os.path.exists(path_toolchain):
+        shutil.rmtree(path_toolchain)
+
+# clean cached files
+def clean_cache():
+    if os.path.exists(path_cache):
+        shutil.rmtree(path_cache)
+
 
 if __name__ == "__main__":
     config()
