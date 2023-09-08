@@ -1,6 +1,7 @@
 ### CUSTOM ###
 build/
 toolchain/
+.settings/
 
 # Created by https://www.toptal.com/developers/gitignore/api/c,node,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=c,node,python
