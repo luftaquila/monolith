@@ -16,8 +16,12 @@ def spawn(argv):
     while p.poll() == None:
         print(p.stdout.readline(), end='')
 
+    return p.poll()
+
 ##### STM32 build and flash process START #####
 def build_stm32():
+    print("INFO: building TMA-1 STM32 binary...")
+
     # step into STM32CubeMX project folder
     os.chdir('../device/TMA-1')
 
@@ -26,51 +30,71 @@ def build_stm32():
     os.environ["OPT"] = build_config["STM32"]["OPT"]
 
     # build
-    spawn(['make'])
+    ret = spawn(['make'])
+
+    if ret != 0:
+        print("\nERROR: build job failed. terminating.")
+        return -1
 
     # step back to builder
     os.chdir('../../builder')
-
-    print("build completed! copying binary...")
 
     # move target executable
     if os.path.exists('../device/TMA-1/build/TMA-1.elf'):
         os.makedirs('./build', exist_ok=True)
         shutil.copyfile('../device/TMA-1/build/TMA-1.elf', './build/TMA-1.elf')
+        print("INFO: build of TMA-1 STM32 binary completed! binary copied to build/TMA-1.elf")
+        return 0
 
     else:
-        print("ERROR: No built binary found!!!")
+        print("\nERROR: No binary found for STM32. terminating.")
+        return -1
 
-    print("binary copied to build/TMA-1.elf")
 
 def flash_stm32():
-    if os.path.exists('../device/TMA-1/TMA-1.cfg'):
-        shutil.copyfile('../device/TMA-1/TMA-1.cfg', './TMA-1.cfg')
+    print("INFO: flashing TMA-1 STM32 binary...")
+    
+    retry = 0
+    ret = spawn(['openocd', '-f', './config/TMA-1.cfg'])
 
-    else:
-        print("ERROR: No OpenOCD config file found!!!")
+    while ret != 0 and retry < 3:
+        retry += 1
+        print(f"ERROR: flashing failed. retry count: {retry}")
+        ret = spawn(['openocd', '-f', './config/TMA-1.cfg'])
 
-    spawn(['openocd', '-f', './config/TMA-1.cfg'])
-    return
+    if ret != 0:
+        print("\nERROR: max retry count reached. terminating.")
+        return -1
+
+    print('INFO: TMA-1 STM32 binary successfully flashed. please recyle the power.')
+    return 0
 ##### STM32 build and flash process END #####
 
 ##### ESP32 build and flash process START #####
 def build_esp32():
-    return
+    return 0
 
 def flash_esp32():
-    return
+    return 0
 ##### ESP32 build and flash process END #####
 
 # Monolith TMA-1 software build and flash process
 def build():
-    toolchain.validate()
+    print("INFO: checking toolchain...")
+    if toolchain.validate() != 0:
+        print("\nERROR: toolchain is corrupt. please delete builder/toolchain/.cache and retry.")
+        return -1
 
-    build_stm32()
-    flash_stm32()
+    if build_stm32() != 0:
+        print("\nERROR: build of TMA-1 STM32 binary failed. please delete builder/toolchain and retry.")
 
-    build_esp32()
-    flash_esp32()
+    elif flash_stm32() != 0:
+        print("\nERROR: flashing of TMA-1 STM32 binary failed. please check debugger and retry.")
+    if build_esp32() != 0:
+        print("\nERROR: build of TMA-1 ESP32 binary failed. please delete builder/toolchain and retry.")
+
+    elif flash_esp32() != 0:
+        print("\nERROR: flashing of TMA-1 ESP32 binary failed. please check debugger and retry.")
 
 # clean build directories
 def clean():
