@@ -29,7 +29,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "config.h"
+#include "logger.h"
+#include "types.h"
+#include "ringbuffer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,6 +42,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+extern int SYS_LOG(LOG_LEVEL level, LOG_SOURCE source, int key);
 
 /* USER CODE END PD */
 
@@ -51,6 +55,45 @@
 
 /* USER CODE BEGIN PV */
 
+// system log
+FIL logfile;
+LOG syslog;
+
+// system state
+SYSTEM_STATE sys_state;
+
+// timer alarm flag
+uint32_t timer_flag = 0;
+
+// SD write buffer
+ring_buffer_t LOG_BUFFER;
+uint8_t LOG_BUFFER_ARR[1 << 12]; // 4KB
+
+// I2C transmission flag and buffer
+uint32_t i2c_flag = 0;
+ring_buffer_t TELEMETRY_BUFFER;
+ring_buffer_t LCD_BUFFER;
+
+// CAN RX header and data
+CAN_RxHeaderTypeDef can_rx_header;
+uint8_t can_rx_data[8];
+
+// accelerometer data
+uint8_t acc_value[6];
+
+// GPS receive flag and buffer
+uint32_t gps_flag = 0;
+uint8_t gps_data[1 << 7]; // 128B
+
+// timer pulse input capture flag and data
+uint32_t pulse_flag = 0;
+int32_t pulse_value[PULSE_CH_COUNT] = { 0, }; // microsecond
+int32_t pulse_buffer_0[PULSE_CH_COUNT] = { 0, };
+int32_t pulse_buffer_1[PULSE_CH_COUNT] = { 0, };
+
+// adc conversion flag and data
+uint32_t adc_flag = 0;
+uint16_t adc_value[ADC_COUNT] = { 0, };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,12 +102,14 @@ void SystemClock_Config(void);
 __attribute__((weak)) void _close(void){}
 __attribute__((weak)) void _lseek(void){}
 __attribute__((weak)) void _read(void){}
-__attribute__((weak)) void _write(void){}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int _write(int file, uint8_t *ptr, int len) {
+  HAL_UART_Transmit(&huart1, (uint8_t *)ptr, (uint16_t)len, 50);
+  return (len);
+}
 /* USER CODE END 0 */
 
 /**
