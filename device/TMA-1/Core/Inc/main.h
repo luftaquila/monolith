@@ -91,6 +91,10 @@ void Error_Handler(void);
 #define LED_CAN_GPIO_Port GPIOE
 #define LED_ESP_Pin GPIO_PIN_15
 #define LED_ESP_GPIO_Port GPIOE
+#define I2C_LOG_SCL_Pin GPIO_PIN_10
+#define I2C_LOG_SCL_GPIO_Port GPIOB
+#define I2C_LOG_SDA_Pin GPIO_PIN_11
+#define I2C_LOG_SDA_GPIO_Port GPIOB
 #define SDIO_DETECT_Pin GPIO_PIN_12
 #define SDIO_DETECT_GPIO_Port GPIOB
 #define DIN0_Pin GPIO_PIN_8
@@ -109,6 +113,10 @@ void Error_Handler(void);
 #define DIN6_GPIO_Port GPIOD
 #define DIN7_Pin GPIO_PIN_15
 #define DIN7_GPIO_Port GPIOD
+#define USART_LOG_TX_Pin GPIO_PIN_6
+#define USART_LOG_TX_GPIO_Port GPIOC
+#define USART_LOG_RX_Pin GPIO_PIN_7
+#define USART_LOG_RX_GPIO_Port GPIOC
 #define I2C_ACC_SDA_Pin GPIO_PIN_9
 #define I2C_ACC_SDA_GPIO_Port GPIOC
 #define I2C_ACC_SCL_Pin GPIO_PIN_8
