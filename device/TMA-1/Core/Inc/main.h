@@ -77,6 +77,8 @@ void Error_Handler(void);
 #define LED_ONBOARD_0_GPIO_Port GPIOA
 #define LED_ONBOARD_1_Pin GPIO_PIN_7
 #define LED_ONBOARD_1_GPIO_Port GPIOA
+#define Vsense_Pin GPIO_PIN_5
+#define Vsense_GPIO_Port GPIOC
 #define LED_CUSTOM_0_Pin GPIO_PIN_9
 #define LED_CUSTOM_0_GPIO_Port GPIOE
 #define LED_CUSTOM_1_Pin GPIO_PIN_10
