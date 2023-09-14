@@ -68,7 +68,12 @@ int TELEMETRY_SETUP(void) {
 
   // ESP handshake process
   HAL_Delay(1000);
-  HAL_I2C_Master_Transmit(I2C_TELEMETRY, ESP_I2C_ADDR, (uint8_t *)"READY", 5, 500);
+  int ret = HAL_I2C_Master_Transmit(I2C_TELEMETRY, ESP_I2C_ADDR, (uint8_t *)"READY", 5, 500);
+  
+  if (ret != 0) {
+    DEBUG_MSG("[%8lu] [ERR] ESP handshake timeout\r\n", HAL_GetTick());
+    goto esp_fail;
+  }
 
   // receive ACK from UART (10 bytes)
   uint8_t ack[10];
@@ -77,12 +82,14 @@ int TELEMETRY_SETUP(void) {
   }
 
   if (strstr((char *)ack, "ACK") == NULL) {
+    DEBUG_MSG("[%8lu] [ERR] ESP ACK timeout\r\n", HAL_GetTick());
     goto esp_fail;
   }
 
   // waiting for time sync (10 sec)
   uint8_t esp_rtc_fix[25];
   if (HAL_UART_Receive(&huart2, esp_rtc_fix, 25, 10000) != HAL_OK) {
+    DEBUG_MSG("[%8lu] [ERR] ESP time sync timeout\r\n", HAL_GetTick());
     goto esp_fail;
   }
 
