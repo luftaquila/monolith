@@ -58,7 +58,7 @@ extern "C" {
 #define DEBUG_MSG(f_, ...)
 #endif
 
-// macro for NMEA sentence parse
+// macro for parsing NMEA sentence
 #define FIND_AND_NUL(s, p, c) ( \
    (p) = (uint8_t *)strchr((char *)s, c), \
    *(p) = '\0', \
@@ -86,7 +86,9 @@ inline uint32_t drop_point(uint8_t *str) {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void TIMER_100ms(void);
+void TIMER_500ms(void);
+void TIMER_1s(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

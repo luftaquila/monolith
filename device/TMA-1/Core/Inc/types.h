@@ -31,10 +31,10 @@ typedef struct {
 
 /* timer index */
 typedef enum {
-  TIMER_100ms = 0,
-  TIMER_400ms,
-  TIMER_1s,
-} TIMER_ID;
+  FLAG_TIMER_100ms = 0,
+  FLAG_TIMER_500ms,
+  FLAG_TIMER_1s,
+} TIMER_FLAG;
 
 /* telemetry buffer */
 typedef enum {

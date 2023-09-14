@@ -365,6 +365,9 @@ int main(void)
 
   /********** CORE SYSTEM STARTUP COMPLETE **********/
   SYS_LOG(LOG_INFO, SYS, SYS_READY);
+  DEBUG_MSG("[%8lu] [ OK] CORE SYSTEM STARTUP COMPLETE\r\n", HAL_GetTick());
+
+  HAL_TIM_Base_Start_IT(&htim1); // start 100ms periodic timer
 
   /* USER CODE END 2 */
 
@@ -384,7 +387,20 @@ int main(void)
 #endif
 
     /* check timer flags */
+    if (timer_flag & (1 << FLAG_TIMER_100ms)) {
+      timer_flag &= ~(1 << FLAG_TIMER_100ms);
+      TIMER_100ms();
+    }
 
+    if (timer_flag & (1 << FLAG_TIMER_500ms)) {
+      timer_flag &= ~(1 << FLAG_TIMER_500ms);
+      TIMER_500ms();
+    }
+
+    if (timer_flag & (1 << FLAG_TIMER_1s)) {
+      timer_flag &= ~(1 << FLAG_TIMER_1s);
+      TIMER_1s();
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -445,7 +461,18 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+// timer jobs
+void TIMER_100ms(void) {
 
+}
+
+void TIMER_500ms(void) {
+
+}
+
+void TIMER_1s(void) {
+
+}
 /* USER CODE END 4 */
 
 /**
@@ -457,8 +484,8 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  while (1)
-  {
+  while (1) {
+
   }
   /* USER CODE END Error_Handler_Debug */
 }

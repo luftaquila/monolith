@@ -21,7 +21,26 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
+extern uint32_t timer_flag;
 
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+  static uint32_t count = 0;
+
+  if (htim->Instance == TIM1) {
+    count++;
+    timer_flag |= 1 << FLAG_TIMER_100ms;
+
+    if (count == 5) {
+      timer_flag |= 1 << FLAG_TIMER_500ms;
+    }
+
+    if (count == 10) {
+      count = 0;
+      timer_flag |= 1 << FLAG_TIMER_500ms;
+      timer_flag |= 1 << FLAG_TIMER_1s;
+    }
+  }
+}
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim1;
