@@ -6,11 +6,12 @@
  */
 
 #include "sdio.h"
+#include "logger.h"
 #include "ringbuffer.h"
 
 extern LOG syslog;
 extern SYSTEM_STATE sys_state;
-extern ring_buffer_t LOG_BUFFER;
+extern ring_buffer_t SD_BUFFER;
 
 extern uint32_t i2c_flag;
 extern ring_buffer_t TELEMETRY_BUFFER;
@@ -40,10 +41,10 @@ int SYS_LOG(LOG_LEVEL level, LOG_SOURCE source, int key) {
   syslog.checksum = (uint8_t)(sum & 0xff);
 
   if (sys_state.SD) {
-    ring_buffer_queue_arr(&LOG_BUFFER, (char *)&syslog, sizeof(LOG));
+    ring_buffer_queue_arr(&SD_BUFFER, (char *)&syslog, sizeof(LOG));
   }
 
-  if (sys_state.ESP) {
+  if (sys_state.TELEMETRY) {
     i2c_flag |= 1 << I2C_BUFFER_TELEMETRY_REMAIN;
     ring_buffer_queue_arr(&TELEMETRY_BUFFER, (char *)&syslog, sizeof(LOG));
   }

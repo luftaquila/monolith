@@ -66,13 +66,12 @@ SYSTEM_STATE sys_state;
 uint32_t timer_flag = 0;
 
 // SD write buffer
-ring_buffer_t LOG_BUFFER;
-uint8_t LOG_BUFFER_ARR[1 << 12]; // 4KB
+ring_buffer_t SD_BUFFER;
+uint8_t SD_BUFFER_ARR[1 << 12]; // 4KB
 
 // I2C transmission flag and buffer
 uint32_t i2c_flag = 0;
 ring_buffer_t TELEMETRY_BUFFER;
-ring_buffer_t LCD_BUFFER;
 
 // CAN RX header and data
 CAN_RxHeaderTypeDef can_rx_header;
@@ -107,7 +106,7 @@ __attribute__((weak)) void _read(void){}
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 int _write(int file, uint8_t *ptr, int len) {
-  HAL_UART_Transmit(&huart1, (uint8_t *)ptr, (uint16_t)len, 50);
+  HAL_UART_Transmit(&huart1, (uint8_t *)ptr, (uint16_t)len, 30);
   return (len);
 }
 /* USER CODE END 0 */
@@ -154,9 +153,210 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_FATFS_Init();
-  MX_I2C2_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  /********** CORE SYSTEM STARTUP **********/
+  int ret;
+  DEBUG_MSG("[%8lu] [INF] core system is in startup\r\n", HAL_GetTick());
+
+
+  /********** RTC boot time check **********/
+  DATETIME boot;
+  RTC_READ(&boot);
+
+
+  /********** SD card initialization **********/
+  ret = SD_SETUP(&boot);
+
+  if (ret == SYS_OK) {
+    sys_state.SD = true;
+    HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_SET);
+
+    SYS_LOG(LOG_INFO, SYS, SYS_SD_INIT);
+
+    DEBUG_MSG("[%8lu] [OK ] SD card setup\r\n", HAL_GetTick());
+  } else {
+    sys_state.SD = false;
+    HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_RESET);
+
+    syslog.value[0] = (uint8_t)ret;
+    SYS_LOG(LOG_ERROR, SYS, SYS_SD_INIT);
+
+    DEBUG_MSG("[%8lu] [ERR] SD card setup failed: %d\r\n", HAL_GetTick(), ret);
+  }
+
+
+  /********** core system initialization **********/
+  HAL_GPIO_WritePin(GPIOA, LED_ONBOARD_0_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LED_ONBOARD_1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, LED_CUSTOM_0_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, LED_CUSTOM_1_Pin, GPIO_PIN_RESET);
+
+  sys_state.ERR = false;
+  sys_state.CAN = false;
+  sys_state.TELEMETRY = false;
+
+  HAL_GPIO_WritePin(GPIOE, LED_ERR_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, LED_HEARTBEAT_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOE, LED_CAN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, LED_TELEMETRY_Pin, GPIO_PIN_RESET);
+
+  SYS_LOG(LOG_INFO, SYS, SYS_CORE_INIT);
+
+  DEBUG_MSG("[%8lu] [OK ] core system setup\r\n", HAL_GetTick());
+
+
+  /********** UART log output port initialization **********/
+#ifdef ENABLE_LOG_UART
+  ret = UART_LOG_SETUP();
+
+  if (ret == SYS_OK) {
+    SYS_LOG(LOG_INFO, SYS, SYS_UART_INIT);
+
+    DEBUG_MSG("[%8lu] [OK ] UART log output port setup\r\n", HAL_GetTick());
+  } else {
+    syslog.value[0] = (uint8_t)ret;
+    SYS_LOG(LOG_ERROR, SYS, SYS_UART_INIT);
+
+    DEBUG_MSG("[%8lu] [ERR] UART log output port setup failed: %d\r\n", HAL_GetTick(), ret);
+  }
+#endif
+
+
+  /********** ESP32 telemetry initialization **********/
+#ifdef ENABLE_LOG_TELEMETRY
+  ret = TELEMETRY_SETUP();
+
+  if (ret == SYS_OK) {
+    sys_state.TELEMETRY = true;
+    HAL_GPIO_WritePin(GPIOE, LED_TELEMETRY_Pin, GPIO_PIN_SET);
+
+    SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_INIT);
+
+    DEBUG_MSG("[%8lu] [OK ] TELEMETRY setup\r\n", HAL_GetTick());
+  } else {
+    sys_state.TELEMETRY = false;
+    HAL_GPIO_WritePin(GPIOE, LED_TELEMETRY_Pin, GPIO_PIN_RESET);
+
+    syslog.value[0] = (uint8_t)ret;
+    SYS_LOG(LOG_ERROR, SYS, SYS_TELEMETRY_INIT);
+
+    DEBUG_MSG("[%8lu] [ERR] TELEMETRY setup failed: %d\r\n", HAL_GetTick(), ret);
+  }
+#endif
+
+
+  /********** CAN transceiver initialization **********/
+#ifdef ENABLE_MONITOR_CAN
+  ret = CAN_SETUP();
+
+  if (ret == SYS_OK) {
+    sys_state.CAN = true;
+    HAL_GPIO_WritePin(GPIOE, LED_CAN_Pin, GPIO_PIN_SET);
+
+    SYS_LOG(LOG_INFO, CAN, CAN_INIT);
+
+    DEBUG_MSG("[%8lu] [OK ] CAN transceiver setup\r\n", HAL_GetTick());
+  } else {
+    sys_state.CAN = false;
+    HAL_GPIO_WritePin(GPIOE, LED_CAN_Pin, GPIO_PIN_RESET);
+
+    syslog.value[0] = (uint8_t)ret;
+    SYS_LOG(LOG_ERROR, CAN, CAN_INIT);
+
+    DEBUG_MSG("[%8lu] [ERR] CAN transceiver setup failed: %d\r\n", HAL_GetTick(), ret);
+  }
+#endif
+
+
+  /********** digital input initialization **********/
+#ifdef ENABLE_MONITOR_DIGITAL
+  ret = DIGITAL_SETUP();
+
+  if (ret == SYS_OK) {
+    SYS_LOG(LOG_INFO, DIGITAL, DIGITAL_INIT);
+
+    DEBUG_MSG("[%8lu] [OK ] digital input setup\r\n", HAL_GetTick());
+  } else {
+    syslog.value[0] = (uint8_t)ret;
+    SYS_LOG(LOG_ERROR, DIGITAL, DIGITAL_INIT);
+
+    DEBUG_MSG("[%8lu] [ERR] digital input setup failed: %d\r\n", HAL_GetTick(), ret);
+  }
+#endif
+
+
+  /********** analog input initialization **********/
+#ifdef ENABLE_MONITOR_ANALOG
+  ret = ANALOG_SETUP();
+
+  if (ret == SYS_OK) {
+    SYS_LOG(LOG_INFO, ANALOG, ANALOG_INIT);
+
+    DEBUG_MSG("[%8lu] [OK ] analog input setup\r\n", HAL_GetTick());
+  } else {
+    syslog.value[0] = (uint8_t)ret;
+    SYS_LOG(LOG_ERROR, ANALOG, ANALOG_INIT);
+
+    DEBUG_MSG("[%8lu] [ERR] analog input setup failed: %d\r\n", HAL_GetTick(), ret);
+  }
+#endif
+
+
+  /********** pulse input initialization **********/
+#ifdef ENABLE_MONITOR_PULSE
+  ret = PULSE_SETUP();
+
+  if (ret == SYS_OK) {
+    SYS_LOG(LOG_INFO, PULSE, PULSE_INIT);
+
+    DEBUG_MSG("[%8lu] [OK ] pulse input setup\r\n", HAL_GetTick());
+  } else {
+    syslog.value[0] = (uint8_t)ret;
+    SYS_LOG(LOG_ERROR, PULSE, PULSE_INIT);
+
+    DEBUG_MSG("[%8lu] [ERR] pulse input setup failed: %d\r\n", HAL_GetTick(), ret);
+  }
+#endif
+
+
+  /********** ADXL345 accelerometer initialization **********/
+#ifdef ENABLE_MONITOR_ACCELEROMETER
+  ret = ACCELEROMETER_SETUP();
+
+  if (ret == SYS_OK) {
+    SYS_LOG(LOG_INFO, ACCELEROMETER, ACCELEROMETER_INIT);
+
+    DEBUG_MSG("[%8lu] [OK ] accelerometer setup\r\n", HAL_GetTick());
+  } else {
+    syslog.value[0] = (uint8_t)ret;
+    SYS_LOG(LOG_ERROR, ACCELEROMETER, ACCELEROMETER_INIT);
+
+    DEBUG_MSG("[%8lu] [ERR] accelerometer setup failed: %d\r\n", HAL_GetTick(), ret);
+  }
+#endif
+
+
+  /********** NEO-7M GPS initialization **********/
+#ifdef ENABLE_MONITOR_GPS
+  ret = GPS_SETUP();
+
+  if (ret == SYS_OK) {
+    SYS_LOG(LOG_INFO, GPS, GPS_INIT);
+
+    DEBUG_MSG("[%8lu] [OK ] GPS setup\r\n", HAL_GetTick());
+  } else {
+    syslog.value[0] = (uint8_t)ret;
+    SYS_LOG(LOG_ERROR, GPS, GPS_INIT);
+
+    DEBUG_MSG("[%8lu] [ERR] GPS setup failed: %d\r\n", HAL_GetTick(), ret);
+  }
+#endif
+
+
+  /********** CORE SYSTEM STARTUP COMPLETE **********/
+  SYS_LOG(LOG_INFO, SYS, SYS_READY);
 
   /* USER CODE END 2 */
 

@@ -21,7 +21,93 @@
 #include "sdio.h"
 
 /* USER CODE BEGIN 0 */
+#include "ff.h"
+#include "diskio.h"
+#include "tim.h"
 
+#include "stdio.h"
+#include "string.h"
+
+#include "logger.h"
+#include "ringbuffer.h"
+
+extern FIL logfile;
+extern SYSTEM_STATE sys_state;
+char logname[40];
+
+LOG syslog_buffer;
+extern ring_buffer_t SD_BUFFER;
+extern uint8_t SD_BUFFER_ARR[1 << 12];
+
+int SD_SETUP(DATETIME *boot) {
+  FATFS SD_FATFS;
+
+  // init buffer
+  ring_buffer_init(&SD_BUFFER, (char *)SD_BUFFER_ARR, sizeof(SD_BUFFER_ARR));
+
+  disk_initialize((BYTE) 0);
+  int ret = f_mount(&SD_FATFS, "", 0);
+
+  if (ret != FR_OK) {
+    sys_state.SD = false;
+    HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_RESET);
+
+    DEBUG_MSG("[%8lu] [ERR] SD mount failed: %d\r\n", HAL_GetTick(), ret);
+
+    return ret;
+  }
+
+  sprintf(logname, "20%02d-%02d-%02d %02d-%02d-%02d.log",
+      boot->year, boot->month, boot->date, boot->hour, boot->minute, boot->second);
+
+  ret = f_open(&logfile, logname, FA_OPEN_APPEND | FA_WRITE);
+
+  if (ret != FR_OK) {
+    sys_state.SD = false;
+    HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_RESET);
+
+    DEBUG_MSG("[%8lu] [ERR] SD open failed: %d\r\n", HAL_GetTick(), ret);
+
+    return ret;
+  }
+
+  sys_state.SD = true;
+  HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_SET);
+
+  return SYS_OK;
+}
+
+int SD_WRITE(ring_buffer_size_t length) {
+  int ret = 0;
+  static int32_t written_count;
+
+  while (!ring_buffer_is_empty(&SD_BUFFER)) {
+    ring_buffer_dequeue_arr(&SD_BUFFER, (char *)&syslog_buffer, sizeof(LOG));
+    ret = f_write(&logfile, &syslog_buffer, sizeof(LOG), (void *)&written_count);
+  }
+
+  if (ret != FR_OK) {
+    sys_state.SD = false;
+    HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_RESET);
+
+    DEBUG_MSG("[%8lu] [ERR] SD write failed: %d\r\n", HAL_GetTick(), ret);
+  }
+
+  return ret;
+}
+
+int SD_SYNC() {
+  int ret = f_sync(&logfile);
+
+  if (ret != FR_OK) {
+    sys_state.SD = false;
+    HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_RESET);
+
+    DEBUG_MSG("[%8lu] [ERR] SD sync failed: %d\r\n", HAL_GetTick(), ret);
+  }
+
+  return ret;
+}
 /* USER CODE END 0 */
 
 SD_HandleTypeDef hsd;

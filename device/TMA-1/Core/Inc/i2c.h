@@ -29,25 +29,31 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
+#include "rtc.h"
+#include "usart.h"
 
+#include "types.h"
+#include "logger.h"
+#include "ringbuffer.h"
 /* USER CODE END Includes */
 
 extern I2C_HandleTypeDef hi2c1;
 
-extern I2C_HandleTypeDef hi2c2;
-
 extern I2C_HandleTypeDef hi2c3;
 
 /* USER CODE BEGIN Private defines */
-
+#define ESP_I2C_ADDR (0x71 << 1)
+#define ACC_I2C_ADDR (0x53 << 1)
 /* USER CODE END Private defines */
 
 void MX_I2C1_Init(void);
-void MX_I2C2_Init(void);
 void MX_I2C3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+int TELEMETRY_SETUP(void);
 
+int ACCELEROMETER_SETUP(void);
+void ACCELEROMETER_WRITE(uint8_t reg, uint8_t value);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

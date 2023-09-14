@@ -31,14 +31,20 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
 #include "stdbool.h"
+
+#include "config.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+typedef enum {
+  SYS_OK = 0,
+  SYS_ERROR
+} SYS_STAUS;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -48,6 +54,13 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
+// macro for debug print
+#ifdef DEBUG_MODE
+#define DEBUG_MSG(f_, ...) printf((f_), ##__VA_ARGS__)
+#else
+#define DEBUG_MSG(f_, ...)
+#endif
+
 // macro for NMEA sentence parse
 #define FIND_AND_NUL(s, p, c) ( \
    (p) = (uint8_t *)strchr((char *)s, c), \
@@ -114,12 +127,8 @@ void Error_Handler(void);
 #define LED_SD_GPIO_Port GPIOE
 #define LED_CAN_Pin GPIO_PIN_14
 #define LED_CAN_GPIO_Port GPIOE
-#define LED_ESP_Pin GPIO_PIN_15
-#define LED_ESP_GPIO_Port GPIOE
-#define I2C_LOG_SCL_Pin GPIO_PIN_10
-#define I2C_LOG_SCL_GPIO_Port GPIOB
-#define I2C_LOG_SDA_Pin GPIO_PIN_11
-#define I2C_LOG_SDA_GPIO_Port GPIOB
+#define LED_TELEMETRY_Pin GPIO_PIN_15
+#define LED_TELEMETRY_GPIO_Port GPIOE
 #define SDIO_DETECT_Pin GPIO_PIN_12
 #define SDIO_DETECT_GPIO_Port GPIOB
 #define DIN0_Pin GPIO_PIN_8
