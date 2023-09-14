@@ -52,7 +52,9 @@ typedef enum {
 
 typedef enum {
   CAN_INIT = 0,
-  CAN_ERR
+  CAN_ERR,
+  CAN_ERR_RXMSGFAIL,
+  CAN_ERR_FIFOFULL
 } LOG_KEY_CAN;
 
 typedef enum {

@@ -22,7 +22,9 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-
+int DIGITAL_SETUP(void) {
+  return SYS_OK;
+}
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
