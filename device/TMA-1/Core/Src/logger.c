@@ -13,8 +13,11 @@ extern LOG syslog;
 extern SYSTEM_STATE sys_state;
 extern ring_buffer_t SD_BUFFER;
 
-extern uint32_t i2c_flag;
+extern uint32_t telemetry_flag;
 extern ring_buffer_t TELEMETRY_BUFFER;
+
+extern uint32_t serial_flag;
+extern ring_buffer_t SERIAL_BUFFER;
 
 int SYS_LOG(LOG_LEVEL level, LOG_SOURCE source, int key) {
   syslog.timestamp = HAL_GetTick();
@@ -45,9 +48,14 @@ int SYS_LOG(LOG_LEVEL level, LOG_SOURCE source, int key) {
   }
 
   if (sys_state.TELEMETRY) {
-    i2c_flag |= 1 << I2C_BUFFER_TELEMETRY_REMAIN;
+    telemetry_flag |= 1 << TELEMETRY_BUFFER_REMAIN;
     ring_buffer_queue_arr(&TELEMETRY_BUFFER, (char *)&syslog, sizeof(LOG));
   }
+
+#ifdef ENABLE_SERIAL
+  serial_flag |= 1 << SERIAL_BUFFER_REMAIN;
+  ring_buffer_queue_arr(&SERIAL_BUFFER, (char *)&syslog, sizeof(LOG));
+#endif
 
   // reset log value
   *(uint64_t *)syslog.value = 0;

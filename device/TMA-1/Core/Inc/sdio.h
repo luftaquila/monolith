@@ -29,7 +29,14 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
+#include "ff.h"
+#include "diskio.h"
+
+#include "stdio.h"
+#include "string.h"
+
 #include "types.h"
+#include "logger.h"
 #include "ringbuffer.h"
 
 /* USER CODE END Includes */
@@ -45,7 +52,8 @@ void MX_SDIO_SD_Init(void);
 /* USER CODE BEGIN Prototypes */
 int SD_SETUP(DATETIME *boot);
 int SD_WRITE(ring_buffer_size_t length);
-int SD_SYNC();
+int SD_SYNC(void);
+void SD_WRITE_LOG(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

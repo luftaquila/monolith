@@ -42,7 +42,7 @@ typedef enum {
 typedef enum {
   SYS_SD_INIT = 0,
   SYS_CORE_INIT,
-  SYS_UART_INIT,
+  SYS_SERIAL_INIT,
   SYS_TELEMETRY_REMOTE,
   SYS_TELEMETRY_RTC_FIX,
   SYS_TELEMETRY_INIT,
@@ -82,14 +82,6 @@ typedef enum {
   GPS_VEC,
   GPS_TIME
 } LOG_KEY_GPS;
-
-/* system state type */
-typedef struct {
-  uint8_t ERR;
-  uint8_t SD;
-  uint8_t TELEMETRY;
-  uint8_t CAN;
-} SYSTEM_STATE;
 
 /* Prototypes */
 int SYS_LOG(LOG_LEVEL level, LOG_SOURCE source, int key);

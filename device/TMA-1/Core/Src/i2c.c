@@ -24,10 +24,10 @@
 extern LOG syslog;
 
 // I2C tx buffers
-extern uint32_t i2c_flag;
+extern uint32_t telemetry_flag;
 
 extern ring_buffer_t TELEMETRY_BUFFER;
-uint8_t TELEMETRY_BUFFER_ARR[1 << 15]; // 32KB
+extern uint8_t TELEMETRY_BUFFER_ARR[1 << 15];
 
 // accelerometer data
 extern uint8_t acc_value[6];
@@ -37,13 +37,13 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c) {
   if (hi2c->Instance == I2C1) {
     if (ring_buffer_is_empty(&TELEMETRY_BUFFER)) {
       // finish transmission
-      i2c_flag &= ~(1 << I2C_BUFFER_TELEMETRY_REMAIN);
-      i2c_flag &= ~(1 << I2C_BUFFER_TELEMETRY_TRANSMIT);
+      telemetry_flag &= ~(1 << TELEMETRY_BUFFER_REMAIN);
+      telemetry_flag &= ~(1 << TELEMETRY_BUFFER_TRANSMIT);
     }
     else {
       static uint8_t payload[sizeof(LOG)];
       ring_buffer_dequeue_arr(&TELEMETRY_BUFFER, (char *)payload, sizeof(LOG));
-      HAL_I2C_Master_Transmit_IT(&hi2c1, ESP_I2C_ADDR, payload, sizeof(LOG));
+      HAL_I2C_Master_Transmit_IT(I2C_TELEMETRY, ESP_I2C_ADDR, payload, sizeof(LOG));
     }
   }
 
@@ -68,7 +68,7 @@ int TELEMETRY_SETUP(void) {
 
   // ESP handshake process
   HAL_Delay(1000);
-  HAL_I2C_Master_Transmit(&hi2c1, ESP_I2C_ADDR, (uint8_t *)"READY", 5, 500);
+  HAL_I2C_Master_Transmit(I2C_TELEMETRY, ESP_I2C_ADDR, (uint8_t *)"READY", 5, 500);
 
   // receive ACK from UART (10 bytes)
   uint8_t ack[10];
@@ -88,7 +88,7 @@ int TELEMETRY_SETUP(void) {
 
   // example: $ESP 2023-06-05-22-59-38
   if (strncmp((char *)esp_rtc_fix, "$ESP ", 5) == 0) {
-    DEBUG_MSG("[%8lu] [OK ] ESP TIME SYNC: %.*s\r\n", HAL_GetTick(), 24, esp_rtc_fix);
+    DEBUG_MSG("[%8lu] [ OK] ESP TIME SYNC: %.*s\r\n", HAL_GetTick(), 24, esp_rtc_fix);
 
     SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_REMOTE);
 
@@ -137,6 +137,16 @@ int TELEMETRY_SETUP(void) {
 
 esp_fail:
   return SYS_ERROR;
+}
+
+void TELEMETRY_TRANSMIT_LOG(void) {
+  if (telemetry_flag & (1 << TELEMETRY_BUFFER_REMAIN) && !(telemetry_flag & (1 << TELEMETRY_BUFFER_TRANSMIT))) {
+    telemetry_flag |= 1 << TELEMETRY_BUFFER_TRANSMIT;
+
+    static uint8_t payload[sizeof(LOG)];
+    ring_buffer_dequeue_arr(&TELEMETRY_BUFFER, (char *)payload, sizeof(LOG));
+    HAL_I2C_Master_Transmit_IT(I2C_TELEMETRY, ESP_I2C_ADDR, payload, sizeof(LOG));
+  }
 }
 /* USER CODE END 0 */
 

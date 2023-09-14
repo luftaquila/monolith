@@ -29,7 +29,9 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "types.h"
+#include "logger.h"
+#include "ringbuffer.h"
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart1;
@@ -50,7 +52,8 @@ void MX_USART3_UART_Init(void);
 void MX_USART6_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+int SERIAL_SETUP(void);
+void SERIAL_TRANSMIT_LOG(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

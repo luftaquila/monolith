@@ -2,10 +2,9 @@
 build/
 toolchain/
 .settings/
-*.swp
 
-# Created by https://www.toptal.com/developers/gitignore/api/c,node,python
-# Edit at https://www.toptal.com/developers/gitignore?templates=c,node,python
+# Created by https://www.toptal.com/developers/gitignore/api/c,node,python,vim
+# Edit at https://www.toptal.com/developers/gitignore?templates=c,node,python,vim
 
 ### C ###
 # Prerequisites
@@ -369,4 +368,25 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
-# End of https://www.toptal.com/developers/gitignore/api/c,node,python
+### Vim ###
+# Swap
+[._]*.s[a-v][a-z]
+!*.svg  # comment out if you don't need vector files
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+Sessionx.vim
+
+# Temporary
+.netrwhist
+*~
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~
+
+# End of https://www.toptal.com/developers/gitignore/api/c,node,python,vim

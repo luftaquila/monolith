@@ -21,16 +21,6 @@
 #include "sdio.h"
 
 /* USER CODE BEGIN 0 */
-#include "ff.h"
-#include "diskio.h"
-#include "tim.h"
-
-#include "stdio.h"
-#include "string.h"
-
-#include "logger.h"
-#include "ringbuffer.h"
-
 extern FIL logfile;
 extern SYSTEM_STATE sys_state;
 char logname[40];
@@ -96,7 +86,7 @@ int SD_WRITE(ring_buffer_size_t length) {
   return ret;
 }
 
-int SD_SYNC() {
+int SD_SYNC(void) {
   int ret = f_sync(&logfile);
 
   if (ret != FR_OK) {
@@ -107,6 +97,12 @@ int SD_SYNC() {
   }
 
   return ret;
+}
+
+void SD_WRITE_LOG(void) {
+  if (!ring_buffer_is_empty(&SD_BUFFER)) {
+    SD_WRITE(ring_buffer_num_items(&SD_BUFFER));
+  }
 }
 /* USER CODE END 0 */
 

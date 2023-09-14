@@ -41,10 +41,7 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-typedef enum {
-  SYS_OK = 0,
-  SYS_ERROR
-} SYS_STAUS;
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

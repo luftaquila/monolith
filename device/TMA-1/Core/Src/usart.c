@@ -21,6 +21,43 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+extern uint32_t serial_flag;
+extern ring_buffer_t SERIAL_BUFFER;
+extern uint8_t SERIAL_BUFFER_ARR[1 << 14];
+
+uint8_t payload[sizeof(LOG) + 2] = { 0x05, 0x12, };
+
+// log output tx interrupt callback
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+  if (huart ->Instance == USART6) {
+    if (ring_buffer_is_empty(&SERIAL_BUFFER)) {
+      // finish transmission
+      serial_flag &= ~(1 << SERIAL_BUFFER_REMAIN);
+      serial_flag &= ~(1 << SERIAL_BUFFER_TRANSMIT);
+    }
+    else {
+      ring_buffer_dequeue_arr(&SERIAL_BUFFER, (char *)(payload + 2), sizeof(LOG));
+      HAL_UART_Transmit_IT(UART_SERIAL, payload, sizeof(LOG) + 2);
+    }
+  }
+
+  return;
+}
+
+int SERIAL_SETUP(void) {
+  ring_buffer_init(&SERIAL_BUFFER, (char *)SERIAL_BUFFER_ARR, sizeof(SERIAL_BUFFER_ARR));
+
+  return SYS_OK;
+}
+
+void SERIAL_TRANSMIT_LOG(void) {
+  if (serial_flag & (1 << SERIAL_BUFFER_REMAIN) && !(serial_flag & (1 << SERIAL_BUFFER_TRANSMIT))) {
+    serial_flag |= 1 << SERIAL_BUFFER_TRANSMIT;
+
+    ring_buffer_dequeue_arr(&SERIAL_BUFFER, (char *)(payload + 2), sizeof(LOG));
+    HAL_UART_Transmit_IT(UART_SERIAL, payload, sizeof(LOG) + 2);
+  }
+}
 
 /* USER CODE END 0 */
 
@@ -271,6 +308,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF8_USART6;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+    /* USART6 interrupt Init */
+    HAL_NVIC_SetPriority(USART6_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART6_IRQn);
   /* USER CODE BEGIN USART6_MspInit 1 */
 
   /* USER CODE END USART6_MspInit 1 */
@@ -357,6 +397,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOC, USART_LOG_TX_Pin|USART_LOG_RX_Pin);
 
+    /* USART6 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(USART6_IRQn);
   /* USER CODE BEGIN USART6_MspDeInit 1 */
 
   /* USER CODE END USART6_MspDeInit 1 */

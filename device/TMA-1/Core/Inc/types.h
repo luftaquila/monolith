@@ -11,6 +11,14 @@
 #define ADC_COUNT 4
 #define PULSE_CH_COUNT 4
 
+#define I2C_TELEMETRY     &hi2c1
+#define I2C_ACCELEROMETER &hi2c3
+
+#define UART_DEBUG     &huart1
+#define UART_TELEMETRY &huart2
+#define UART_GPS       &huart3
+#define UART_SERIAL    &huart6
+
 /* RTC datetime */
 typedef struct {
   uint8_t year;
@@ -28,13 +36,17 @@ typedef enum {
   TIMER_1s,
 } TIMER_ID;
 
-/* I2C buffer index */
+/* telemetry buffer */
 typedef enum {
-  I2C_BUFFER_TELEMETRY_REMAIN = 0,
-  I2C_BUFFER_TELEMETRY_TRANSMIT,
-  I2C_BUFFER_LOG_REMAIN,
-  I2C_BUFFER_LOG_TRANSMIT,
-} I2C_BUFFER_ID;
+  TELEMETRY_BUFFER_REMAIN = 0,
+  TELEMETRY_BUFFER_TRANSMIT,
+} TELEMETRY_BUFFER_FLAG;
+
+/* UART log output buffer */
+typedef enum {
+  SERIAL_BUFFER_REMAIN = 0,
+  SERIAL_BUFFER_TRANSMIT,
+} SERIAL_BUFFER_FLAG;
 
 /* NMEA GPRMC message */
 typedef struct nmea_gprmc_t {
@@ -65,5 +77,18 @@ typedef struct {
   uint32_t utc_date;
   uint32_t utc_time;
 } GPS_DATETIME;
+
+/* system state type */
+typedef struct {
+  uint8_t ERR;
+  uint8_t SD;
+  uint8_t TELEMETRY;
+  uint8_t CAN;
+} SYSTEM_STATE;
+
+typedef enum {
+  SYS_OK = 0,
+  SYS_ERROR
+} SYS_STAUS;
 
 #endif /* CORE_INC_TYPES_H_ */

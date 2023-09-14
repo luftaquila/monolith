@@ -65,19 +65,27 @@ SYSTEM_STATE sys_state;
 // timer alarm flag
 uint32_t timer_flag = 0;
 
-// SD write buffer
+// SD card write buffer
 ring_buffer_t SD_BUFFER;
 uint8_t SD_BUFFER_ARR[1 << 12]; // 4KB
 
-// I2C transmission flag and buffer
-uint32_t i2c_flag = 0;
+// telemetry transmission flag and buffer
+uint32_t telemetry_flag = 0;
 ring_buffer_t TELEMETRY_BUFFER;
+uint8_t TELEMETRY_BUFFER_ARR[1 << 14]; // 16KB
 
-// CAN RX header and data
+// UART log output buffer
+#ifdef ENABLE_SERIAL
+uint32_t serial_flag = 0;
+ring_buffer_t SERIAL_BUFFER;
+uint8_t SERIAL_BUFFER_ARR[1 << 14]; // 16KB
+#endif
+
+// CAN RX header and buffer
 CAN_RxHeaderTypeDef can_rx_header;
 uint8_t can_rx_data[8];
 
-// accelerometer data
+// accelerometer receive buffer
 uint8_t acc_value[6];
 
 // GPS receive flag and buffer
@@ -90,7 +98,7 @@ int32_t pulse_value[PULSE_CH_COUNT] = { 0, }; // microsecond
 int32_t pulse_buffer_0[PULSE_CH_COUNT] = { 0, };
 int32_t pulse_buffer_1[PULSE_CH_COUNT] = { 0, };
 
-// adc conversion flag and data
+// adc conversion flag and buffer
 uint32_t adc_flag = 0;
 uint16_t adc_value[ADC_COUNT] = { 0, };
 /* USER CODE END PV */
@@ -106,7 +114,7 @@ __attribute__((weak)) void _read(void){}
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 int _write(int file, uint8_t *ptr, int len) {
-  HAL_UART_Transmit(&huart1, (uint8_t *)ptr, (uint16_t)len, 30);
+  HAL_UART_Transmit(UART_DEBUG, (uint8_t *)ptr, (uint16_t)len, 30);
   return (len);
 }
 /* USER CODE END 0 */
@@ -175,7 +183,7 @@ int main(void)
 
     SYS_LOG(LOG_INFO, SYS, SYS_SD_INIT);
 
-    DEBUG_MSG("[%8lu] [OK ] SD card setup\r\n", HAL_GetTick());
+    DEBUG_MSG("[%8lu] [ OK] SD card setup\r\n", HAL_GetTick());
   } else {
     sys_state.SD = false;
     HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_RESET);
@@ -204,22 +212,22 @@ int main(void)
 
   SYS_LOG(LOG_INFO, SYS, SYS_CORE_INIT);
 
-  DEBUG_MSG("[%8lu] [OK ] core system setup\r\n", HAL_GetTick());
+  DEBUG_MSG("[%8lu] [ OK] core system setup\r\n", HAL_GetTick());
 
 
   /********** UART log output port initialization **********/
-#ifdef ENABLE_LOG_UART
-  ret = UART_LOG_SETUP();
+#ifdef ENABLE_SERIAL
+  ret = SERIAL_SETUP();
 
   if (ret == SYS_OK) {
-    SYS_LOG(LOG_INFO, SYS, SYS_UART_INIT);
+    SYS_LOG(LOG_INFO, SYS, SYS_SERIAL_INIT);
 
-    DEBUG_MSG("[%8lu] [OK ] UART log output port setup\r\n", HAL_GetTick());
+    DEBUG_MSG("[%8lu] [ OK] serial log output port setup\r\n", HAL_GetTick());
   } else {
     syslog.value[0] = (uint8_t)ret;
-    SYS_LOG(LOG_ERROR, SYS, SYS_UART_INIT);
+    SYS_LOG(LOG_ERROR, SYS, SYS_SERIAL_INIT);
 
-    DEBUG_MSG("[%8lu] [ERR] UART log output port setup failed: %d\r\n", HAL_GetTick(), ret);
+    DEBUG_MSG("[%8lu] [ERR] serial log output port setup failed: %d\r\n", HAL_GetTick(), ret);
   }
 #endif
 
@@ -234,7 +242,7 @@ int main(void)
 
     SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_INIT);
 
-    DEBUG_MSG("[%8lu] [OK ] TELEMETRY setup\r\n", HAL_GetTick());
+    DEBUG_MSG("[%8lu] [ OK] TELEMETRY setup\r\n", HAL_GetTick());
   } else {
     sys_state.TELEMETRY = false;
     HAL_GPIO_WritePin(GPIOE, LED_TELEMETRY_Pin, GPIO_PIN_RESET);
@@ -257,7 +265,7 @@ int main(void)
 
     SYS_LOG(LOG_INFO, CAN, CAN_INIT);
 
-    DEBUG_MSG("[%8lu] [OK ] CAN transceiver setup\r\n", HAL_GetTick());
+    DEBUG_MSG("[%8lu] [ OK] CAN transceiver setup\r\n", HAL_GetTick());
   } else {
     sys_state.CAN = false;
     HAL_GPIO_WritePin(GPIOE, LED_CAN_Pin, GPIO_PIN_RESET);
@@ -277,7 +285,7 @@ int main(void)
   if (ret == SYS_OK) {
     SYS_LOG(LOG_INFO, DIGITAL, DIGITAL_INIT);
 
-    DEBUG_MSG("[%8lu] [OK ] digital input setup\r\n", HAL_GetTick());
+    DEBUG_MSG("[%8lu] [ OK] digital input setup\r\n", HAL_GetTick());
   } else {
     syslog.value[0] = (uint8_t)ret;
     SYS_LOG(LOG_ERROR, DIGITAL, DIGITAL_INIT);
@@ -294,7 +302,7 @@ int main(void)
   if (ret == SYS_OK) {
     SYS_LOG(LOG_INFO, ANALOG, ANALOG_INIT);
 
-    DEBUG_MSG("[%8lu] [OK ] analog input setup\r\n", HAL_GetTick());
+    DEBUG_MSG("[%8lu] [ OK] analog input setup\r\n", HAL_GetTick());
   } else {
     syslog.value[0] = (uint8_t)ret;
     SYS_LOG(LOG_ERROR, ANALOG, ANALOG_INIT);
@@ -311,7 +319,7 @@ int main(void)
   if (ret == SYS_OK) {
     SYS_LOG(LOG_INFO, PULSE, PULSE_INIT);
 
-    DEBUG_MSG("[%8lu] [OK ] pulse input setup\r\n", HAL_GetTick());
+    DEBUG_MSG("[%8lu] [ OK] pulse input setup\r\n", HAL_GetTick());
   } else {
     syslog.value[0] = (uint8_t)ret;
     SYS_LOG(LOG_ERROR, PULSE, PULSE_INIT);
@@ -328,7 +336,7 @@ int main(void)
   if (ret == SYS_OK) {
     SYS_LOG(LOG_INFO, ACCELEROMETER, ACCELEROMETER_INIT);
 
-    DEBUG_MSG("[%8lu] [OK ] accelerometer setup\r\n", HAL_GetTick());
+    DEBUG_MSG("[%8lu] [ OK] accelerometer setup\r\n", HAL_GetTick());
   } else {
     syslog.value[0] = (uint8_t)ret;
     SYS_LOG(LOG_ERROR, ACCELEROMETER, ACCELEROMETER_INIT);
@@ -345,7 +353,7 @@ int main(void)
   if (ret == SYS_OK) {
     SYS_LOG(LOG_INFO, GPS, GPS_INIT);
 
-    DEBUG_MSG("[%8lu] [OK ] GPS setup\r\n", HAL_GetTick());
+    DEBUG_MSG("[%8lu] [ OK] GPS setup\r\n", HAL_GetTick());
   } else {
     syslog.value[0] = (uint8_t)ret;
     SYS_LOG(LOG_ERROR, GPS, GPS_INIT);
@@ -362,8 +370,21 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  while (1) {
+    /* check flags */
+
+
+    /* handle recorded LOGs */
+    SD_WRITE_LOG();
+#ifdef ENABLE_SERIAL
+    SERIAL_TRANSMIT_LOG();
+#endif
+#ifdef ENABLE_LOG_TELEMETRY
+    TELEMETRY_TRANSMIT_LOG();
+#endif
+
+    /* check timer flags */
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
