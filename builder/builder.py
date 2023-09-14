@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import shutil
 import subprocess
@@ -53,7 +54,7 @@ def build_stm32():
 
 def flash_stm32():
     print("INFO: flashing TMA-1 STM32 binary...")
-    
+
     retry = 0
     ret = spawn(['openocd', '-f', './config/TMA-1.cfg'])
 
@@ -99,12 +100,23 @@ def build():
 # clean build directories
 def clean():
     # build directory
+    print("cleaning ./build...")
     if os.path.exists('./build'):
         shutil.rmtree('./build')
 
     # STM32CubeMX build directory
+    print("cleaning ./device/TMA-1/build...")
     if os.path.exists('../device/TMA-1/build'):
         shutil.rmtree('../device/TMA-1/build')
 
+    print("clean done!")
+
 if __name__ == "__main__":
-    build()
+    if len(sys.argv) == 1:
+        build()
+    elif sys.argv[1] == "build":
+        build()
+    elif sys.argv[1] == "clean":
+        clean()
+    else:
+        print(f'ERROR: unknown command {sys.argv[1]}')
