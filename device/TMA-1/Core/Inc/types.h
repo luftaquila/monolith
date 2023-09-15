@@ -29,19 +29,25 @@ typedef struct {
   uint8_t second;
 } DATETIME;
 
-/* timer index */
+/* timer flags */
 typedef enum {
   FLAG_TIMER_100ms = 0,
   FLAG_TIMER_1s,
 } TIMER_FLAG;
 
-/* telemetry buffer */
+/* adc flags */
+typedef enum {
+  FLAG_ADC_SYS = 0,
+  FLAG_ADC_AIN,
+} ADC_FLAG;
+
+/* telemetry buffer flag */
 typedef enum {
   TELEMETRY_BUFFER_REMAIN = 0,
   TELEMETRY_BUFFER_TRANSMIT,
 } TELEMETRY_BUFFER_FLAG;
 
-/* UART log output buffer */
+/* serial buffer flag */
 typedef enum {
   SERIAL_BUFFER_REMAIN = 0,
   SERIAL_BUFFER_TRANSMIT,

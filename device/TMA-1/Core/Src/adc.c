@@ -21,11 +21,39 @@
 #include "adc.h"
 
 /* USER CODE BEGIN 0 */
+// ADC temperature sensor calibration values
+#define TS_CAL1 *((uint16_t*)0x1FFF7A2C)
+#define TS_CAL2 *((uint16_t*)0x1FFF7A2E)
 
+extern uint32_t adc_flag;
+extern uint32_t adc_sys_value[2];
+extern uint32_t adc_ain_value[ADC_COUNT];
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+  // internal core temperature and input voltage
+  if (hadc->Instance == ADC1) {
+    adc_flag |= 1 << FLAG_ADC_SYS;
+  }
+
+  // AIN channels
+  else if (hadc->Instance == ADC2) {
+    adc_flag |= 1 << FLAG_ADC_AIN;
+  }
+}
+
+int ANALOG_SETUP(void) {
+  /* ADC calibration is not supported in STM32F4 series */
+  // while(HAL_ADCEx_Calibration_Start(&hadc1) != HAL_OK);
+  // while(HAL_ADCEx_Calibration_Start(&hadc2) != HAL_OK);
+  // while(HAL_ADCEx_Calibration_Start(&hadc3) != HAL_OK);
+  return SYS_OK;
+}
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+DMA_HandleTypeDef hdma_adc1;
+DMA_HandleTypeDef hdma_adc2;
 
 /* ADC1 init function */
 void MX_ADC1_Init(void)
@@ -54,8 +82,8 @@ void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 2;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
@@ -112,8 +140,8 @@ void MX_ADC2_Init(void)
   hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc2.Init.NbrOfConversion = 4;
-  hadc2.Init.DMAContinuousRequests = DISABLE;
-  hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc2.Init.DMAContinuousRequests = ENABLE;
+  hadc2.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc2) != HAL_OK)
   {
     Error_Handler();
@@ -182,6 +210,25 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(Vsense_GPIO_Port, &GPIO_InitStruct);
 
+    /* ADC1 DMA Init */
+    /* ADC1 Init */
+    hdma_adc1.Instance = DMA2_Stream0;
+    hdma_adc1.Init.Channel = DMA_CHANNEL_0;
+    hdma_adc1.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_adc1.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_adc1.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_adc1.Init.Mode = DMA_CIRCULAR;
+    hdma_adc1.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_adc1.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(adcHandle,DMA_Handle,hdma_adc1);
+
     /* ADC1 interrupt Init */
     HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(ADC_IRQn);
@@ -209,6 +256,25 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+    /* ADC2 DMA Init */
+    /* ADC2 Init */
+    hdma_adc2.Instance = DMA2_Stream2;
+    hdma_adc2.Init.Channel = DMA_CHANNEL_1;
+    hdma_adc2.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_adc2.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_adc2.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_adc2.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_adc2.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_adc2.Init.Mode = DMA_CIRCULAR;
+    hdma_adc2.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_adc2.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_adc2) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(adcHandle,DMA_Handle,hdma_adc2);
+
     /* ADC2 interrupt Init */
     HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(ADC_IRQn);
@@ -233,6 +299,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     PC5     ------> ADC1_IN15
     */
     HAL_GPIO_DeInit(Vsense_GPIO_Port, Vsense_Pin);
+
+    /* ADC1 DMA DeInit */
+    HAL_DMA_DeInit(adcHandle->DMA_Handle);
 
     /* ADC1 interrupt Deinit */
   /* USER CODE BEGIN ADC1:ADC_IRQn disable */
@@ -262,6 +331,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     PC3     ------> ADC2_IN13
     */
     HAL_GPIO_DeInit(GPIOC, AIN0_Pin|AIN1_Pin|AIN2_Pin|AIN3_Pin);
+
+    /* ADC2 DMA DeInit */
+    HAL_DMA_DeInit(adcHandle->DMA_Handle);
 
     /* ADC2 interrupt Deinit */
   /* USER CODE BEGIN ADC2:ADC_IRQn disable */

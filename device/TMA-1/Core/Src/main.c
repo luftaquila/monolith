@@ -98,9 +98,10 @@ int32_t pulse_value[PULSE_CH_COUNT] = { 0, }; // microsecond
 int32_t pulse_buffer_0[PULSE_CH_COUNT] = { 0, };
 int32_t pulse_buffer_1[PULSE_CH_COUNT] = { 0, };
 
-// adc conversion flag and buffer
+// adc conversion buffers
 uint32_t adc_flag = 0;
-uint16_t adc_value[ADC_COUNT] = { 0, };
+uint32_t adc_sys_value[2] = { 0, };
+uint32_t adc_ain_value[ADC_COUNT] = { 0, };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -375,9 +376,26 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* check flags */
-#ifdef ENABLE_MONITOR_ANALOG
+    if (adc_flag & (1 << FLAG_ADC_SYS)) {
+      adc_flag &= ~(1 << FLAG_ADC_SYS);
 
+      *(uint16_t *)(syslog.value + 0) = (uint16_t)adc_sys_value[0];
+      *(uint16_t *)(syslog.value + 2) = (uint16_t)adc_sys_value[1];
+      SYS_LOG(LOG_INFO, ANALOG, ANALOG_SYS);
+    }
+
+#ifdef ENABLE_MONITOR_ANALOG
+    if (adc_flag & (1 << FLAG_ADC_AIN)) {
+      adc_flag &= ~(1 << FLAG_ADC_AIN);
+
+      *(uint16_t *)(syslog.value + 0) = (uint16_t)adc_ain_value[0];
+      *(uint16_t *)(syslog.value + 2) = (uint16_t)adc_ain_value[1];
+      *(uint16_t *)(syslog.value + 4) = (uint16_t)adc_ain_value[2];
+      *(uint16_t *)(syslog.value + 6) = (uint16_t)adc_ain_value[3];
+      SYS_LOG(LOG_INFO, ANALOG, ANALOG_DATA);
+    }
 #endif
+
 
     /* handle recorded LOGs */
     SD_WRITE();
@@ -477,14 +495,18 @@ void TIMER_100ms(void) {
 
 #ifdef ENABLE_MONITOR_ANALOG
   /* start analog input channels ADC conversion */
-  HAL_ADC_Start_IT(&hadc2);
+  if (!(adc_flag & (1 << FLAG_ADC_AIN))) {
+    HAL_ADC_Start_DMA(&hadc2, adc_ain_value, 4);
+  }
 #endif
 
 }
 
 void TIMER_1s(void) {
   /* internal temperature and input voltage monitor */
-  HAL_ADC_Start_IT(&hadc1);
+  if (!(adc_flag & (1 << FLAG_ADC_SYS))) {
+    HAL_ADC_Start_DMA(&hadc1, adc_sys_value, 2);
+  }
 
   /* SD card sync*/
   SD_SYNC();
