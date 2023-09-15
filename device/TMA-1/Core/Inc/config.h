@@ -11,7 +11,7 @@
 #define ENABLE_MONITOR_ANALOG
 #define ENABLE_MONITOR_PULSE
 #define ENABLE_MONITOR_ACCELEROMETER
-/* #define ENABLE_MONITOR_GPS */
+#define ENABLE_MONITOR_GPS
 
 // enabled log output source
 #define ENABLE_SERIAL

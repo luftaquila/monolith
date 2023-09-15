@@ -111,6 +111,8 @@ void SystemClock_Config(void);
 __attribute__((weak)) void _close(void){}
 __attribute__((weak)) void _lseek(void){}
 __attribute__((weak)) void _read(void){}
+
+void GPS_PARSE(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -419,6 +421,13 @@ int main(void)
     }
 #endif
 
+#ifdef ENABLE_MONITOR_GPS
+    if (gps_flag == true) {
+      gps_flag = false;
+      GPS_PARSE();
+    }
+#endif
+
     /* handle recorded LOGs */
     SD_WRITE();
 
@@ -429,7 +438,6 @@ int main(void)
 #ifdef ENABLE_LOG_TELEMETRY
     TELEMETRY_TRANSMIT_LOG();
 #endif
-
 
     /* check timer flags */
     if (timer_flag & (1 << FLAG_TIMER_100ms)) {
@@ -551,6 +559,54 @@ void TIMER_1s(void) {
     HAL_GPIO_WritePin(GPIOE, LED_HEARTBEAT_Pin, GPIO_PIN_RESET);
   }
   heartbeat = !heartbeat;
+}
+
+void GPS_PARSE(void) {
+  static NMEA_GPRMC gprmc;
+  static GPS_COORD gps_coord;
+  static GPS_VECTOR gps_vector;
+  static GPS_DATETIME gps_datetime;
+
+  if (!strncmp((char *)gps_data, "$GPRMC", 6)) {
+
+    // parse NMEA GPRMC sentence
+    gprmc.id = gps_data;
+    gprmc.utc_time = FIND_AND_NUL(gprmc.id, gprmc.utc_time, ',');
+    gprmc.status = FIND_AND_NUL(gprmc.utc_time, gprmc.status, ',');
+
+    // proceed only if GPS fix is valid
+    if (*gprmc.status == 'A') {
+      gprmc.lat = FIND_AND_NUL(gprmc.status, gprmc.lat, ',');
+      gprmc.north = FIND_AND_NUL(gprmc.lat, gprmc.north, ',');
+      gprmc.lon = FIND_AND_NUL(gprmc.north, gprmc.lon, ',');
+      gprmc.east = FIND_AND_NUL(gprmc.lon, gprmc.east, ',');
+      gprmc.speed = FIND_AND_NUL(gprmc.east, gprmc.speed, ',');
+      gprmc.course = FIND_AND_NUL(gprmc.speed, gprmc.course, ',');
+      gprmc.utc_date = FIND_AND_NUL(gprmc.course, gprmc.utc_date, ',');
+      gprmc.others = FIND_AND_NUL(gprmc.utc_date, gprmc.others, ',');
+
+      // process GPS coordinates
+      gps_coord.lat = to_uint(gprmc.lat, '.');
+      gps_coord.lon = to_uint(gprmc.lon, '.');
+
+      // process GPS speed and course
+      gps_vector.speed = (int)(atof((char *)gprmc.speed) * 100);
+      gps_vector.course = drop_point(gprmc.course);
+
+      // process GPS datetime
+      gps_datetime.utc_date = atoi((char *)gprmc.utc_date);
+      gps_datetime.utc_time = drop_point(gprmc.utc_time);
+
+      *(uint64_t *)syslog.value = *(uint64_t *)&gps_coord;
+      SYS_LOG(LOG_INFO, GPS, GPS_POS);
+
+      *(uint64_t *)syslog.value = *(uint64_t *)&gps_vector;
+      SYS_LOG(LOG_INFO, GPS, GPS_VEC);
+
+      *(uint64_t *)syslog.value = *(uint64_t *)&gps_datetime;
+      SYS_LOG(LOG_INFO, GPS, GPS_TIME);
+    }
+  }
 }
 /* USER CODE END 4 */
 

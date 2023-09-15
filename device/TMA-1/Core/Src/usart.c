@@ -25,13 +25,15 @@ extern uint32_t serial_flag;
 extern ring_buffer_t SERIAL_BUFFER;
 extern uint8_t SERIAL_BUFFER_ARR[1 << 14];
 
+extern uint32_t gps_flag;
+extern uint8_t gps_data[1 << 7];
+
 uint8_t payload[sizeof(LOG) + 2] = { 0x05, 0x12, };
 
-// log output tx interrupt callback
+// serial tx event
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
   if (huart ->Instance == USART6) {
     if (ring_buffer_is_empty(&SERIAL_BUFFER)) {
-      // finish transmission
       serial_flag &= ~(1 << SERIAL_BUFFER_REMAIN);
       serial_flag &= ~(1 << SERIAL_BUFFER_TRANSMIT);
     }
@@ -58,7 +60,6 @@ void SERIAL_TRANSMIT_LOG(void) {
     HAL_UART_Transmit_IT(UART_SERIAL, payload, sizeof(LOG) + 2);
   }
 }
-
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -406,5 +407,67 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+  if (huart->Instance == USART3) {
+    gps_flag = true; // mark GPS updated
 
+    // re-enable DMA to receive UART data until line idle
+    HAL_UARTEx_ReceiveToIdle_DMA(UART_GPS, gps_data, 1 << 7);
+
+    // disable Half Transfer interrupt
+    __HAL_DMA_DISABLE_IT(&hdma_usart3_rx, DMA_IT_HT);
+  }
+}
+
+int GPS_SETUP(void) {
+  // set module power full
+  const uint8_t GPS_PMS_FULL[] = { 0xB5, 0x62, 0x06, 0x86, 0x00, 0x00, 0x8C, 0xAA };
+
+  HAL_UART_Transmit(UART_GPS, GPS_PMS_FULL, sizeof(GPS_PMS_FULL), 100);
+  HAL_Delay(50);
+
+  // disable unnecessary NMEA messages
+  const uint8_t GPS_DISABLE_NMEA_GxGGA[] = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x24 };
+  const uint8_t GPS_DISABLE_NMEA_GxGLL[] = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x2B };
+  const uint8_t GPS_DISABLE_NMEA_GxGSA[] = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x32 };
+  const uint8_t GPS_DISABLE_NMEA_GxGSV[] = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x39 };
+  const uint8_t GPS_DISABLE_NMEA_GxVTG[] = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x05, 0x47 };
+
+  HAL_UART_Transmit(UART_GPS, GPS_DISABLE_NMEA_GxGGA, sizeof(GPS_DISABLE_NMEA_GxGGA), 100);
+  HAL_Delay(50);
+  HAL_UART_Transmit(UART_GPS, GPS_DISABLE_NMEA_GxGLL, sizeof(GPS_DISABLE_NMEA_GxGLL), 100);
+  HAL_Delay(50);
+  HAL_UART_Transmit(UART_GPS, GPS_DISABLE_NMEA_GxGSA, sizeof(GPS_DISABLE_NMEA_GxGSA), 100);
+  HAL_Delay(50);
+  HAL_UART_Transmit(UART_GPS, GPS_DISABLE_NMEA_GxGSV, sizeof(GPS_DISABLE_NMEA_GxGSV), 100);
+  HAL_Delay(50);
+  HAL_UART_Transmit(UART_GPS, GPS_DISABLE_NMEA_GxVTG, sizeof(GPS_DISABLE_NMEA_GxVTG), 100);
+  HAL_Delay(50);
+
+  // disable GPTXT messages
+  const uint8_t GPS_DISABLE_NMEA_INFO[] = { 0xB5, 0x62, 0x06, 0x02, 0x0A, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x87, 0x9A, 0x77 };
+
+  HAL_UART_Transmit(UART_GPS, GPS_DISABLE_NMEA_INFO, sizeof(GPS_DISABLE_NMEA_INFO), 100);
+  HAL_Delay(50);
+
+  // set target module baud rate to 115200bps
+  // reference: u-blox 7 Receiver Description Including Protocol Specification V14, 35.13 CFG-PRT
+  const uint8_t GPS_BAUD_115200[] = { 0xB5, 0x62, 0x06, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0xD0, 0x08, 0x00, 0x00, 0x00, 0xC2, 0x01, 0x00, 0x07, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x7E };
+
+  HAL_UART_Transmit(UART_GPS, GPS_BAUD_115200, sizeof(GPS_BAUD_115200), 100);
+
+  // wait enough time rather than check ACK message
+  HAL_Delay(50);
+
+  // match our baud rate to 115200bps
+  USART2->BRR = HAL_RCC_GetPCLK1Freq() / 115200;
+
+  // receive UART data until line idle
+  HAL_UARTEx_ReceiveToIdle_DMA(UART_GPS, gps_data, 1 << 7);
+
+  // disable Half Transfer interrupt
+  __HAL_DMA_DISABLE_IT(&hdma_usart3_rx, DMA_IT_HT);
+
+  return SYS_OK;
+}
 /* USER CODE END 1 */

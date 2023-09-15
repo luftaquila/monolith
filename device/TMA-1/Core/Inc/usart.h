@@ -54,6 +54,8 @@ void MX_USART6_UART_Init(void);
 /* USER CODE BEGIN Prototypes */
 int SERIAL_SETUP(void);
 void SERIAL_TRANSMIT_LOG(void);
+
+int GPS_SETUP(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
