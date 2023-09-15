@@ -30,13 +30,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     count++;
     timer_flag |= 1 << FLAG_TIMER_100ms;
 
-    if (count == 5) {
-      timer_flag |= 1 << FLAG_TIMER_500ms;
-    }
-
     if (count == 10) {
       count = 0;
-      timer_flag |= 1 << FLAG_TIMER_500ms;
       timer_flag |= 1 << FLAG_TIMER_1s;
     }
   }

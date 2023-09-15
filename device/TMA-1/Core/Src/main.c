@@ -397,11 +397,6 @@ int main(void)
       TIMER_100ms();
     }
 
-    if (timer_flag & (1 << FLAG_TIMER_500ms)) {
-      timer_flag &= ~(1 << FLAG_TIMER_500ms);
-      TIMER_500ms();
-    }
-
     if (timer_flag & (1 << FLAG_TIMER_1s)) {
       timer_flag &= ~(1 << FLAG_TIMER_1s);
       TIMER_1s();
@@ -484,10 +479,6 @@ void TIMER_100ms(void) {
   /* start analog input channels ADC conversion */
   HAL_ADC_Start_IT(&hadc2);
 #endif
-
-}
-
-void TIMER_500ms(void) {
 
 }
 

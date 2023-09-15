@@ -87,7 +87,6 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 void TIMER_100ms(void);
-void TIMER_500ms(void);
 void TIMER_1s(void);
 /* USER CODE END EFP */
 

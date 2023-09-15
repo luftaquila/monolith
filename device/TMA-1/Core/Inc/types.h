@@ -32,7 +32,6 @@ typedef struct {
 /* timer index */
 typedef enum {
   FLAG_TIMER_100ms = 0,
-  FLAG_TIMER_500ms,
   FLAG_TIMER_1s,
 } TIMER_FLAG;
 
