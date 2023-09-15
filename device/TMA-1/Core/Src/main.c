@@ -86,7 +86,8 @@ CAN_RxHeaderTypeDef can_rx_header;
 uint8_t can_rx_data[8];
 
 // accelerometer receive buffer
-uint8_t acc_value[6];
+uint32_t accelerometer_flag = false;
+uint8_t accelerometer_value[6];
 
 // GPS receive flag and buffer
 uint32_t gps_flag = 0;
@@ -409,6 +410,15 @@ int main(void)
     }
 #endif
 
+#ifdef ENABLE_MONITOR_ACCELEROMETER
+    if (accelerometer_flag == true) {
+      accelerometer_flag = false;
+
+      *(uint64_t *)syslog.value = *(uint64_t *)accelerometer_value;
+      SYS_LOG(LOG_INFO, ACCELEROMETER, ACCELEROMETER_DATA);
+    }
+#endif
+
     /* handle recorded LOGs */
     SD_WRITE();
 
@@ -514,6 +524,13 @@ void TIMER_100ms(void) {
 
 #ifdef ENABLE_MONITOR_PULSE
   PULSE_CAPTURE();
+#endif
+
+#ifdef ENABLE_MONITOR_ACCELEROMETER
+  /* this takes 30ms EVERY TIME if the module is NOT CONNECTED */
+  if (accelerometer_flag == false) {
+    HAL_I2C_Mem_Read_IT(I2C_ACCELEROMETER, ACC_I2C_ADDR, 0x32, 1, accelerometer_value, 6);
+  }
 #endif
 }
 

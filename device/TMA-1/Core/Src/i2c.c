@@ -30,7 +30,8 @@ extern ring_buffer_t TELEMETRY_BUFFER;
 extern uint8_t TELEMETRY_BUFFER_ARR[1 << 15];
 
 // accelerometer data
-extern uint8_t acc_value[6];
+extern uint32_t accelerometer_flag;
+extern uint8_t accelerometer_value[6];
 
 // ESP32 TELEMETRY tx interrupt callback
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c) {
@@ -50,12 +51,10 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c) {
   return;
 }
 
-// ADXL345 ACCELEROMETER mem read interrupt callback
-void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
-  *(uint64_t *)syslog.value = *(uint64_t *)acc_value;
-  SYS_LOG(LOG_INFO, ACCELEROMETER, ACCELEROMETER_DATA);
 
-  return;
+/* ADXL345 accelerometer memory read */
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
+  accelerometer_flag = true;
 }
 
 
@@ -69,7 +68,7 @@ int TELEMETRY_SETUP(void) {
   // ESP handshake process
   HAL_Delay(1000);
   int ret = HAL_I2C_Master_Transmit(I2C_TELEMETRY, ESP_I2C_ADDR, (uint8_t *)"READY", 5, 500);
-  
+
   if (ret != 0) {
     DEBUG_MSG("[%8lu] [ERR] ESP handshake timeout\r\n", HAL_GetTick());
     goto esp_fail;
@@ -154,6 +153,25 @@ void TELEMETRY_TRANSMIT_LOG(void) {
     ring_buffer_dequeue_arr(&TELEMETRY_BUFFER, (char *)payload, sizeof(LOG));
     HAL_I2C_Master_Transmit_IT(I2C_TELEMETRY, ESP_I2C_ADDR, payload, sizeof(LOG));
   }
+}
+
+
+/****************************************
+ * ADXL345 accelerometer I2C interface
+ ***************************************/
+int ACCELEROMETER_WRITE(uint8_t reg, uint8_t value) {
+  uint8_t payload[2] = { reg, value };
+  return HAL_I2C_Master_Transmit(&hi2c3, ACC_I2C_ADDR, payload, 2, 50);
+}
+
+int ACCELEROMETER_SETUP(void) {
+  int ret = 0;
+
+  ret |= ACCELEROMETER_WRITE(0x31, 0x01);  // DATA_FORMAT range +-4g
+  ret |= ACCELEROMETER_WRITE(0x2D, 0x00);  // POWER_CTL bit reset
+  ret |= ACCELEROMETER_WRITE(0x2D, 0x08);  // POWER_CTL set measure mode. 100hz default rate
+
+  return ret;
 }
 /* USER CODE END 0 */
 

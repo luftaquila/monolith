@@ -54,7 +54,6 @@ int TELEMETRY_SETUP(void);
 void TELEMETRY_TRANSMIT_LOG(void);
 
 int ACCELEROMETER_SETUP(void);
-void ACCELEROMETER_WRITE(uint8_t reg, uint8_t value);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
