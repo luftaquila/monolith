@@ -51,9 +51,8 @@ void MX_SDIO_SD_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 int SD_SETUP(DATETIME *boot);
-int SD_WRITE(ring_buffer_size_t length);
+int SD_WRITE(void);
 int SD_SYNC(void);
-void SD_WRITE_LOG(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

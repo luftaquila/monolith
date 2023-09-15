@@ -43,6 +43,7 @@ int SD_SETUP(DATETIME *boot) {
     HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_RESET);
 
     DEBUG_MSG("[%8lu] [ERR] SD mount failed: %d\r\n", HAL_GetTick(), ret);
+    SYS_LOG(LOG_ERROR, SYS, SYS_SD_FAIL);
 
     return ret;
   }
@@ -57,6 +58,7 @@ int SD_SETUP(DATETIME *boot) {
     HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_RESET);
 
     DEBUG_MSG("[%8lu] [ERR] SD open failed: %d\r\n", HAL_GetTick(), ret);
+    SYS_LOG(LOG_ERROR, SYS, SYS_SD_FAIL);
 
     return ret;
   }
@@ -67,7 +69,15 @@ int SD_SETUP(DATETIME *boot) {
   return SYS_OK;
 }
 
-int SD_WRITE(ring_buffer_size_t length) {
+int SD_WRITE(void) {
+  if (sys_state.SD == false) {
+    return -1;
+  }
+
+  if (ring_buffer_is_empty(&SD_BUFFER)) {
+    return -1;
+  }
+
   int ret = 0;
   static int32_t written_count;
 
@@ -81,12 +91,17 @@ int SD_WRITE(ring_buffer_size_t length) {
     HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_RESET);
 
     DEBUG_MSG("[%8lu] [ERR] SD write failed: %d\r\n", HAL_GetTick(), ret);
+    SYS_LOG(LOG_ERROR, SYS, SYS_SD_FAIL);
   }
 
   return ret;
 }
 
 int SD_SYNC(void) {
+  if (sys_state.SD == false) {
+    return -1;
+  }
+
   int ret = f_sync(&logfile);
 
   if (ret != FR_OK) {
@@ -94,15 +109,10 @@ int SD_SYNC(void) {
     HAL_GPIO_WritePin(GPIOE, LED_SD_Pin, GPIO_PIN_RESET);
 
     DEBUG_MSG("[%8lu] [ERR] SD sync failed: %d\r\n", HAL_GetTick(), ret);
+    SYS_LOG(LOG_ERROR, SYS, SYS_SD_FAIL);
   }
 
   return ret;
-}
-
-void SD_WRITE_LOG(void) {
-  if (!ring_buffer_is_empty(&SD_BUFFER)) {
-    SD_WRITE(ring_buffer_num_items(&SD_BUFFER));
-  }
 }
 /* USER CODE END 0 */
 

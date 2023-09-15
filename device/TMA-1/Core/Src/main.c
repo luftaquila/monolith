@@ -263,7 +263,7 @@ int main(void)
     sys_state.CAN = true;
     HAL_GPIO_WritePin(GPIOE, LED_CAN_Pin, GPIO_PIN_SET);
 
-    SYS_LOG(LOG_INFO, CAN, CAN_INIT);
+    SYS_LOG(LOG_INFO, SYS, CAN_INIT);
 
     DEBUG_MSG("[%8lu] [ OK] CAN transceiver setup\r\n", HAL_GetTick());
   } else {
@@ -271,7 +271,7 @@ int main(void)
     HAL_GPIO_WritePin(GPIOE, LED_CAN_Pin, GPIO_PIN_RESET);
 
     syslog.value[0] = (uint8_t)ret;
-    SYS_LOG(LOG_ERROR, CAN, CAN_INIT);
+    SYS_LOG(LOG_ERROR, SYS, CAN_INIT);
 
     DEBUG_MSG("[%8lu] [ERR] CAN transceiver setup failed: %d\r\n", HAL_GetTick(), ret);
   }
@@ -283,12 +283,12 @@ int main(void)
   ret = DIGITAL_SETUP();
 
   if (ret == SYS_OK) {
-    SYS_LOG(LOG_INFO, DIGITAL, DIGITAL_INIT);
+    SYS_LOG(LOG_INFO, SYS, DIGITAL_INIT);
 
     DEBUG_MSG("[%8lu] [ OK] digital input setup\r\n", HAL_GetTick());
   } else {
     syslog.value[0] = (uint8_t)ret;
-    SYS_LOG(LOG_ERROR, DIGITAL, DIGITAL_INIT);
+    SYS_LOG(LOG_ERROR, SYS, DIGITAL_INIT);
 
     DEBUG_MSG("[%8lu] [ERR] digital input setup failed: %d\r\n", HAL_GetTick(), ret);
   }
@@ -300,12 +300,12 @@ int main(void)
   ret = ANALOG_SETUP();
 
   if (ret == SYS_OK) {
-    SYS_LOG(LOG_INFO, ANALOG, ANALOG_INIT);
+    SYS_LOG(LOG_INFO, SYS, ANALOG_INIT);
 
     DEBUG_MSG("[%8lu] [ OK] analog input setup\r\n", HAL_GetTick());
   } else {
     syslog.value[0] = (uint8_t)ret;
-    SYS_LOG(LOG_ERROR, ANALOG, ANALOG_INIT);
+    SYS_LOG(LOG_ERROR, SYS, ANALOG_INIT);
 
     DEBUG_MSG("[%8lu] [ERR] analog input setup failed: %d\r\n", HAL_GetTick(), ret);
   }
@@ -317,12 +317,12 @@ int main(void)
   ret = PULSE_SETUP();
 
   if (ret == SYS_OK) {
-    SYS_LOG(LOG_INFO, PULSE, PULSE_INIT);
+    SYS_LOG(LOG_INFO, SYS, PULSE_INIT);
 
     DEBUG_MSG("[%8lu] [ OK] pulse input setup\r\n", HAL_GetTick());
   } else {
     syslog.value[0] = (uint8_t)ret;
-    SYS_LOG(LOG_ERROR, PULSE, PULSE_INIT);
+    SYS_LOG(LOG_ERROR, SYS, PULSE_INIT);
 
     DEBUG_MSG("[%8lu] [ERR] pulse input setup failed: %d\r\n", HAL_GetTick(), ret);
   }
@@ -334,12 +334,12 @@ int main(void)
   ret = ACCELEROMETER_SETUP();
 
   if (ret == SYS_OK) {
-    SYS_LOG(LOG_INFO, ACCELEROMETER, ACCELEROMETER_INIT);
+    SYS_LOG(LOG_INFO, SYS, ACCELEROMETER_INIT);
 
     DEBUG_MSG("[%8lu] [ OK] accelerometer setup\r\n", HAL_GetTick());
   } else {
     syslog.value[0] = (uint8_t)ret;
-    SYS_LOG(LOG_ERROR, ACCELEROMETER, ACCELEROMETER_INIT);
+    SYS_LOG(LOG_ERROR, SYS, ACCELEROMETER_INIT);
 
     DEBUG_MSG("[%8lu] [ERR] accelerometer setup failed: %d\r\n", HAL_GetTick(), ret);
   }
@@ -351,12 +351,12 @@ int main(void)
   ret = GPS_SETUP();
 
   if (ret == SYS_OK) {
-    SYS_LOG(LOG_INFO, GPS, GPS_INIT);
+    SYS_LOG(LOG_INFO, SYS, GPS_INIT);
 
     DEBUG_MSG("[%8lu] [ OK] GPS setup\r\n", HAL_GetTick());
   } else {
     syslog.value[0] = (uint8_t)ret;
-    SYS_LOG(LOG_ERROR, GPS, GPS_INIT);
+    SYS_LOG(LOG_ERROR, SYS, GPS_INIT);
 
     DEBUG_MSG("[%8lu] [ERR] GPS setup failed: %d\r\n", HAL_GetTick(), ret);
   }
@@ -375,10 +375,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* check flags */
+#ifdef ENABLE_MONITOR_ANALOG
 
+#endif
 
     /* handle recorded LOGs */
-    SD_WRITE_LOG();
+    SD_WRITE();
 
 #ifdef ENABLE_SERIAL
     SERIAL_TRANSMIT_LOG();
@@ -465,6 +467,7 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 void TIMER_100ms(void) {
+#ifdef ENABLE_MONITOR_DIGITAL
   /* record digital input channels */
   syslog.value[0] = HAL_GPIO_ReadPin(GPIOD, DIN0_Pin);
   syslog.value[1] = HAL_GPIO_ReadPin(GPIOD, DIN1_Pin);
@@ -475,6 +478,12 @@ void TIMER_100ms(void) {
   syslog.value[6] = HAL_GPIO_ReadPin(GPIOD, DIN6_Pin);
   syslog.value[7] = HAL_GPIO_ReadPin(GPIOD, DIN7_Pin);
   SYS_LOG(LOG_INFO, DIGITAL, DIGITAL_DATA);
+#endif
+
+#ifdef ENABLE_MONITOR_ANALOG
+  /* start analog input channels ADC conversion */
+  HAL_ADC_Start_IT(&hadc2);
+#endif
 
 }
 
@@ -483,7 +492,20 @@ void TIMER_500ms(void) {
 }
 
 void TIMER_1s(void) {
+  /* internal temperature and input voltage monitor */
+  HAL_ADC_Start_IT(&hadc1);
 
+  /* SD card sync*/
+  SD_SYNC();
+
+  /* heartbeat LED */
+  static bool heartbeat = true;
+  if (heartbeat) {
+    HAL_GPIO_WritePin(GPIOE, LED_HEARTBEAT_Pin, GPIO_PIN_SET);
+  } else {
+    HAL_GPIO_WritePin(GPIOE, LED_HEARTBEAT_Pin, GPIO_PIN_RESET);
+  }
+  heartbeat = !heartbeat;
 }
 /* USER CODE END 4 */
 

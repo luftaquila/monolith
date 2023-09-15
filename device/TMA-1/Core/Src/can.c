@@ -38,7 +38,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     DEBUG_MSG("[%8lu] [ERR] CAN RX failed: %d\r\n", HAL_GetTick(), ret);
 
     syslog.value[0] = (uint8_t)ret;
-    SYS_LOG(LOG_ERROR, CAN, CAN_ERR_RXMSGFAIL);
+    SYS_LOG(LOG_ERROR, SYS, CAN_ERR_RXMSGFAIL);
   }
 
   if (sys_state.CAN != true) {
@@ -58,7 +58,7 @@ void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan) {
   DEBUG_MSG("[%8lu] [ERR] CAN ERROR occured\r\n", HAL_GetTick());
 
   *(uint32_t *)syslog.value = HAL_CAN_GetError(hcan);
-  SYS_LOG(LOG_ERROR, CAN, CAN_ERR);
+  SYS_LOG(LOG_ERROR, SYS, CAN_ERR_CANERR);
 
   HAL_CAN_ResetError(hcan);
 }
@@ -71,7 +71,7 @@ void HAL_CAN_RxFifo0FullCallback(CAN_HandleTypeDef *hcan) {
   DEBUG_MSG("[%8lu] [ERR] CAN RX FIFO full\r\n", HAL_GetTick());
 
   *(uint32_t *)syslog.value = HAL_CAN_GetState(hcan);
-  SYS_LOG(LOG_ERROR, CAN, CAN_ERR_FIFOFULL);
+  SYS_LOG(LOG_ERROR, SYS, CAN_ERR_FIFOFULL);
 
   HAL_CAN_ResetError(hcan);
 }
