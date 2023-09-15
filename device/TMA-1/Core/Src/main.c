@@ -379,12 +379,15 @@ int main(void)
 
     /* handle recorded LOGs */
     SD_WRITE_LOG();
+
 #ifdef ENABLE_SERIAL
     SERIAL_TRANSMIT_LOG();
 #endif
+
 #ifdef ENABLE_LOG_TELEMETRY
     TELEMETRY_TRANSMIT_LOG();
 #endif
+
 
     /* check timer flags */
     if (timer_flag & (1 << FLAG_TIMER_100ms)) {
@@ -461,8 +464,17 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-// timer jobs
 void TIMER_100ms(void) {
+  /* record digital input channels */
+  syslog.value[0] = HAL_GPIO_ReadPin(GPIOD, DIN0_Pin);
+  syslog.value[1] = HAL_GPIO_ReadPin(GPIOD, DIN1_Pin);
+  syslog.value[2] = HAL_GPIO_ReadPin(GPIOD, DIN2_Pin);
+  syslog.value[3] = HAL_GPIO_ReadPin(GPIOD, DIN3_Pin);
+  syslog.value[4] = HAL_GPIO_ReadPin(GPIOD, DIN4_Pin);
+  syslog.value[5] = HAL_GPIO_ReadPin(GPIOD, DIN5_Pin);
+  syslog.value[6] = HAL_GPIO_ReadPin(GPIOD, DIN6_Pin);
+  syslog.value[7] = HAL_GPIO_ReadPin(GPIOD, DIN7_Pin);
+  SYS_LOG(LOG_INFO, DIGITAL, DIGITAL_DATA);
 
 }
 
