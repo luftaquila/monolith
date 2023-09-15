@@ -23,6 +23,13 @@
 /* USER CODE BEGIN 0 */
 extern uint32_t timer_flag;
 
+extern uint32_t pulse_flag;
+extern uint32_t pulse_value[PULSE_CH_COUNT];
+extern uint32_t pulse_buffer_0[PULSE_CH_COUNT];
+extern uint32_t pulse_buffer_1[PULSE_CH_COUNT];
+
+static void CALC_PERIOD(int channel, uint32_t arr);
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
   static uint32_t count = 0;
 
@@ -34,6 +41,99 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
       count = 0;
       timer_flag |= 1 << FLAG_TIMER_1s;
     }
+  }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
+  uint32_t arr = htim->Instance->ARR;
+
+  if (htim->Instance != TIM5) {
+    return;
+  }
+
+  if ((pulse_flag & (1 << PULSE_ARMED)) == 0) {
+    return;
+  }
+
+  switch (htim->Channel) {
+    case HAL_TIM_ACTIVE_CHANNEL_1:
+      if ((pulse_flag & (1 << PULSE_CH0_HALF)) == 0) {
+        pulse_flag |= 1 << PULSE_CH0_HALF;
+        HAL_TIM_IC_Start_DMA(&htim5, TIM_CHANNEL_1, (uint32_t *)&pulse_buffer_1[PULSE_CH0], 1);
+      } else {
+        CALC_PERIOD(PULSE_CH0, arr);
+        pulse_flag &= ~(1 << PULSE_CH0_HALF);
+        pulse_flag |= 1 << PULSE_CH0;
+      }
+      break;
+
+    case HAL_TIM_ACTIVE_CHANNEL_2:
+      if ((pulse_flag & (1 << PULSE_CH1_HALF)) == 0) {
+        pulse_flag |= 1 << PULSE_CH1_HALF;
+        HAL_TIM_IC_Start_DMA(&htim5, TIM_CHANNEL_1, (uint32_t *)&pulse_buffer_1[PULSE_CH1], 1);
+      } else {
+        CALC_PERIOD(PULSE_CH1, arr);
+        pulse_flag &= ~(1 << PULSE_CH1_HALF);
+        pulse_flag |= 1 << PULSE_CH1;
+      }
+      break;
+
+    case HAL_TIM_ACTIVE_CHANNEL_3:
+      if ((pulse_flag & (1 << PULSE_CH2_HALF)) == 0) {
+        pulse_flag |= 1 << PULSE_CH2_HALF;
+        HAL_TIM_IC_Start_DMA(&htim5, TIM_CHANNEL_1, (uint32_t *)&pulse_buffer_1[PULSE_CH2], 1);
+      } else {
+        CALC_PERIOD(PULSE_CH2, arr);
+        pulse_flag &= ~(1 << PULSE_CH2_HALF);
+        pulse_flag |= 1 << PULSE_CH2;
+      }
+      break;
+
+    case HAL_TIM_ACTIVE_CHANNEL_4:
+      if ((pulse_flag & (1 << PULSE_CH3_HALF)) == 0) {
+        pulse_flag |= 1 << PULSE_CH3_HALF;
+        HAL_TIM_IC_Start_DMA(&htim5, TIM_CHANNEL_1, (uint32_t *)&pulse_buffer_1[PULSE_CH3], 1);
+      } else {
+        CALC_PERIOD(PULSE_CH3, arr);
+        pulse_flag &= ~(1 << PULSE_CH3_HALF);
+        pulse_flag |= 1 << PULSE_CH3;
+      }
+      break;
+
+    default:
+      break;
+  }
+
+  if (pulse_flag == PULSE_READY) {
+    pulse_flag |= (1 << PULSE_SET);
+  }
+}
+
+int PULSE_SETUP(void) {
+  // nothing to do
+  return SYS_OK;
+}
+
+int PULSE_CAPTURE(void) {
+  if ((pulse_flag & (1 << PULSE_ARMED)) == 0) {
+    HAL_TIM_IC_Start_DMA(&htim5, TIM_CHANNEL_1, (uint32_t *)&pulse_buffer_0[PULSE_CH0], 1);
+    HAL_TIM_IC_Start_DMA(&htim5, TIM_CHANNEL_2, (uint32_t *)&pulse_buffer_0[PULSE_CH1], 1);
+    HAL_TIM_IC_Start_DMA(&htim5, TIM_CHANNEL_3, (uint32_t *)&pulse_buffer_0[PULSE_CH2], 1);
+    HAL_TIM_IC_Start_DMA(&htim5, TIM_CHANNEL_4, (uint32_t *)&pulse_buffer_0[PULSE_CH3], 1);
+
+    pulse_flag |= 1 << PULSE_ARMED;
+    return SYS_OK;
+  }
+
+  return -1;
+}
+
+static inline void CALC_PERIOD(int channel, uint32_t arr) {
+  pulse_value[channel] = pulse_buffer_1[channel] - pulse_buffer_0[channel];
+
+  // reload calculation
+  if (pulse_value[channel] < 0) {
+    pulse_value[channel] += arr + 1;
   }
 }
 /* USER CODE END 0 */
@@ -186,7 +286,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     PA2     ------> TIM5_CH3
     PA3     ------> TIM5_CH4
     */
-    GPIO_InitStruct.Pin = IC0_Pin|IC1_Pin|IC2_Pin|IC3_Pin;
+    GPIO_InitStruct.Pin = PIN0_Pin|PIN1_Pin|PIN2_Pin|PIN3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -312,7 +412,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
     PA2     ------> TIM5_CH3
     PA3     ------> TIM5_CH4
     */
-    HAL_GPIO_DeInit(GPIOA, IC0_Pin|IC1_Pin|IC2_Pin|IC3_Pin);
+    HAL_GPIO_DeInit(GPIOA, PIN0_Pin|PIN1_Pin|PIN2_Pin|PIN3_Pin);
 
     /* TIM5 DMA DeInit */
     HAL_DMA_DeInit(tim_baseHandle->hdma[TIM_DMA_ID_CC1]);

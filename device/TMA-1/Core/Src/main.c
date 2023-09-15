@@ -94,9 +94,9 @@ uint8_t gps_data[1 << 7]; // 128B
 
 // timer pulse input capture flag and data
 uint32_t pulse_flag = 0;
-int32_t pulse_value[PULSE_CH_COUNT] = { 0, }; // microsecond
-int32_t pulse_buffer_0[PULSE_CH_COUNT] = { 0, };
-int32_t pulse_buffer_1[PULSE_CH_COUNT] = { 0, };
+uint32_t pulse_value[PULSE_CH_COUNT] = { 0, }; // microsecond
+uint32_t pulse_buffer_0[PULSE_CH_COUNT] = { 0, };
+uint32_t pulse_buffer_1[PULSE_CH_COUNT] = { 0, };
 
 // adc conversion buffers
 uint32_t adc_flag = 0;
@@ -396,6 +396,18 @@ int main(void)
     }
 #endif
 
+#ifdef ENABLE_MONITOR_PULSE
+    if (pulse_flag & (1 << PULSE_SET)) {
+      // x10 us
+      *(uint16_t *)(syslog.value + 0) = (uint16_t)(pulse_value[PULSE_CH0] / 10);
+      *(uint16_t *)(syslog.value + 2) = (uint16_t)(pulse_value[PULSE_CH1] / 10);
+      *(uint16_t *)(syslog.value + 4) = (uint16_t)(pulse_value[PULSE_CH2] / 10);
+      *(uint16_t *)(syslog.value + 6) = (uint16_t)(pulse_value[PULSE_CH3] / 10);
+      SYS_LOG(LOG_INFO, PULSE, PULSE_DATA);
+
+      pulse_flag = 0;
+    }
+#endif
 
     /* handle recorded LOGs */
     SD_WRITE();
@@ -500,6 +512,9 @@ void TIMER_100ms(void) {
   }
 #endif
 
+#ifdef ENABLE_MONITOR_PULSE
+  PULSE_CAPTURE();
+#endif
 }
 
 void TIMER_1s(void) {

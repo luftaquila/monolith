@@ -41,6 +41,22 @@ typedef enum {
   FLAG_ADC_AIN,
 } ADC_FLAG;
 
+/* pulse input capture channel index */
+typedef enum {
+  PULSE_CH0 = 0,
+  PULSE_CH1,
+  PULSE_CH2,
+  PULSE_CH3,
+  PULSE_CH0_HALF,
+  PULSE_CH1_HALF,
+  PULSE_CH2_HALF,
+  PULSE_CH3_HALF,
+  PULSE_ARMED,
+  PULSE_SET,
+} PULSE_FLAG;
+
+#define PULSE_READY ((1 << PULSE_ARMED) | (1 << PULSE_CH0) | (1 << PULSE_CH1) | (1 << PULSE_CH2) | (1 << PULSE_CH3))
+
 /* telemetry buffer flag */
 typedef enum {
   TELEMETRY_BUFFER_REMAIN = 0,

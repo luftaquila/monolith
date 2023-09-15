@@ -44,7 +44,8 @@ void MX_TIM1_Init(void);
 void MX_TIM5_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+int PULSE_SETUP(void);
+int PULSE_CAPTURE(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
