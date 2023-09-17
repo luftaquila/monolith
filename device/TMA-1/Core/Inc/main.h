@@ -165,6 +165,9 @@ void TIMER_1s(void);
 #define I2C_ESP_SCL_GPIO_Port GPIOB
 #define I2C_ESP_SDA_Pin GPIO_PIN_7
 #define I2C_ESP_SDA_GPIO_Port GPIOB
+#define ESP_COMM_Pin GPIO_PIN_8
+#define ESP_COMM_GPIO_Port GPIOB
+#define ESP_COMM_EXTI_IRQn EXTI9_5_IRQn
 
 /* USER CODE BEGIN Private defines */
 
