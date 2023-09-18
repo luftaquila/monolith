@@ -29,6 +29,19 @@ typedef struct {
   uint8_t second;
 } DATETIME;
 
+/* RTC fix source */
+typedef enum {
+  RTC_UART = 0,
+  RTC_ESP,
+} RTC_FIX_SOURCE;
+
+/* ESP handshake flags */
+typedef enum {
+  HANDSHAKE_FINISHED = 0,
+  REMOTE_CONNECTED,
+  RTC_FIXED
+} ESP_HANDSHAKE_FLAG;
+
 /* timer flags */
 typedef enum {
   FLAG_TIMER_100ms = 0,

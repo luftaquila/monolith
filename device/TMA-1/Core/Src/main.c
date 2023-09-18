@@ -65,44 +65,60 @@ SYSTEM_STATE sys_state;
 // timer alarm flag
 uint32_t timer_flag = 0;
 
+// rtc buffer
+uint8_t rtc[19]; // YYYY-MM-DD-HH-MM-SS
+
 // SD card write buffer
 ring_buffer_t SD_BUFFER;
 uint8_t SD_BUFFER_ARR[1 << 12]; // 4KB
 
-// telemetry transmission flag and buffer
-uint32_t telemetry_flag = 0;
-ring_buffer_t TELEMETRY_BUFFER;
-uint8_t TELEMETRY_BUFFER_ARR[1 << 14]; // 16KB
-
-// UART log output buffer
+// serial log output buffer
 #ifdef ENABLE_SERIAL
 uint32_t serial_flag = 0;
 ring_buffer_t SERIAL_BUFFER;
 uint8_t SERIAL_BUFFER_ARR[1 << 14]; // 16KB
 #endif
 
+// telemetry transmission flag and buffer
+#ifdef ENABLE_TELEMETRY
+uint32_t telemetry_flag = 0;
+uint32_t handshake_flag = 0;
+ring_buffer_t TELEMETRY_BUFFER;
+uint8_t TELEMETRY_BUFFER_ARR[1 << 14]; // 16KB
+#endif
+
 // CAN RX header and buffer
+#ifdef ENABLE_MONITOR_CAN
 CAN_RxHeaderTypeDef can_rx_header;
 uint8_t can_rx_data[8];
+#endif
 
-// accelerometer receive buffer
-uint32_t accelerometer_flag = false;
-uint8_t accelerometer_value[6];
-
-// GPS receive flag and buffer
-uint32_t gps_flag = 0;
-uint8_t gps_data[1 << 7]; // 128B
+// adc conversion buffers
+#ifdef ENABLE_MONITOR_ANALOG
+uint32_t adc_flag = 0;
+uint32_t adc_sys_value[2] = { 0, };
+uint32_t adc_ain_value[ADC_COUNT] = { 0, };
+#endif
 
 // timer pulse input capture flag and data
+#ifdef ENABLE_MONITOR_PULSE
 uint32_t pulse_flag = 0;
 uint32_t pulse_value[PULSE_CH_COUNT] = { 0, }; // microsecond
 uint32_t pulse_buffer_0[PULSE_CH_COUNT] = { 0, };
 uint32_t pulse_buffer_1[PULSE_CH_COUNT] = { 0, };
+#endif
 
-// adc conversion buffers
-uint32_t adc_flag = 0;
-uint32_t adc_sys_value[2] = { 0, };
-uint32_t adc_ain_value[ADC_COUNT] = { 0, };
+// accelerometer receive buffer
+#ifdef ENABLE_MONITOR_ACCELEROMETER
+uint32_t accelerometer_flag = false;
+uint8_t accelerometer_value[6];
+#endif
+
+// GPS receive flag and buffer
+#ifdef ENABLE_MONITOR_GPS
+uint32_t gps_flag = false;
+uint8_t gps_data[1 << 7]; // 128B
+#endif
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -236,7 +252,7 @@ int main(void)
 
 
   /********** ESP32 telemetry initialization **********/
-#ifdef ENABLE_LOG_TELEMETRY
+#ifdef ENABLE_TELEMETRY
   ret = TELEMETRY_SETUP();
 
   if (ret == SYS_OK) {
@@ -378,6 +394,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* check flags */
+    // system monitor: core temperature and input voltage
     if (adc_flag & (1 << FLAG_ADC_SYS)) {
       adc_flag &= ~(1 << FLAG_ADC_SYS);
 
@@ -434,7 +451,7 @@ int main(void)
     SERIAL_TRANSMIT_LOG();
 #endif
 
-#ifdef ENABLE_LOG_TELEMETRY
+#ifdef ENABLE_TELEMETRY
     TELEMETRY_TRANSMIT_LOG();
 #endif
 

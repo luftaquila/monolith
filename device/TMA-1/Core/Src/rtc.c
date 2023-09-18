@@ -21,6 +21,56 @@
 #include "rtc.h"
 
 /* USER CODE BEGIN 0 */
+extern LOG syslog;
+
+extern uint8_t rtc[19];
+
+void RTC_FIX(int source) {
+  uint8_t *ptr = rtc;
+  uint8_t tmp[3];
+  int32_t cnt = 0;
+
+  RTC_DateTypeDef RTC_DATE;
+  RTC_TimeTypeDef RTC_TIME;
+
+  while (*ptr && cnt < 6) {
+    strncpy((char *)tmp, (char *)ptr, 3);
+    tmp[2] = '\0';
+
+    switch (cnt) {
+      case 0: RTC_DATE.Year    = (uint8_t)strtol((char *)tmp, NULL, 10); break;
+      case 1: RTC_DATE.Month   = (uint8_t)strtol((char *)tmp, NULL, 16); break;
+      case 2: RTC_DATE.Date    = (uint8_t)strtol((char *)tmp, NULL, 10); break;
+      case 3: RTC_TIME.Hours   = (uint8_t)strtol((char *)tmp, NULL, 10); break;
+      case 4: RTC_TIME.Minutes = (uint8_t)strtol((char *)tmp, NULL, 10); break;
+      case 5: RTC_TIME.Seconds = (uint8_t)strtol((char *)tmp, NULL, 10); break;
+    }
+
+    // move to next datetime
+    ptr += 3;
+    cnt++;
+  }
+
+  // set weekday; required for accurate year value
+  RTC_DATE.WeekDay = 0;
+
+  HAL_RTC_SetTime(&hrtc, &RTC_TIME, FORMAT_BIN);
+  HAL_RTC_SetDate(&hrtc, &RTC_DATE, FORMAT_BIN);
+
+  syslog.value[0] = RTC_DATE.Year;
+  syslog.value[1] = RTC_DATE.Month;
+  syslog.value[2] = RTC_DATE.Date;
+  syslog.value[3] = RTC_TIME.Hours;
+  syslog.value[4] = RTC_TIME.Minutes;
+  syslog.value[5] = RTC_TIME.Seconds;
+  syslog.value[6] = source;
+  SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_RTC_FIX);
+
+  DEBUG_MSG("[%8lu] [ OK] RTC fixed by %s: %.*s\r\n", HAL_GetTick(), source ? "ESP" : "UART", sizeof(rtc), rtc);
+
+  return;
+}
+
 void RTC_READ(DATETIME *boot) {
   RTC_DateTypeDef RTC_DATE;
   RTC_TimeTypeDef RTC_TIME;

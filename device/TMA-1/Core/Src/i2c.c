@@ -23,8 +23,8 @@
 /* USER CODE BEGIN 0 */
 extern LOG syslog;
 
-// I2C tx buffers
 extern uint32_t telemetry_flag;
+extern uint32_t handshake_flag;
 
 extern ring_buffer_t TELEMETRY_BUFFER;
 extern uint8_t TELEMETRY_BUFFER_ARR[1 << 15];
@@ -51,6 +51,13 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c) {
   return;
 }
 
+// ESP32 RTC fix receive interrupt callback
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c) {
+  if (hi2c->Instance == I2C1) {
+    handshake_flag |= (1 << RTC_FIXED);
+    RTC_FIX(RTC_ESP);
+  }
+}
 
 /* ADXL345 accelerometer memory read */
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
@@ -65,85 +72,38 @@ int TELEMETRY_SETUP(void) {
   // initialize buffer
   ring_buffer_init(&TELEMETRY_BUFFER, (char *)TELEMETRY_BUFFER_ARR, sizeof(TELEMETRY_BUFFER_ARR));
 
-  // ESP handshake process
-  HAL_Delay(1000);
-  int ret = HAL_I2C_Master_Transmit(I2C_TELEMETRY, ESP_I2C_ADDR, (uint8_t *)"READY", 5, 500);
+  // polling ESP boot (ESP_COMM == HIGH)
+  uint32_t start_time = HAL_GetTick();
+  while (HAL_GPIO_ReadPin(GPIOB, ESP_COMM_Pin) == GPIO_PIN_RESET) {
+    if (HAL_GetTick() > start_time + 3000) {
+      DEBUG_MSG("[%8lu] [ERR] ESP not found\r\n", HAL_GetTick());
+      goto esp_fail; // 3s timeout
+    }
+  }
+
+  // handshake call
+  int ret = HAL_I2C_Master_Transmit(I2C_TELEMETRY, ESP_I2C_ADDR, (uint8_t *)"READY", 5, 100);
 
   if (ret != 0) {
-    DEBUG_MSG("[%8lu] [ERR] ESP handshake timeout\r\n", HAL_GetTick());
+    DEBUG_MSG("[%8lu] [ERR] ESP handshake call timeout\r\n", HAL_GetTick());
     goto esp_fail;
   }
 
-  // receive ACK from UART (10 bytes)
-  uint8_t ack[10];
-  for (int32_t i = 0; i < 10; i++) {
-    HAL_UART_Receive(&huart2, (ack + i), 1, 10);
-  }
-
-  if (strstr((char *)ack, "ACK") == NULL) {
-    DEBUG_MSG("[%8lu] [ERR] ESP ACK timeout\r\n", HAL_GetTick());
-    goto esp_fail;
-  }
-
-  // waiting for time sync (10 sec)
-  uint8_t esp_rtc_fix[25];
-  if (HAL_UART_Receive(&huart2, esp_rtc_fix, 25, 10000) != HAL_OK) {
-    DEBUG_MSG("[%8lu] [ERR] ESP time sync timeout\r\n", HAL_GetTick());
-    goto esp_fail;
-  }
-
-  // example: $ESP 2023-06-05-22-59-38
-  if (strncmp((char *)esp_rtc_fix, "$ESP ", 5) == 0) {
-    DEBUG_MSG("[%8lu] [ OK] ESP TIME SYNC: %.*s\r\n", HAL_GetTick(), 24, esp_rtc_fix);
-
-    SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_REMOTE);
-
-    // set RTC
-    uint8_t *ptr = esp_rtc_fix + 7;
-    uint8_t tmp[3];
-    int32_t cnt = 0;
-
-    RTC_DateTypeDef RTC_DATE;
-    RTC_TimeTypeDef RTC_TIME;
-
-    while (*ptr && cnt < 6) {
-      strncpy((char *)tmp, (char *)ptr, 3);
-      tmp[2] = '\0';
-
-      switch (cnt) {
-        case 0: RTC_DATE.Year    = (uint8_t)strtol((char *)tmp, NULL, 10); break;
-        case 1: RTC_DATE.Month   = (uint8_t)strtol((char *)tmp, NULL, 16); break;
-        case 2: RTC_DATE.Date    = (uint8_t)strtol((char *)tmp, NULL, 10); break;
-        case 3: RTC_TIME.Hours   = (uint8_t)strtol((char *)tmp, NULL, 10); break;
-        case 4: RTC_TIME.Minutes = (uint8_t)strtol((char *)tmp, NULL, 10); break;
-        case 5: RTC_TIME.Seconds = (uint8_t)strtol((char *)tmp, NULL, 10); break;
-      }
-
-      // move to next datetime
-      ptr += 3;
-      cnt++;
+  // ESP should set ESP_COMM to LOW after handshake
+  while (HAL_GPIO_ReadPin(GPIOB, ESP_COMM_Pin) == GPIO_PIN_SET) {
+    if (HAL_GetTick() > start_time + 3000) {
+      DEBUG_MSG("[%8lu] [ERR] ESP handshaking process totally ruined\r\n", HAL_GetTick());
+      goto esp_fail; // 3s timeout
     }
-
-    // set weekday; required for accurate year value
-    RTC_DATE.WeekDay = 0;
-
-    HAL_RTC_SetTime(&hrtc, &RTC_TIME, FORMAT_BIN);
-    HAL_RTC_SetDate(&hrtc, &RTC_DATE, FORMAT_BIN);
-
-    syslog.value[0] = RTC_DATE.Year;
-    syslog.value[1] = RTC_DATE.Month;
-    syslog.value[2] = RTC_DATE.Date;
-    syslog.value[3] = RTC_TIME.Hours;
-    syslog.value[4] = RTC_TIME.Minutes;
-    syslog.value[5] = RTC_TIME.Seconds;
-    SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_RTC_FIX);
-
-    return SYS_OK;
   }
+
+  handshake_flag |= (1 << HANDSHAKE_FINISHED);
+  return SYS_OK;
 
 esp_fail:
   return SYS_ERROR;
 }
+
 
 void TELEMETRY_TRANSMIT_LOG(void) {
   if (telemetry_flag & (1 << TELEMETRY_BUFFER_REMAIN) && !(telemetry_flag & (1 << TELEMETRY_BUFFER_TRANSMIT))) {

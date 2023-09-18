@@ -22,9 +22,42 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
+extern LOG syslog;
+
+extern uint8_t rtc[19];
+extern uint32_t handshake_flag;
+
 int DIGITAL_SETUP(void) {
   return SYS_OK;
 }
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+  static uint32_t rtc_fix_triggered = false;
+  if ((GPIO_Pin == GPIO_PIN_8) && (handshake_flag & (1 << HANDSHAKE_FINISHED))) {
+
+    if (HAL_GPIO_ReadPin(GPIOB, ESP_COMM_Pin)) {
+      handshake_flag |= (1 << REMOTE_CONNECTED);
+
+      syslog.value[0] = true;
+      SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_REMOTE);
+
+      DEBUG_MSG("[%8lu] [INF] remote telemetry server connected\r\n", HAL_GetTick());
+
+      if (!rtc_fix_triggered && !(handshake_flag & (1 << RTC_FIXED))) {
+        rtc_fix_triggered = true;
+        HAL_I2C_Master_Receive_IT(I2C_TELEMETRY, ESP_I2C_ADDR, rtc, sizeof(rtc));
+      }
+    } else {
+      handshake_flag &= ~(1 << REMOTE_CONNECTED);
+
+      syslog.value[0] = false;
+      SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_REMOTE);
+
+      DEBUG_MSG("[%8lu] [INF] remote telemetry server disconnected\r\n", HAL_GetTick());
+    }
+  }
+}
+
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/

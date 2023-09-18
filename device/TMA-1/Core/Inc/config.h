@@ -15,6 +15,6 @@
 
 // enabled log output source
 #define ENABLE_SERIAL
-#define ENABLE_LOG_TELEMETRY
+#define ENABLE_TELEMETRY
 
 #endif /* CORE_INC_CONFIG_H_ */

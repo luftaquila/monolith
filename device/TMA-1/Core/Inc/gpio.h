@@ -29,7 +29,10 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
+#include "i2c.h"
+
 #include "types.h"
+#include "logger.h"
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */

@@ -42,7 +42,7 @@ extern I2C_HandleTypeDef hi2c1;
 extern I2C_HandleTypeDef hi2c3;
 
 /* USER CODE BEGIN Private defines */
-#define ESP_I2C_ADDR (0x71 << 1)
+#define ESP_I2C_ADDR (0x0) // broadcast through general call
 #define ACC_I2C_ADDR (0x53 << 1)
 /* USER CODE END Private defines */
 
