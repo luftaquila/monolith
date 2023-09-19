@@ -1,2 +1,4 @@
 requests>=2.31.0
 py7zr>=0.20.6
+kivymd>=1.1.1
+pyserial>=3.5

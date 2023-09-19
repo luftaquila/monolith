@@ -1,0 +1,258 @@
+MDScreen
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDScrollView:
+            MDGridLayout:
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                padding: '30dp', '20dp'
+
+                MDLabel:
+                    text: 'Monolith TMA-1 Configuration Tool'
+                    font_size: '35sp'
+                    bold: True
+                    size: self.texture_size
+                    size_hint_y: None
+
+                MDStackLayout:
+                    orientation: 'tb-lr'
+                    padding: 0, '10dp', 0, 0
+
+                    MDIcon:
+                        icon: 'text-box'
+                        font_size: '16sp'
+
+                    MDLabel:
+                        text: '[u][color=#0366d6][ref=https://github.com/luftaquila/monolith]Manual[/ref][/color][/u]'
+                        font_name: 'consola'
+                        markup: True
+                        size_hint: None, None
+                        size: '80sp', '16sp'
+                        padding: '6dp', 0, 0, 0
+                        on_ref_press:
+                            import webbrowser
+                            webbrowser.open(args[1])
+
+                    MDIcon:
+                        icon: 'github'
+                        font_size: '16sp'
+
+                    MDLabel:
+                        text: '[u][color=#0366d6][ref=https://github.com/luftaquila/monolith]GitHub[/ref][/color][/u]'
+                        font_name: 'consola'
+                        markup: True
+                        size_hint: None, None
+                        size: '80sp', '16sp'
+                        padding: '6dp', 0, 0, 0
+                        on_ref_press:
+                            import webbrowser
+                            webbrowser.open(args[1])
+
+                    MDIcon:
+                        icon: 'web'
+                        font_size: '16sp'
+
+                    MDLabel:
+                        text: '[u][color=#0366d6][ref=https://github.com/luftaquila/monolith]Website[/ref][/color][/u]'
+                        font_name: 'consola'
+                        markup: True
+                        size_hint: None, None
+                        size: '80sp', '16sp'
+                        padding: '6dp', 0, 0, 0
+                        on_ref_press:
+                            import webbrowser
+                            webbrowser.open(args[1])
+
+                    MDLabel:
+                        text: 'by LUFT-AQUILA([u][color=#0366d6][ref=mailto:mail@luftaquila.io]mail@luftaquila.io[/ref][/color][/u])'
+                        font_name: 'consola'
+                        font_size: '14sp'
+                        markup: True
+                        size_hint: None, None
+                        size: '300sp', '16sp'
+                        padding: '6dp', 0, 0, 0
+                        on_ref_press:
+                            import webbrowser
+                            webbrowser.open(args[1])
+
+                MDLabel:
+                    text: 'Datalogging'
+                    font_size: '24sp'
+                    bold: True
+                    size: self.texture_size
+                    size_hint_y: None
+                    padding: 0, '60dp', 0, 0
+
+                MDLabel:
+                    text: 'Output'
+                    font_size: '18sp'
+                    bold: True
+                    size: self.texture_size
+                    size_hint_y: None
+                    padding: '50dp', '20dp', 0, 0
+
+                MDGridLayout:
+                    cols: 2
+                    padding: '100dp', '10dp', 0, 0
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    MDLabel:
+                        text: "Telemetry"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        MDCheckbox:
+                            id: 'enable_telemetry'
+                            active: True
+                            color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
+
+                    MDLabel:
+                        text: "Serial"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        MDCheckbox:
+                            id: 'enable_serial'
+                            active: True
+                            color_inactive: 'grey'
+
+                MDLabel:
+                    text: 'Sensors'
+                    font_size: '18sp'
+                    bold: True
+                    size: self.texture_size
+                    size_hint_y: None
+                    padding: '50dp', '10dp', 0, 0
+
+                MDGridLayout:
+                    cols: 2
+                    padding: '100dp', '10dp', 0, 0
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    MDLabel:
+                        text: "CAN"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        MDCheckbox:
+                            id: 'enable_can'
+                            active: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
+                        text: "Digital"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        MDCheckbox:
+                            id: 'enable_digital'
+                            active: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
+                        text: "Analog"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        MDCheckbox:
+                            id: 'enable_analog'
+                            active: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
+                        text: "Pulse"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        MDCheckbox:
+                            id: 'enable_pulse'
+                            active: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
+                        text: "Accelerometer"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        MDCheckbox:
+                            id: 'enable_accelerometer'
+                            active: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
+                        text: "GPS"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        MDCheckbox:
+                            id: 'enable_gps'
+                            active: True
+                            color_inactive: 'grey'
+
+                MDLabel:
+                    text: 'Debugging'
+                    font_size: '24sp'
+                    bold: True
+                    size: self.texture_size
+                    size_hint_y: None
+                    padding: 0, '20dp', 0, 0
+
+                MDGridLayout:
+                    cols: 2
+                    padding: '100dp', '10dp', 0, 0
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    MDLabel:
+                        text: "Debug Mode"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        MDCheckbox:
+                            id: 'debug_mode'
+                            active: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
+                        text: "Release Build"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        MDCheckbox:
+                            id: 'build_release'
+                            active: True
+                            color_inactive: 'grey'
