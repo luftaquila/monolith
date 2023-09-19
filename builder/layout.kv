@@ -99,6 +99,20 @@ MDScreen
                     height: self.minimum_height
 
                     MDLabel:
+                        text: "SD card"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '50dp', '50dp'
+                        MDCheckbox:
+                            active: True
+                            disabled: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
                         text: "Telemetry"
                         font_name: 'consola'
                         size: '300sp', self.height
@@ -108,7 +122,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_telemetry'
+                            id: enable_telemetry
                             active: True
                             color_inactive: 'grey'
                             on_active: app.on_checkbox_active(*args)
@@ -123,7 +137,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_serial'
+                            id: enable_serial
                             active: True
                             color_inactive: 'grey'
 
@@ -142,6 +156,34 @@ MDScreen
                     height: self.minimum_height
 
                     MDLabel:
+                        text: "CPU Temperature"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '50dp', '50dp'
+                        MDCheckbox:
+                            active: True
+                            disabled: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
+                        text: "Input Voltage"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '50dp', '50dp'
+                        MDCheckbox:
+                            active: True
+                            disabled: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
                         text: "CAN"
                         font_name: 'consola'
                         size: '300sp', self.height
@@ -151,7 +193,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_can'
+                            id: enable_can
                             active: True
                             color_inactive: 'grey'
 
@@ -165,7 +207,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_digital'
+                            id: enable_digital
                             active: True
                             color_inactive: 'grey'
 
@@ -179,7 +221,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_analog'
+                            id: enable_analog
                             active: True
                             color_inactive: 'grey'
 
@@ -193,7 +235,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_pulse'
+                            id: enable_pulse
                             active: True
                             color_inactive: 'grey'
 
@@ -207,7 +249,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_accelerometer'
+                            id: enable_accelerometer
                             active: True
                             color_inactive: 'grey'
 
@@ -221,7 +263,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_gps'
+                            id: enable_gps
                             active: True
                             color_inactive: 'grey'
 
@@ -249,7 +291,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'debug_mode'
+                            id: debug_mode
                             active: True
                             color_inactive: 'grey'
 
@@ -263,6 +305,6 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'build_release'
+                            id: build_release
                             active: True
                             color_inactive: 'grey'

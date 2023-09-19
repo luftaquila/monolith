@@ -1,9 +1,7 @@
 from kivy.lang import Builder
-
 from kivymd.app import MDApp
 from kivymd.uix.label import MDLabel
 from kivymd.uix.screen import MDScreen
-
 from kivymd.uix.button import MDRectangleFlatButton
 
 class MainApp(MDApp):
@@ -16,11 +14,14 @@ class MainApp(MDApp):
         self.title = "TMA-1 Configuration Tool"
         return self.screen
 
+    def on_start(self, **kwargs):
+        self.screen.ids.enable_telemetry
+
     def on_checkbox_active(self, checkbox, value):
         if value:
-            print('The checkbox', checkbox, 'is active', 'and', checkbox.state, 'state')
+            print('The checkbox', checkbox, 'is active')
         else:
-            print('The checkbox', checkbox, 'is inactive', 'and', checkbox.state, 'state')
+            print('The checkbox', checkbox, 'is inactive')
 
-MainApp().run()
-
+if __name__ == "__main__":
+    MainApp().run()

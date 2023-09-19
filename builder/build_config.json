@@ -1,6 +1,24 @@
 {
 	"STM32": {
-		"DEBUG" : "1",
-		"OPT" : "-Og"
+    "output": {
+      "telemetry": true,
+      "serial": true
+    },
+    "sensor": {
+      "can": true,
+      "digital": true,
+      "analog": true,
+      "pulse": true,
+      "accelerometer": true,
+      "gps": true
+    },
+    "debug": {
+      "debug_mode": false,
+      "release_build": true
+    },
+    "make": {
+      "DEBUG" : "1",
+      "OPT" : "-Og"
+    }
 	}
 }
