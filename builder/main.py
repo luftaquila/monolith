@@ -1,9 +1,18 @@
+import re
 import sys
 import json
+import datetime
+
+import serial
+import serial.tools.list_ports
+
 from kivy.lang import Builder
+from kivy.core.window import Window
+
 from kivymd.app import MDApp
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
+from kivymd.uix.list import OneLineAvatarIconListItem
 
 import builder
 
@@ -15,6 +24,7 @@ class MainApp(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.title = "TMA-1 Configuration Tool"
+        Window.size = (Window.size[0] * 0.85, Window.size[1] * 1.5)
         return self.screen
 
     # read build_config.json and init checkboxes on startup
@@ -70,10 +80,27 @@ class MainApp(MDApp):
             self.dialog.open()
 
     def sync_rtc(self):
-        pass
+        ports = sorted([port for port in serial.tools.list_ports.comports()], key=lambda s: int(re.search(r'\d+', s.name).group()))
+        ports = list(map(lambda x: OneLineAvatarIconListItem(text=f'[font=Malgun.ttf]{x.description}[/font]', id=x.name, on_release=self.select_port), ports))
+
+        self.dialog = MDDialog(title='[font=consola.ttf]Select UART COM port[/font]', type='confirmation', items=ports, buttons=[MDFlatButton(text='Cancel', on_release=self.close_dialog)])
+        self.dialog.open()
 
     def close_dialog(self, inst):
         self.dialog.dismiss()
+
+    def select_port(self, inst):
+        self.dialog.dismiss()
+
+        now = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S").encode()
+        checksum = (sum(now) & 0xff).to_bytes()
+        now += checksum
+
+        print(f'\nINFO: synchronizing system time to TMA-1 at {inst.id}: {now}\n')
+
+        target = serial.Serial(port=inst.id, baudrate=115200)
+        target.write(now)
+        target.close()
 
 if __name__ == "__main__":
     MainApp().run()
