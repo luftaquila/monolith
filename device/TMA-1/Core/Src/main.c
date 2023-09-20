@@ -29,7 +29,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "config.h"
 #include "logger.h"
 #include "types.h"
 #include "ringbuffer.h"
@@ -94,9 +93,9 @@ uint8_t can_rx_data[8];
 #endif
 
 // adc conversion buffers
-#ifdef ENABLE_MONITOR_ANALOG
 uint32_t adc_flag = 0;
 uint32_t adc_sys_value[2] = { 0, };
+#ifdef ENABLE_MONITOR_ANALOG
 uint32_t adc_ain_value[ADC_COUNT] = { 0, };
 #endif
 
@@ -577,6 +576,7 @@ void TIMER_1s(void) {
   heartbeat = !heartbeat;
 }
 
+#ifdef ENABLE_MONITOR_GPS
 void GPS_PARSE(void) {
   static NMEA_GPRMC gprmc;
   static GPS_COORD gps_coord;
@@ -624,6 +624,7 @@ void GPS_PARSE(void) {
     }
   }
 }
+#endif
 /* USER CODE END 4 */
 
 /**

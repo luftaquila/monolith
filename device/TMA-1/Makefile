@@ -162,6 +162,35 @@ CFLAGS += -g -gdwarf-2
 endif
 
 
+# compile enabled features only
+ifeq ($(ENABLE_TELEMETRY), 1)
+CFLAGS += -DENABLE_TELEMETRY
+endif
+ifeq ($(ENABLE_SERIAL), 1)
+CFLAGS += -DENABLE_SERIAL
+endif
+ifeq ($(ENABLE_MONITOR_CAN), 1)
+CFLAGS += -DENABLE_MONITOR_CAN
+endif
+ifeq ($(ENABLE_MONITOR_DIGITAL), 1)
+CFLAGS += -DENABLE_MONITOR_DIGITAL
+endif
+ifeq ($(ENABLE_MONITOR_ANALOG), 1)
+CFLAGS += -DENABLE_MONITOR_ANALOG
+endif
+ifeq ($(ENABLE_MONITOR_PULSE), 1)
+CFLAGS += -DENABLE_MONITOR_PULSE
+endif
+ifeq ($(ENABLE_MONITOR_ACCELEROMETER), 1)
+CFLAGS += -DENABLE_MONITOR_ACCELEROMETER
+endif
+ifeq ($(ENABLE_MONITOR_GPS), 1)
+CFLAGS += -DENABLE_MONITOR_GPS
+endif
+ifeq ($(DEBUG_MODE), 1)
+CFLAGS += -DDEBUG_MODE
+endif
+
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 

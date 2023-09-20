@@ -15,10 +15,6 @@
     "debug": {
       "debug_mode": false,
       "release_build": true
-    },
-    "make": {
-      "DEBUG" : "1",
-      "OPT" : "-Og"
     }
 	}
 }

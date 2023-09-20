@@ -23,17 +23,22 @@
 /* USER CODE BEGIN 0 */
 extern LOG syslog;
 
+#ifdef ENABLE_TELEMETRY
 extern uint32_t telemetry_flag;
 extern uint32_t handshake_flag;
 
 extern ring_buffer_t TELEMETRY_BUFFER;
 extern uint8_t TELEMETRY_BUFFER_ARR[1 << 15];
+#endif
 
 // accelerometer data
+#ifdef ENABLE_MONITOR_ACCELEROMETER
 extern uint32_t accelerometer_flag;
 extern uint8_t accelerometer_value[6];
+#endif
 
 // ESP32 TELEMETRY tx interrupt callback
+#ifdef ENABLE_TELEMETRY
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c) {
   if (hi2c->Instance == I2C1) {
     if (ring_buffer_is_empty(&TELEMETRY_BUFFER)) {
@@ -58,16 +63,20 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c) {
     RTC_FIX(RTC_ESP);
   }
 }
+#endif
 
 /* ADXL345 accelerometer memory read */
+#ifdef ENABLE_MONITOR_ACCELEROMETER
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
   accelerometer_flag = true;
 }
+#endif
 
 
 /****************************
  * ESP32 I2C interface
  ***************************/
+#ifdef ENABLE_TELEMETRY
 int TELEMETRY_SETUP(void) {
   // initialize buffer
   ring_buffer_init(&TELEMETRY_BUFFER, (char *)TELEMETRY_BUFFER_ARR, sizeof(TELEMETRY_BUFFER_ARR));
@@ -114,11 +123,13 @@ void TELEMETRY_TRANSMIT_LOG(void) {
     HAL_I2C_Master_Transmit_IT(I2C_TELEMETRY, ESP_I2C_ADDR, payload, sizeof(LOG));
   }
 }
+#endif
 
 
 /****************************************
  * ADXL345 accelerometer I2C interface
  ***************************************/
+#ifdef ENABLE_MONITOR_ACCELEROMETER
 int ACCELEROMETER_WRITE(uint8_t reg, uint8_t value) {
   uint8_t payload[2] = { reg, value };
   return HAL_I2C_Master_Transmit(&hi2c3, ACC_I2C_ADDR, payload, 2, 50);
@@ -133,6 +144,7 @@ int ACCELEROMETER_SETUP(void) {
 
   return ret;
 }
+#endif
 /* USER CODE END 0 */
 
 I2C_HandleTypeDef hi2c1;

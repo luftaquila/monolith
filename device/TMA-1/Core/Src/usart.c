@@ -21,16 +21,22 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#ifdef ENABLE_SERIAL
 extern uint32_t serial_flag;
 extern ring_buffer_t SERIAL_BUFFER;
 extern uint8_t SERIAL_BUFFER_ARR[1 << 14];
 
+uint8_t payload[sizeof(LOG) + 2] = { 0x05, 0x12, };
+#endif
+
+#ifdef ENABLE_MONITOR_GPS
 extern uint32_t gps_flag;
 extern uint8_t gps_data[1 << 7];
+#endif
 
-uint8_t payload[sizeof(LOG) + 2] = { 0x05, 0x12, };
 
 // serial tx event
+#ifdef ENABLE_SERIAL
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
   if (huart ->Instance == USART6) {
     if (ring_buffer_is_empty(&SERIAL_BUFFER)) {
@@ -60,6 +66,7 @@ void SERIAL_TRANSMIT_LOG(void) {
     HAL_UART_Transmit_IT(UART_SERIAL, payload, sizeof(LOG) + 2);
   }
 }
+#endif
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -330,6 +337,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+#ifdef ENABLE_MONITOR_GPS
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
   if (huart->Instance == USART3) {
     gps_flag = true; // mark GPS updated
@@ -393,4 +401,5 @@ int GPS_SETUP(void) {
 
   return SYS_OK;
 }
+#endif
 /* USER CODE END 1 */

@@ -23,12 +23,14 @@
 /* USER CODE BEGIN 0 */
 extern uint32_t timer_flag;
 
+#ifdef ENABLE_MONITOR_PULSE
 extern uint32_t pulse_flag;
 extern uint32_t pulse_value[PULSE_CH_COUNT];
 extern uint32_t pulse_buffer_0[PULSE_CH_COUNT];
 extern uint32_t pulse_buffer_1[PULSE_CH_COUNT];
 
 static void CALC_PERIOD(int channel, uint32_t arr);
+#endif
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
   static uint32_t count = 0;
@@ -44,6 +46,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
   }
 }
 
+#ifdef ENABLE_MONITOR_PULSE
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
   uint32_t arr = htim->Instance->ARR;
 
@@ -136,6 +139,7 @@ static inline void CALC_PERIOD(int channel, uint32_t arr) {
     pulse_value[channel] += arr + 1;
   }
 }
+#endif
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim1;

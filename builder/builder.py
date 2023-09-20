@@ -27,8 +27,20 @@ def build_stm32():
     os.chdir('../device/TMA-1')
 
     # set build environment variables
-    os.environ["DEBUG"] = build_config["STM32"]["DEBUG"]
-    os.environ["OPT"] = build_config["STM32"]["OPT"]
+    os.environ["ENABLE_TELEMETRY"] = '1' if build_config["STM32"]["output"]["telemetry"] else '0'
+    os.environ["ENABLE_SERIAL"]    = '1' if build_config["STM32"]["output"]["serial"] else '0'
+
+    os.environ["ENABLE_MONITOR_CAN"]           = '1' if build_config["STM32"]["sensor"]["can"] else '0'
+    os.environ["ENABLE_MONITOR_DIGITAL"]       = '1' if build_config["STM32"]["sensor"]["digital"] else '0'
+    os.environ["ENABLE_MONITOR_ANALOG"]        = '1' if build_config["STM32"]["sensor"]["analog"] else '0'
+    os.environ["ENABLE_MONITOR_PULSE"]         = '1' if build_config["STM32"]["sensor"]["pulse"] else '0'
+    os.environ["ENABLE_MONITOR_ACCELEROMETER"] = '1' if build_config["STM32"]["sensor"]["accelerometer"] else '0'
+    os.environ["ENABLE_MONITOR_GPS"]           = '1' if build_config["STM32"]["sensor"]["gps"] else '0'
+
+    os.environ["DEBUG_MODE"] = '1' if build_config["STM32"]["debug"]["debug_mode"] else '0'
+
+    os.environ["DEBUG"] = '0' if build_config["STM32"]["debug"]["release_build"] else '1'
+    os.environ["OPT"] = '-O2' if build_config["STM32"]["debug"]["release_build"] else '-Og'
 
     # build
     ret = spawn(['make'])

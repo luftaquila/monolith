@@ -13,11 +13,15 @@ extern LOG syslog;
 extern SYSTEM_STATE sys_state;
 extern ring_buffer_t SD_BUFFER;
 
+#ifdef ENABLE_TELEMETRY
 extern uint32_t telemetry_flag;
 extern ring_buffer_t TELEMETRY_BUFFER;
+#endif
 
+#ifdef ENABLE_SERIAL
 extern uint32_t serial_flag;
 extern ring_buffer_t SERIAL_BUFFER;
+#endif
 
 int SYS_LOG(LOG_LEVEL level, LOG_SOURCE source, int key) {
   syslog.timestamp = HAL_GetTick();
@@ -47,10 +51,12 @@ int SYS_LOG(LOG_LEVEL level, LOG_SOURCE source, int key) {
     ring_buffer_queue_arr(&SD_BUFFER, (char *)&syslog, sizeof(LOG));
   }
 
+#ifdef ENABLE_TELEMETRY
   if (sys_state.TELEMETRY) {
     telemetry_flag |= 1 << TELEMETRY_BUFFER_REMAIN;
     ring_buffer_queue_arr(&TELEMETRY_BUFFER, (char *)&syslog, sizeof(LOG));
   }
+#endif
 
 #ifdef ENABLE_SERIAL
   serial_flag |= 1 << SERIAL_BUFFER_REMAIN;

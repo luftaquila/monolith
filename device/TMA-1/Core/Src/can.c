@@ -24,6 +24,7 @@
 extern LOG syslog;
 extern SYSTEM_STATE sys_state;
 
+#ifdef ENABLE_MONITOR_CAN
 extern CAN_RxHeaderTypeDef can_rx_header;
 extern uint8_t can_rx_data[8];
 
@@ -133,6 +134,7 @@ int CAN_SETUP(void) {
 
   return SYS_OK;
 }
+#endif
 
 /* USER CODE END 0 */
 
