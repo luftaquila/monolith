@@ -1,5 +1,5 @@
 {
-	"STM32": {
+  "STM32": {
     "output": {
       "telemetry": true,
       "serial": true
@@ -16,5 +16,5 @@
       "debug_mode": false,
       "release_build": true
     }
-	}
+  }
 }

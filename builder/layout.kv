@@ -122,7 +122,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: enable_telemetry
+                            id: telemetry
                             active: True
                             color_inactive: 'grey'
                             on_active: app.on_checkbox_active(*args)
@@ -137,9 +137,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: enable_serial
+                            id: serial
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                 MDLabel:
                     text: 'Sensors'
@@ -193,9 +194,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: enable_can
+                            id: can
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "Digital"
@@ -207,9 +209,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: enable_digital
+                            id: digital
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "Analog"
@@ -221,9 +224,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: enable_analog
+                            id: analog
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "Pulse"
@@ -235,9 +239,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: enable_pulse
+                            id: pulse
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "Accelerometer"
@@ -249,9 +254,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: enable_accelerometer
+                            id: accelerometer
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "GPS"
@@ -263,9 +269,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: enable_gps
+                            id: gps
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                 MDLabel:
                     text: 'Debugging'
@@ -294,6 +301,7 @@ MDScreen
                             id: debug_mode
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "Release Build"
@@ -305,6 +313,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: build_release
+                            id: release_build
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
