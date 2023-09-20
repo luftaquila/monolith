@@ -7,7 +7,6 @@ import serial
 import serial.tools.list_ports
 
 from kivy.lang import Builder
-from kivy.core.window import Window
 
 from kivymd.app import MDApp
 from kivymd.uix.dialog import MDDialog
@@ -24,7 +23,6 @@ class MainApp(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.title = "TMA-1 Configuration Tool"
-        Window.size = (Window.size[0] * 0.85, Window.size[1] * 1.5)
         return self.screen
 
     # read build_config.json and init checkboxes on startup
@@ -98,9 +96,13 @@ class MainApp(MDApp):
 
         print(f'\nINFO: synchronizing system time to TMA-1 at {inst.id}: {now}\n')
 
-        target = serial.Serial(port=inst.id, baudrate=115200)
-        target.write(now)
-        target.close()
+        try:
+            target = serial.Serial(port=inst.id, baudrate=115200)
+            target.write(now)
+            target.close()
+        except serial.serialutil.SerialException as e:
+            print(f'{e}\nERROR: serial communication failed. please check COM port number or re-plug the adapter.')
+
 
 if __name__ == "__main__":
     MainApp().run()
