@@ -96,7 +96,7 @@ def config_arm_toolchain():
 
         shutil.unpack_archive(f'{path_cache}/arm_toolchain.zip', f'{path_cache}/arm_toolchain')
         os.rename(f'{path_cache}/arm_toolchain/gcc-arm-none-eabi-10.3-2021.10', path_arm)
-            
+
         print("ARM GNU toolchain installed!")
         return 0
 
@@ -126,7 +126,7 @@ def config_openocd():
         with py7zr.SevenZipFile(f'{path_cache}/openocd.7z', 'r') as archive:
             archive.extractall(path=path_toolchain)
             os.rename(f'{path_toolchain}/OpenOCD-20230712-0.12.0', f'{path_toolchain}/openocd')
-            
+
         print("OpenOCD for Windows installed!")
         return 0
 
@@ -139,7 +139,7 @@ def config_openocd():
 # toolchain installation process
 def config():
     os.makedirs(path_cache, exist_ok=True)
-    
+
     ret = 0
 
     ret |= config_arm_toolchain()

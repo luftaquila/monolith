@@ -1,4 +1,5 @@
 MDScreen
+    id: screen
     MDBoxLayout:
         orientation: 'vertical'
         MDScrollView:
@@ -317,3 +318,60 @@ MDScreen
                             active: True
                             color_inactive: 'grey'
                             on_active: app.on_checkbox_active(*args)
+
+                MDLabel:
+                    text: 'Upload'
+                    font_size: '24sp'
+                    bold: True
+                    size: self.texture_size
+                    size_hint_y: None
+                    padding: 0, '20dp', 0, 0
+
+                MDBoxLayout:
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: '50dp', '20dp', 0, 0
+                    spacing: '30dp'
+
+                    MDFillRoundFlatIconButton:
+                        id: flash
+                        icon: 'chip'
+                        text: '[b]Flash TMA-1[/b]'
+                        markup: True
+                        font_size: '18sp'
+                        on_press: app.flash()
+
+                    MDFillRoundFlatIconButton:
+                        id: sync_rtc
+                        icon: 'timer-sync-outline'
+                        text: '[b]Sync RTC[/b]'
+                        markup: True
+                        font_size: '18sp'
+                        on_press: app.sync_rtc()
+
+#                MDLabel:
+#                    text: 'Console'
+#                    font_size: '24sp'
+#                    bold: True
+#                    size: self.texture_size
+#                    size_hint_y: None
+#                    padding: 0, '40dp', 0, '20dp'
+#
+#                MDBoxLayout:
+#                    size_hint_y: None
+#                    height: '400dp'
+#
+#                    MDScrollView:
+#                        id: scrlv
+#                        MDTextFieldRect:
+#                            id: console
+#                            font_name: 'consola'
+#                            font_size: '14sp'
+#                            line_spacing: '3sp'
+#                            multiline: True
+#                            max_height: '300dp'
+#                            size_hint_y: 1
+#                            height: max(self.minimum_height, scrlv.height)
+#                            readonly: True
+#                            foreground_color: 1, 1, 1, 1
+#                            background_color: 'black'

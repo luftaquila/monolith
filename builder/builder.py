@@ -76,20 +76,12 @@ def flash_stm32():
         ret = spawn(['openocd', '-f', './config/TMA-1.cfg'])
 
     if ret != 0:
-        print("\nERROR: max retry count reached. terminating.")
+        print("ERROR: max retry count reached. terminating.")
         return -1
 
     print('INFO: TMA-1 STM32 binary successfully flashed. please recyle the power.')
     return 0
 ##### STM32 build and flash process END #####
-
-##### ESP32 build and flash process START #####
-def build_esp32():
-    return 0
-
-def flash_esp32():
-    return 0
-##### ESP32 build and flash process END #####
 
 # Monolith TMA-1 software build and flash process
 def build():
@@ -97,17 +89,19 @@ def build():
     if toolchain.validate() != 0:
         print("\nERROR: toolchain is corrupt. please delete builder/toolchain/.cache and retry.")
         return -1
+    print('INFO: toolchain validation finished. start build...')
 
     if build_stm32() != 0:
         print("\nERROR: build of TMA-1 STM32 binary failed. please delete builder/toolchain and retry.")
+        return -1
+    print('\nINFO: build finished. start flashing...\n')
 
-    elif flash_stm32() != 0:
+    if flash_stm32() != 0:
         print("\nERROR: flashing of TMA-1 STM32 binary failed. please check debugger and retry.")
-    if build_esp32() != 0:
-        print("\nERROR: build of TMA-1 ESP32 binary failed. please delete builder/toolchain and retry.")
+        return -1
+    print('\nINFO: flashing finished.')
 
-    elif flash_esp32() != 0:
-        print("\nERROR: flashing of TMA-1 ESP32 binary failed. please check debugger and retry.")
+    return 0
 
 # clean build directories
 def clean():
