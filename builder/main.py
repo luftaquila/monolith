@@ -74,7 +74,7 @@ class MainApp(MDApp):
             self.dialog = MDDialog(text=f'[font=consola.ttf][color=00ff00]&bl;OK&br;[/color] [color=ffffff]flashing successfully finished.[/color][/font]', buttons=[MDFlatButton(text='OK', on_release=self.close_dialog)])
             self.dialog.open()
         else:
-            self.dialog = MDDialog(text=f'[font=consola.ttf][color=ff0000]&bl;FAIL&br;[/color] [color=ffffff]flashing failed. please check the console output[/color][/font]', buttons=[MDFlatButton(text='OK', on_release=self.close_dialog)])
+            self.dialog = MDDialog(text=f'[font=consola.ttf][color=ff0000]&bl;FAIL&br;[/color] [color=ffffff]flashing failed. please check the console output.[/color][/font]', buttons=[MDFlatButton(text='OK', on_release=self.close_dialog)])
             self.dialog.open()
 
     def sync_rtc(self):
@@ -99,11 +99,19 @@ class MainApp(MDApp):
         try:
             target = serial.Serial(port=inst.id, baudrate=115200, timeout=1)
             target.write(now)
-
-            if target.read(size=3).decode() == 'ACK':
-                print(f'INFO: TMA-1 RTC successfully synced with host system time')
+            res = target.read(size=3).decode()
+            if res == 'ACK':
+                print(f'INFO: TMA-1 RTC unit successfully synced with host system time')
+                self.dialog = MDDialog(text=f'[font=consola.ttf][color=00ff00]&bl;OK&br;[/color] [color=ffffff]TMA-1 RTC unit successfully synced.[/color][/font]', buttons=[MDFlatButton(text='OK', on_release=self.close_dialog)])
+                self.dialog.open()
+            elif len(res) == 0:
+                print(f'ERROR: RTC sync ACK timeout reached')
+                self.dialog = MDDialog(text=f'[font=consola.ttf][color=ff0000]&bl;FAIL&br;[/color] [color=ffffff]RTC sync timed out.[/color][/font]', buttons=[MDFlatButton(text='OK', on_release=self.close_dialog)])
+                self.dialog.open()
             else:
-                print(f'ERROR: RTC sync failed for some reason')
+                print(f'ERROR: corrupt RTC sync ACK')
+                self.dialog = MDDialog(text=f'[font=consola.ttf][color=ff0000]&bl;FAIL&br;[/color] [color=ffffff]RTC sync ACK from TMA-1 is corrrupt.[/color][/font]', buttons=[MDFlatButton(text='OK', on_release=self.close_dialog)])
+                self.dialog.open()
 
             target.close()
         except serial.serialutil.SerialException as e:
