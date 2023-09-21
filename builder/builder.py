@@ -70,7 +70,7 @@ def flash_stm32():
     retry = 0
     ret = spawn(['openocd', '-f', './config/TMA-1.cfg'])
 
-    while ret != 0 and retry < 3:
+    while ret != 0 and retry < 2:
         retry += 1
         print(f"ERROR: flashing failed. retry count: {retry}")
         ret = spawn(['openocd', '-f', './config/TMA-1.cfg'])

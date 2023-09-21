@@ -24,7 +24,7 @@
 /* USER CODE BEGIN 0 */
 extern LOG syslog;
 
-extern uint8_t rtc[19];
+extern uint8_t rtc[25];
 
 #ifdef ENABLE_TELEMETRY
 extern uint32_t handshake_flag;

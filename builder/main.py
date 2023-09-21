@@ -97,8 +97,14 @@ class MainApp(MDApp):
         print(f'\nINFO: synchronizing system time to TMA-1 at {inst.id}: {now}\n')
 
         try:
-            target = serial.Serial(port=inst.id, baudrate=115200)
+            target = serial.Serial(port=inst.id, baudrate=115200, timeout=1)
             target.write(now)
+
+            if target.read(size=3).decode() == 'ACK':
+                print(f'INFO: TMA-1 RTC successfully synced with host system time')
+            else:
+                print(f'ERROR: RTC sync failed for some reason')
+
             target.close()
         except serial.serialutil.SerialException as e:
             print(f'{e}\nERROR: serial communication failed. please check COM port number or re-plug the adapter.')

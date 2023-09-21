@@ -65,7 +65,7 @@ SYSTEM_STATE sys_state;
 uint32_t timer_flag = 0;
 
 // rtc buffer
-uint8_t rtc[19]; // YYYY-MM-DD-HH-MM-SS
+uint8_t rtc[25]; // YYYY-MM-DD-HH-MM-SS
 
 // SD card write buffer
 ring_buffer_t SD_BUFFER;
@@ -190,6 +190,7 @@ int main(void)
   /********** RTC boot time check **********/
   DATETIME boot;
   RTC_READ(&boot);
+  DEBUG_MSG("[%8lu] [INF] RTC time is %02d-%02d-%d2d %02d:%02d:%02d\r\n", HAL_GetTick(), boot.year, boot.month, boot.date, boot.hour, boot.minute, boot.second);
 
 
   /********** SD card initialization **********/
@@ -227,6 +228,9 @@ int main(void)
   HAL_GPIO_WritePin(GPIOE, LED_HEARTBEAT_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(GPIOE, LED_CAN_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(GPIOE, LED_TELEMETRY_Pin, GPIO_PIN_RESET);
+
+  // RTC time sync by UART
+  HAL_UART_Receive_IT(UART_DEBUG, rtc, 20);
 
   SYS_LOG(LOG_INFO, SYS, SYS_CORE_INIT);
 

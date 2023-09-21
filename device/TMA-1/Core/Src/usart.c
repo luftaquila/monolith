@@ -21,6 +21,8 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+extern uint8_t rtc[25];
+
 #ifdef ENABLE_SERIAL
 extern uint32_t serial_flag;
 extern ring_buffer_t SERIAL_BUFFER;
@@ -34,11 +36,34 @@ extern uint32_t gps_flag;
 extern uint8_t gps_data[1 << 7];
 #endif
 
+// RTC sync rx event
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+  if (huart->Instance == USART1) {
+    // checksum verification
+    uint32_t checksum = 0;
+
+    for (int i = 0; i < 19; i++) {
+      checksum += rtc[i];
+    }
+
+    checksum &= 0xff;
+
+    if (rtc[19] == (uint8_t)checksum) {
+      // transmit ACK; tx complete interrupt will be ignored
+      HAL_UART_Transmit_IT(UART_DEBUG, (uint8_t *)"ACK", 3);
+
+      RTC_FIX(RTC_UART);
+
+      // re-enable RTC fix message
+      HAL_UART_Receive_IT(UART_DEBUG, rtc, 20);
+    }
+  }
+}
 
 // serial tx event
 #ifdef ENABLE_SERIAL
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-  if (huart ->Instance == USART6) {
+  if (huart->Instance == USART6) {
     if (ring_buffer_is_empty(&SERIAL_BUFFER)) {
       serial_flag &= ~(1 << SERIAL_BUFFER_REMAIN);
       serial_flag &= ~(1 << SERIAL_BUFFER_TRANSMIT);

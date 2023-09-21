@@ -23,7 +23,7 @@
 /* USER CODE BEGIN 0 */
 extern LOG syslog;
 
-extern uint8_t rtc[19];
+extern uint8_t rtc[25];
 
 void RTC_FIX(int source) {
   uint8_t *ptr = rtc;
