@@ -190,7 +190,7 @@ int main(void)
   /********** RTC boot time check **********/
   DATETIME boot;
   RTC_READ(&boot);
-  DEBUG_MSG("[%8lu] [INF] RTC time is %02d-%02d-%d2d %02d:%02d:%02d\r\n", HAL_GetTick(), boot.year, boot.month, boot.date, boot.hour, boot.minute, boot.second);
+  DEBUG_MSG("[%8lu] [INF] RTC time is 20%02d-%02d-%02d %02d:%02d:%02d\r\n", HAL_GetTick(), boot.year, boot.month, boot.date, boot.hour, boot.minute, boot.second);
 
 
   /********** SD card initialization **********/

@@ -26,7 +26,7 @@ extern LOG syslog;
 extern uint8_t rtc[25];
 
 void RTC_FIX(int source) {
-  uint8_t *ptr = rtc;
+  uint8_t *ptr = rtc + 2;
   uint8_t tmp[3];
   int32_t cnt = 0;
 
@@ -66,7 +66,7 @@ void RTC_FIX(int source) {
   syslog.value[6] = source;
   SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_RTC_FIX);
 
-  DEBUG_MSG("[%8lu] [ OK] RTC fixed by %s: %.*s\r\n", HAL_GetTick(), source ? "ESP" : "UART", sizeof(rtc), rtc);
+  DEBUG_MSG("[%8lu] [ OK] RTC fixed by %s: %.*s\r\n", HAL_GetTick(), source ? "ESP" : "UART", 19, rtc);
 
   return;
 }
@@ -121,7 +121,11 @@ void MX_RTC_Init(void)
   }
 
   /* USER CODE BEGIN Check_RTC_BKUP */
+  if (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR0) == 0xCAFE) {
+    return;
+  }
 
+  HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR0, 0xCAFE);
   /* USER CODE END Check_RTC_BKUP */
 
   /** Initialize RTC and set the Time and Date
