@@ -66,7 +66,6 @@ class MainApp(MDApp):
                 file.truncate()
 
     def flash(self):
-        builder.clean()
         ret = builder.build()
 
         if ret == 0:
@@ -116,6 +115,10 @@ class MainApp(MDApp):
         except serial.serialutil.SerialException as e:
             print(f'{e}\nERROR: serial communication failed. please check COM port number or re-plug the adapter.')
 
+    def clean(self):
+        builder.clean()
+        self.dialog = MDDialog(text=f'[font=consola.ttf][color=00ff00]&bl;OK&br;[/color] [color=ffffff]INFO: build directory cleaned.[/color][/font]', buttons=[MDFlatButton(text='OK', on_release=self.close_dialog)])
+        self.dialog.open()
 
 if __name__ == "__main__":
     MainApp().run()

@@ -352,6 +352,14 @@ MDScreen
                         font_size: '18sp'
                         on_press: app.sync_rtc()
 
+                    MDFillRoundFlatIconButton:
+                        id: clean
+                        icon: 'auto-fix'
+                        text: '[b]Clean[/b]'
+                        markup: True
+                        font_size: '18sp'
+                        on_press: app.clean()
+
 #                MDLabel:
 #                    text: 'Console'
 #                    font_size: '24sp'
