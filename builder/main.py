@@ -49,7 +49,6 @@ class MainApp(MDApp):
         if checkbox in self.screen.ids.values():
             id = list(self.screen.ids.keys())[list(self.screen.ids.values()).index(checkbox)]
 
-            build_config = ''
             with open("build_config.json", "r+") as file:
                 build_config = json.load(file)
 

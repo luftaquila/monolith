@@ -6,11 +6,6 @@ import subprocess
 
 import toolchain
 
-# read build_config.json
-build_config = ''
-with open("build_config.json", "r") as file:
-    build_config = json.load(file)
-
 # spawn a subprocess
 def spawn(argv):
     p = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
@@ -23,24 +18,27 @@ def spawn(argv):
 def build_stm32():
     print("INFO: building TMA-1 STM32 binary...")
 
+    # set build environment variables
+    with open("build_config.json", "r") as file:
+        build_config = json.load(file)
+
+        os.environ["ENABLE_TELEMETRY"] = '1' if build_config["STM32"]["output"]["telemetry"] else '0'
+        os.environ["ENABLE_SERIAL"]    = '1' if build_config["STM32"]["output"]["serial"] else '0'
+
+        os.environ["ENABLE_MONITOR_CAN"]           = '1' if build_config["STM32"]["sensor"]["can"] else '0'
+        os.environ["ENABLE_MONITOR_DIGITAL"]       = '1' if build_config["STM32"]["sensor"]["digital"] else '0'
+        os.environ["ENABLE_MONITOR_ANALOG"]        = '1' if build_config["STM32"]["sensor"]["analog"] else '0'
+        os.environ["ENABLE_MONITOR_PULSE"]         = '1' if build_config["STM32"]["sensor"]["pulse"] else '0'
+        os.environ["ENABLE_MONITOR_ACCELEROMETER"] = '1' if build_config["STM32"]["sensor"]["accelerometer"] else '0'
+        os.environ["ENABLE_MONITOR_GPS"]           = '1' if build_config["STM32"]["sensor"]["gps"] else '0'
+
+        os.environ["DEBUG_MODE"] = '1' if build_config["STM32"]["debug"]["debug_mode"] else '0'
+
+        os.environ["DEBUG"] = '0' if build_config["STM32"]["debug"]["release_build"] else '1'
+        os.environ["OPT"] = '-O2' if build_config["STM32"]["debug"]["release_build"] else '-Og'
+
     # step into STM32CubeMX project folder
     os.chdir('../device/TMA-1')
-
-    # set build environment variables
-    os.environ["ENABLE_TELEMETRY"] = '1' if build_config["STM32"]["output"]["telemetry"] else '0'
-    os.environ["ENABLE_SERIAL"]    = '1' if build_config["STM32"]["output"]["serial"] else '0'
-
-    os.environ["ENABLE_MONITOR_CAN"]           = '1' if build_config["STM32"]["sensor"]["can"] else '0'
-    os.environ["ENABLE_MONITOR_DIGITAL"]       = '1' if build_config["STM32"]["sensor"]["digital"] else '0'
-    os.environ["ENABLE_MONITOR_ANALOG"]        = '1' if build_config["STM32"]["sensor"]["analog"] else '0'
-    os.environ["ENABLE_MONITOR_PULSE"]         = '1' if build_config["STM32"]["sensor"]["pulse"] else '0'
-    os.environ["ENABLE_MONITOR_ACCELEROMETER"] = '1' if build_config["STM32"]["sensor"]["accelerometer"] else '0'
-    os.environ["ENABLE_MONITOR_GPS"]           = '1' if build_config["STM32"]["sensor"]["gps"] else '0'
-
-    os.environ["DEBUG_MODE"] = '1' if build_config["STM32"]["debug"]["debug_mode"] else '0'
-
-    os.environ["DEBUG"] = '0' if build_config["STM32"]["debug"]["release_build"] else '1'
-    os.environ["OPT"] = '-O2' if build_config["STM32"]["debug"]["release_build"] else '-Og'
 
     # build
     ret = spawn(['make'])
