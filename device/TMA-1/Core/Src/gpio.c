@@ -24,12 +24,10 @@
 /* USER CODE BEGIN 0 */
 extern LOG syslog;
 
-extern uint8_t rtc[19];
-extern uint32_t handshake_flag;
+extern uint8_t rtc[25];
 
-int DIGITAL_SETUP(void) {
-  return SYS_OK;
-}
+#ifdef ENABLE_TELEMETRY
+extern uint32_t handshake_flag;
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   static uint32_t rtc_fix_triggered = false;
@@ -57,6 +55,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
     }
   }
 }
+#endif
+
+#ifdef ENABLE_MONITOR_DIGITAL
+int DIGITAL_SETUP(void) {
+  return SYS_OK;
+}
+#endif
 
 /* USER CODE END 0 */
 

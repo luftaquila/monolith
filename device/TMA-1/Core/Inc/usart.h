@@ -29,6 +29,8 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
+#include "rtc.h"
+
 #include "types.h"
 #include "logger.h"
 #include "ringbuffer.h"

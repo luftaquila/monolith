@@ -1,4 +1,5 @@
 MDScreen
+    id: screen
     MDBoxLayout:
         orientation: 'vertical'
         MDScrollView:
@@ -99,6 +100,20 @@ MDScreen
                     height: self.minimum_height
 
                     MDLabel:
+                        text: "SD card"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '50dp', '50dp'
+                        MDCheckbox:
+                            active: True
+                            disabled: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
                         text: "Telemetry"
                         font_name: 'consola'
                         size: '300sp', self.height
@@ -108,7 +123,7 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_telemetry'
+                            id: telemetry
                             active: True
                             color_inactive: 'grey'
                             on_active: app.on_checkbox_active(*args)
@@ -123,9 +138,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_serial'
+                            id: serial
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                 MDLabel:
                     text: 'Sensors'
@@ -142,6 +158,34 @@ MDScreen
                     height: self.minimum_height
 
                     MDLabel:
+                        text: "CPU Temperature"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '50dp', '50dp'
+                        MDCheckbox:
+                            active: True
+                            disabled: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
+                        text: "Input Voltage"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '50dp', '50dp'
+                        MDCheckbox:
+                            active: True
+                            disabled: True
+                            color_inactive: 'grey'
+
+                    MDLabel:
                         text: "CAN"
                         font_name: 'consola'
                         size: '300sp', self.height
@@ -151,9 +195,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_can'
+                            id: can
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "Digital"
@@ -165,9 +210,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_digital'
+                            id: digital
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "Analog"
@@ -179,9 +225,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_analog'
+                            id: analog
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "Pulse"
@@ -193,9 +240,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_pulse'
+                            id: pulse
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "Accelerometer"
@@ -207,9 +255,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_accelerometer'
+                            id: accelerometer
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "GPS"
@@ -221,9 +270,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'enable_gps'
+                            id: gps
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                 MDLabel:
                     text: 'Debugging'
@@ -249,9 +299,10 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'debug_mode'
+                            id: debug_mode
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
                         text: "Release Build"
@@ -263,6 +314,64 @@ MDScreen
                         size_hint: None, None
                         size: '50dp', '50dp'
                         MDCheckbox:
-                            id: 'build_release'
+                            id: release_build
                             active: True
                             color_inactive: 'grey'
+                            on_active: app.on_checkbox_active(*args)
+
+                MDLabel:
+                    text: 'Upload'
+                    font_size: '24sp'
+                    bold: True
+                    size: self.texture_size
+                    size_hint_y: None
+                    padding: 0, '20dp', 0, 0
+
+                MDBoxLayout:
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: '50dp', '20dp', 0, '30dp'
+                    spacing: '30dp'
+
+                    MDFillRoundFlatIconButton:
+                        id: flash
+                        icon: 'chip'
+                        text: '[b]Flash TMA-1[/b]'
+                        markup: True
+                        font_size: '18sp'
+                        on_press: app.flash()
+
+                    MDFillRoundFlatIconButton:
+                        id: sync_rtc
+                        icon: 'timer-sync-outline'
+                        text: '[b]Sync RTC[/b]'
+                        markup: True
+                        font_size: '18sp'
+                        on_press: app.sync_rtc()
+
+#                MDLabel:
+#                    text: 'Console'
+#                    font_size: '24sp'
+#                    bold: True
+#                    size: self.texture_size
+#                    size_hint_y: None
+#                    padding: 0, '40dp', 0, '20dp'
+#
+#                MDBoxLayout:
+#                    size_hint_y: None
+#                    height: '400dp'
+#
+#                    MDScrollView:
+#                        id: scrlv
+#                        MDTextFieldRect:
+#                            id: console
+#                            font_name: 'consola'
+#                            font_size: '14sp'
+#                            line_spacing: '3sp'
+#                            multiline: True
+#                            max_height: '300dp'
+#                            size_hint_y: 1
+#                            height: max(self.minimum_height, scrlv.height)
+#                            readonly: True
+#                            foreground_color: 1, 1, 1, 1
+#                            background_color: 'black'
