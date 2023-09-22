@@ -637,10 +637,10 @@
   (pad "X" thru_hole oval (at 35.5622 30.861) (size 1.7 1.7) (drill 1) (layers "*.Cu" "*.Mask") (tstamp cc463e26-be69-44dd-be8e-df0093d11d01))
   (pad "x" thru_hole oval (at -33.02 -27.559) (size 1.7 1.7) (drill 1) (layers "*.Cu" "*.Mask") (tstamp f421d854-c50e-48b2-a636-a3505d1cf49e))
   (pad "x" thru_hole rect (at 35.5622 -27.559) (size 1.7 1.7) (drill 1) (layers "*.Cu" "*.Mask") (tstamp 4ece12fe-99dc-44e5-aa50-b0f2a050f67c))
-  (zone (net 0) (net_name "") (layers "F.Cu" "F.SilkS") (tstamp e8c5dc2c-95b1-4dc3-82d9-5ac16d92b2e0) (hatch full 0.508)
+  (zone (net 0) (net_name "") (layers "*.Cu") (tstamp e8c5dc2c-95b1-4dc3-82d9-5ac16d92b2e0) (hatch full 0.508)
     (connect_pads (clearance 0))
     (min_thickness 0.254) (filled_areas_thickness no)
-    (keepout (tracks not_allowed) (vias not_allowed) (pads not_allowed) (copperpour not_allowed) (footprints not_allowed))
+    (keepout (tracks allowed) (vias allowed) (pads allowed) (copperpour allowed) (footprints not_allowed))
     (fill (thermal_gap 0.508) (thermal_bridge_width 0.508))
     (polygon
       (pts

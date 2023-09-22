@@ -3955,7 +3955,7 @@
   (symbol (lib_id "Transistor_BJT:2N3904") (at 171.45 124.46 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 01d48e2a-66a4-43a8-8bd6-774f684fa73c)
-    (property "Reference" "Q7" (at 176.53 123.19 0)
+    (property "Reference" "Q6" (at 176.53 123.19 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "2N3904" (at 176.53 125.73 0)
@@ -3973,7 +3973,7 @@
     (instances
       (project "TMA-1"
         (path "/d67581b5-2556-4cd6-beba-bc1f772a35d2"
-          (reference "Q7") (unit 1)
+          (reference "Q6") (unit 1)
         )
       )
     )
@@ -4371,7 +4371,7 @@
   (symbol (lib_id "Device:R_US") (at 120.65 50.8 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1986d72f-434f-429e-99f4-09af76a9db91)
-    (property "Reference" "R8" (at 120.65 47.625 90)
+    (property "Reference" "R7" (at 120.65 47.625 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "1k" (at 120.65 53.975 90)
@@ -4388,7 +4388,7 @@
     (instances
       (project "TMA-1"
         (path "/d67581b5-2556-4cd6-beba-bc1f772a35d2"
-          (reference "R8") (unit 1)
+          (reference "R7") (unit 1)
         )
       )
     )
@@ -4448,7 +4448,7 @@
   (symbol (lib_id "Transistor_BJT:2N3904") (at 129.54 161.29 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 2991e523-c3e5-4a84-8cfb-fad6cf251695)
-    (property "Reference" "Q6" (at 134.62 160.02 0)
+    (property "Reference" "Q7" (at 134.62 160.02 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "2N3904" (at 134.62 162.56 0)
@@ -4466,7 +4466,7 @@
     (instances
       (project "TMA-1"
         (path "/d67581b5-2556-4cd6-beba-bc1f772a35d2"
-          (reference "Q6") (unit 1)
+          (reference "Q7") (unit 1)
         )
       )
     )
@@ -4577,10 +4577,10 @@
   (symbol (lib_id "Device:R_US") (at 132.08 111.76 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 30ef9993-3d0e-4533-bc0b-450270fdf281)
-    (property "Reference" "R17" (at 133.985 110.49 0)
+    (property "Reference" "R16" (at 134.62 110.49 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "1k" (at 133.985 113.03 0)
+    (property "Value" "1k" (at 134.62 113.03 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" (at 133.096 112.014 90)
@@ -4594,7 +4594,7 @@
     (instances
       (project "TMA-1"
         (path "/d67581b5-2556-4cd6-beba-bc1f772a35d2"
-          (reference "R17") (unit 1)
+          (reference "R16") (unit 1)
         )
       )
     )
@@ -4678,10 +4678,10 @@
   (symbol (lib_id "Device:R_US") (at 132.08 148.59 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 3735cd73-ce62-439b-a2bf-ef6e75c5c6b0)
-    (property "Reference" "R18" (at 133.985 147.32 0)
+    (property "Reference" "R20" (at 134.62 147.32 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "1k" (at 133.985 149.86 0)
+    (property "Value" "1k" (at 134.62 149.86 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" (at 133.096 148.844 90)
@@ -4695,7 +4695,7 @@
     (instances
       (project "TMA-1"
         (path "/d67581b5-2556-4cd6-beba-bc1f772a35d2"
-          (reference "R18") (unit 1)
+          (reference "R20") (unit 1)
         )
       )
     )
@@ -4806,10 +4806,10 @@
   (symbol (lib_id "Device:R_US") (at 132.08 38.1 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 4a9705f9-806c-445f-87b0-daa5fa1e0978)
-    (property "Reference" "R7" (at 133.985 36.83 0)
+    (property "Reference" "R8" (at 134.62 36.83 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "1k" (at 133.985 39.37 0)
+    (property "Value" "1k" (at 134.62 39.37 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" (at 133.096 38.354 90)
@@ -4823,7 +4823,7 @@
     (instances
       (project "TMA-1"
         (path "/d67581b5-2556-4cd6-beba-bc1f772a35d2"
-          (reference "R7") (unit 1)
+          (reference "R8") (unit 1)
         )
       )
     )
@@ -5012,12 +5012,12 @@
   )
 
   (symbol (lib_id "Device:R_US") (at 173.99 148.59 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid 584d4970-770b-4093-8760-3d7b417f5e93)
-    (property "Reference" "R22" (at 175.895 147.32 0)
+    (property "Reference" "R22" (at 176.53 147.32 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "1k" (at 175.895 149.86 0)
+    (property "Value" "1k" (at 176.53 149.86 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" (at 175.006 148.844 90)
@@ -6150,7 +6150,7 @@
   (symbol (lib_id "Device:R_US") (at 120.65 161.29 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a042d5c4-809f-40d1-bbd9-910bdec76dc1)
-    (property "Reference" "R16" (at 120.65 158.115 90)
+    (property "Reference" "R19" (at 120.65 158.115 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "1k" (at 120.65 164.465 90)
@@ -6167,7 +6167,7 @@
     (instances
       (project "TMA-1"
         (path "/d67581b5-2556-4cd6-beba-bc1f772a35d2"
-          (reference "R16") (unit 1)
+          (reference "R19") (unit 1)
         )
       )
     )
@@ -6958,7 +6958,7 @@
   (symbol (lib_id "Device:R_US") (at 162.56 124.46 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d5530f02-e2e9-4da9-ac4c-4d15f12655ef)
-    (property "Reference" "R19" (at 162.56 121.285 90)
+    (property "Reference" "R17" (at 162.56 121.285 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "1k" (at 162.56 127.635 90)
@@ -6975,7 +6975,7 @@
     (instances
       (project "TMA-1"
         (path "/d67581b5-2556-4cd6-beba-bc1f772a35d2"
-          (reference "R19") (unit 1)
+          (reference "R17") (unit 1)
         )
       )
     )
@@ -7214,10 +7214,10 @@
   (symbol (lib_id "Device:R_US") (at 173.99 111.76 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid ede50ba8-5373-4082-9467-0214ebdeafa3)
-    (property "Reference" "R21" (at 175.895 110.49 0)
+    (property "Reference" "R18" (at 176.53 110.49 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "1k" (at 175.895 113.03 0)
+    (property "Value" "1k" (at 176.53 113.03 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" (at 175.006 112.014 90)
@@ -7231,7 +7231,7 @@
     (instances
       (project "TMA-1"
         (path "/d67581b5-2556-4cd6-beba-bc1f772a35d2"
-          (reference "R21") (unit 1)
+          (reference "R18") (unit 1)
         )
       )
     )
@@ -7300,7 +7300,7 @@
   (symbol (lib_id "Device:R_US") (at 162.56 161.29 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f4c42ca4-0fed-474b-acf3-872cb4a18ab6)
-    (property "Reference" "R20" (at 162.56 158.115 90)
+    (property "Reference" "R21" (at 162.56 158.115 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "1k" (at 162.56 164.465 90)
@@ -7317,7 +7317,7 @@
     (instances
       (project "TMA-1"
         (path "/d67581b5-2556-4cd6-beba-bc1f772a35d2"
-          (reference "R20") (unit 1)
+          (reference "R21") (unit 1)
         )
       )
     )
