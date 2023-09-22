@@ -3,8 +3,8 @@ build/
 toolchain/
 .settings/
 
-# Created by https://www.toptal.com/developers/gitignore/api/c,node,python,vim
-# Edit at https://www.toptal.com/developers/gitignore?templates=c,node,python,vim
+# Created by https://www.toptal.com/developers/gitignore/api/c,node,python,vim,kicad
+# Edit at https://www.toptal.com/developers/gitignore?templates=c,node,python,vim,kicad
 
 ### C ###
 # Prerequisites
@@ -59,6 +59,46 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+### KiCad ###
+# For PCBs designed using KiCad: https://www.kicad.org/
+# Format documentation: https://kicad.org/help/file-formats/
+
+# Temporary files
+*.000
+*.bak
+*.bck
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*-backups
+*.kicad_prl
+*.sch-bak
+*~
+_autosave-*
+*.tmp
+*-save.pro
+*-save.kicad_pcb
+fp-info-cache
+
+# Netlist files (exported from Eeschema)
+*.net
+
+# Autorouter files (exported from Pcbnew)
+*.dsn
+*.ses
+
+# Exported BOM files
+*.xml
+*.csv
+
+### KiCad Patch ###
+rescue-backup/
+
+*.tsv
+bom/
+
+# Gerber export output
+out/
 
 ### Node ###
 # Logs
@@ -383,10 +423,9 @@ Sessionx.vim
 
 # Temporary
 .netrwhist
-*~
 # Auto-generated tag files
 tags
 # Persistent undo
 [._]*.un~
 
-# End of https://www.toptal.com/developers/gitignore/api/c,node,python,vim
+# End of https://www.toptal.com/developers/gitignore/api/c,node,python,vim,kicad

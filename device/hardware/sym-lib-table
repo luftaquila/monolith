@@ -1,0 +1,9 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "NODEMCU32S")(type "KiCad")(uri "${KIPRJMOD}/libraries/symbols/NODEMCU32S.kicad_sym")(options "")(descr ""))
+  (lib (name "MP1584EN")(type "KiCad")(uri "${KIPRJMOD}/libraries/symbols/MP1584EN.kicad_sym")(options "")(descr ""))
+  (lib (name "LM393")(type "KiCad")(uri "${KIPRJMOD}/libraries/symbols/LM393.kicad_sym")(options "")(descr ""))
+  (lib (name "ADXL345")(type "KiCad")(uri "${KIPRJMOD}/libraries/symbols/ADXL345.kicad_sym")(options "")(descr ""))
+  (lib (name "NEO-7M")(type "KiCad")(uri "${KIPRJMOD}/libraries/symbols/NEO-7M.kicad_sym")(options "")(descr ""))
+  (lib (name "SN65HVD230")(type "KiCad")(uri "${KIPRJMOD}/libraries/symbols/SN65HVD230.kicad_sym")(options "")(descr ""))
+)
