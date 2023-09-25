@@ -38,6 +38,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
       syslog.value[0] = true;
       SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_REMOTE);
+      HAL_GPIO_WritePin(GPIOE, LED_TELEMETRY_Pin, GPIO_PIN_SET);
+
 
       DEBUG_MSG("[%8lu] [INF] remote telemetry server connected\r\n", HAL_GetTick());
 
@@ -50,6 +52,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
       syslog.value[0] = false;
       SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_REMOTE);
+      HAL_GPIO_WritePin(GPIOE, LED_TELEMETRY_Pin, GPIO_PIN_RESET);
 
       DEBUG_MSG("[%8lu] [INF] remote telemetry server disconnected\r\n", HAL_GetTick());
     }
