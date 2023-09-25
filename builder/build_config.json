@@ -2,7 +2,7 @@
   "STM32": {
     "output": {
       "telemetry": true,
-      "serial": true
+      "serial": false
     },
     "sensor": {
       "can": true,
