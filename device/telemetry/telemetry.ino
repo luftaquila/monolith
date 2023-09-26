@@ -4,16 +4,17 @@
 #include <ArduinoJson.h>
 #include <SocketIOclient.h>
 
-/*************************************************************
- * Hotspot AP configurations                                 *
- *************************************************************/
+/****************************************************************************
+ * Hotspot AP configurations                                                *
+ ****************************************************************************/
 const char ssid[] = "<YOUR Wi-Fi HOTSPOT SSID>";
 const char pwd[]  = "<YOUR Wi-Fi HOTSPOT PASSWORD>";
 
-/*************************************************************
- * telemetry server configuration                            *
- *************************************************************/
-const char server[] = "<YOUR TELEMETRY SERVER ADDRESS>";
+/****************************************************************************
+ * telemetry server configuration                                           *
+ ****************************************************************************/
+const char server[] = "monolith.luftaquila.io";
+const char url[] = "/socket.io/?EIO=4&device=ECU&channel=<YOUR CHANNEL NAME>"
 const int port = 80; // telemetry port of socket.io server
 
 // GPIO and I2C configurations
@@ -67,7 +68,7 @@ void setup() {
   WiFi.persistent(true);
 
   // attach socket
-  socketIO.begin(server, port, "/socket.io/?EIO=4&device=ECU");
+  socketIO.begin(server, port, url);
   socketIO.onEvent(socketIOEvent);
 }
 
@@ -94,9 +95,9 @@ void loop() {
     }
 
     sprintf((log_payload + 16),
-            "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\"}]",
-            buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7],
-            buf[8], buf[9], buf[10], buf[11], buf[12], buf[13], buf[14], buf[15]);
+        "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\"}]",
+        buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7],
+        buf[8], buf[9], buf[10], buf[11], buf[12], buf[13], buf[14], buf[15]);
     
     socketIO.sendEVENT(log_payload, 51);
   }
