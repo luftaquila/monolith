@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Monolith TMA-2 Telemetry</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta property="og:title" content="Monolith TMA-2 Telemetry"/>
+		<meta property="og:url" content="https://monolith.luftaquila.io/live"/>
+		<meta property="og:image" content="https://monolith.luftaquila.io/assets/logo/logo.jpg"/>
+		<meta property="og:description" content="Monolith TMA-2 Telemetry Web Client"/>
+    <link rel="stylesheet" href="style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logo/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logo/favicon/favicon-16x16.png">
+
+    <link rel="stylesheet" href="/assets/btn.css">
+    <link rel="stylesheet" href="/assets/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+  </head>
+  <body>
+    <div id="header">
+      <div id="logo" style='margin-top: 1rem;'>
+        <a href="https://github.com/luftaquila/monolith">
+          <img src="/assets/logo/logo.png">
+        </a>
+      </div>
+
+      <header style="margin: auto; max-width: 414px;">
+        <div id="server" class="status left">
+          <i class="fa-solid fa-fw fa-network-wired" style="color: red"></i>
+          <div class="text">서버</div>
+        </div>
+        <div id="telemetry" class="status right">
+          <i class="fa-solid fa-fw fa-tower-broadcast" style="color: red"></i>
+          <div class="text">원격 계측</div>
+        </div>
+      </header>
+    </div>
+
+    <div id="container">
+      <article style='margin-top: .4rem;'>
+        <h1><i class="fa-solid fa-fw fa-passport"></i>&nbsp;TMA-2 원격 계측 모니터</h1>
+        <div class="content" style='padding-top: 1rem; line-height: 2rem'>
+          <div style="text-align: center">
+            <div><a id='car_id_config' class="btn_download"><span class="btn blue"><i class="fa-solid fa-fw fa-car"></i>&ensp;차량 ID 설정</span></a></div>
+            <div><a id='ui_config' class="btn_download"><span class="btn blue"><i class="fa-solid fa-fw fa-tv"></i>&ensp;UI 설정</span></a></div>
+            <div><a class="btn_download" href='https://github.com/luftaquila/monolith' target='_blank'><span class="btn purple"><i class="fa-brands fa-fw fa-github"></i>&ensp;GitHub</span></a></div>
+            <div><a class="btn_download" href='/' target='_blank'><span class="btn yellow"><i class="fa-solid fa-fw fa-chart-column"></i>&ensp;Data Analyzer</span></a></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  <body>
+</html>

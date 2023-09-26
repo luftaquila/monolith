@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Monolith TMA-3 Data Analyzer</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta property="og:title" content="Monolith TMA-3 Data Analyzer"/>
+		<meta property="og:url" content="https://monolith.luftaquila.io"/>
+		<meta property="og:image" content="https://monolith.luftaquila.io/assets/logo/logo.jpg"/>
+		<meta property="og:description" content="Monolith TMA-3 Data Analysis Toolset"/>
+    <link rel="stylesheet" href="style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logo/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logo/favicon/favicon-16x16.png">
+
+    <link rel="stylesheet" href="/assets/btn.css">
+    <link rel="stylesheet" href="/assets/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+  </head>
+  <body>
+    <div id="header">
+      <div id="logo" style='margin-top: 1rem'>
+        <a href="https://github.com/luftaquila/monolith">
+          <img src="/assets/logo/logo.png">
+        </a>
+      </div>
+    </div>
+
+    <div id='container'>
+      <article>
+        <h1><i class="fa-solid fa-fw fa-passport"></i>&nbsp;TMA-3 데이터 분석 도구</h1>
+        <div class="content" style='padding-top: 1rem; line-height: 2rem'>
+          <div style="text-align: center">
+            <div><a class="btn_download" href='https://github.com/luftaquila/monolith/wiki/TMA%E2%80%903-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%B6%84%EC%84%9D-%EB%8F%84%EA%B5%AC-%EA%B0%80%EC%9D%B4%EB%93%9C' target='_blank'><span class="btn purple"><i class="fa-solid fa-fw fa-book"></i>&ensp;TMA-3 사용 가이드</span></a></div>
+            <div><a class="btn_download" href='https://github.com/luftaquila/monolith' target='_blank'><span class="btn purple"><i class="fa-brands fa-fw fa-github"></i>&ensp;GitHub</span></a></div>
+            <div><a class="btn_download" href='/live' target='_blank'><span class="btn yellow"><i class="fa-solid fa-fw fa-tower-broadcast"></i>&ensp;Live Telemetry</span></a></div>
+          </div>
+        </div>
+      </article>
+
+      <article>
+        <h1><i class="fa-solid fa-fw fa-file-import"></i>&nbsp;로그 변환</h1>
+        <div class="content" style='padding-top: 1rem; line-height: 2rem'>
+          <div>
+            <input id="file" type="file" name="file" accept=".log" style="margin-top: .5rem; margin-left:2rem;">
+          </div>
+        </div>
+        <div class="content" style='padding-top: 1rem; line-height: 2rem'>
+          <span id="load_file_first" style="font-weight: bold;">변환할 파일을 선택하세요.</span><br>
+대용량 로그는 변환에 시간이 다소 소요됩니다.
+
+          <div style="text-align: center">
+            <div><a id="json_download" class="btn_download disabled"><span class="btn green"><i class="fa-solid fa-fw fa-download"></i>&ensp;JSON 다운로드</span></a></div>
+            <div><a id="csv_download" class="btn_download disabled"><span class="btn green"><i class="fa-solid fa-fw fa-download"></i>&ensp;CSV 다운로드</span></a></div>
+          </div>
+        </div>
+      </article>
+
+      <article style='width: 90vw; max-width: 90vw'>
+        <h1><i class="fa-solid fa-fw fa-chart-column"></i>&nbsp;데이터 뷰어</h1>
+        <div class="content" style='padding-top: 1rem; line-height: 2rem; position: relative'>
+          <div>
+            로그: <span style='font-weight: bold'><span id='converted-count'>0</span>개</span>(총 <span id='data-count'>0</span>개 중 파싱 오류 <span id='error-count'>0</span>개) / <span style='font-weight: bold'><span id='duration'>0</span>분</span>
+            <br>
+            데이터를 줌인하려면 그래프를 드래그하거나 마우스 휠을 사용하세요.
+          </div>
+          <div>
+            <select id='parameter_list' class='disabled' style='width: 25rem; height: 2rem;'>
+            </select>
+            <a><span id="add_parameter" class="btn blue disabled" style='height: 1.2rem; line-height: 1.4rem;'><i class="fa-solid fa-fw fa-plus"></i>&ensp;데이터 추가</span></a>
+          </div>
+          <canvas id="graph-review" class="graph" width="100%" height="55vh" style="margin-top: 1rem;"></canvas>
+        </div>
+      </article>
+    </div>
+  </body>
+</html>

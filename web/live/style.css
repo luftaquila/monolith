@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap');
+
+@font-face {
+  font-family: 'S-CoreDream-4Regular';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-4Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'S-CoreDream-5Medium';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-5Medium.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'S-CoreDream-6Bold';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-6Bold.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+    font-family: 'TmoneyRoundWindRegular';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/TmoneyRoundWindRegular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html {
+  font-family: 'TmoneyRoundWindRegular', 'Nanum Gothic', sans-serif;
+  background-color: rgb(243, 244, 246);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+body {
+  overflow-y: auto;
+  border-radius: 10px;
+}
+
+#logo {
+  text-align: center;
+  max-width: 414px;
+  margin: auto;
+}
+
+#logo img {
+  width: 70%;
+}
+
+div#container, div#header {
+  padding: 1rem;
+  padding-top: 0rem;
+  display: flex;
+  max-width: none;
+  flex-wrap: wrap;
+}
+div#container {
+  justify-content: space-evenly;
+}
+div#header {
+  padding-top: .5rem;
+  padding-bottom: 0rem;
+  justify-content: space-between;
+  min-height: 80px;
+}
+
+header {
+  margin-top: 1rem!important;
+  position: sticky;
+  top: 0;
+  background-color: rgb(243, 244, 246);
+  padding: 1rem 0rem;
+  z-index: 1000;
+}
+
+article {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 10px;
+  min-width: 320px;
+  width: 380px;
+  max-width: 414px;
+}
+
+article h1 {
+  font-size: 1.5rem;
+  margin: 0px;
+  color: rgb(59,130,246);
+}
+
+article .content {
+  padding-left: 1rem;
+}
+
+.btn_download span {
+  width: 70%;
+  font-weight: bold;
+}
+
+div.status {
+  display: inline-block;
+  text-align: center;
+}
+
+div.status.left {
+  margin-right: 2rem;
+}
+
+div.status.right {
+  margin-left: 2rem;
+}
+
+div.status i {
+  font-size: 1.75rem;
+}
+
+div.status div.text {
+  font-weight: bold;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  color: rgb(25,35,41);
+}
