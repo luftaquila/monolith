@@ -59,6 +59,10 @@ function translate(raw) {
 function parse(log) {
   let parsed;
 
+  let source = log.source;
+  let key = log.key;
+  let raw = log.raw;
+
   switch (source) {
     case 'SYS':
     case 'CAN':
@@ -70,8 +74,14 @@ function parse(log) {
       switch (key) {
         case 'DIGITAL_DATA': {
           parsed = {
-            // !!!!! TODO
-
+            DIN0: raw[0],
+            DIN1: raw[1],
+            DIN2: raw[2],
+            DIN3: raw[3],
+            DIN4: raw[4],
+            DIN5: raw[5],
+            DIN6: raw[6],
+            DIN7: raw[7],
           };
           break;
         }
@@ -84,19 +94,24 @@ function parse(log) {
     } // case 'DIGITAL'
 
     case 'ANALOG': {
+      const resolution = 12; // ADC resolution in bits
+      const max = (1 << resolution) - 1;
+
       switch (key) {
         case 'ANALOG_DATA': {
           parsed = {
-            // !!!!! TODO
-
+            AIN0: (raw[0] + raw[1] * Math.pow(2, 8)) / max,
+            AIN1: (raw[2] + raw[3] * Math.pow(2, 8)) / max,
+            AIN2: (raw[4] + raw[5] * Math.pow(2, 8)) / max,
+            AIN3: (raw[6] + raw[7] * Math.pow(2, 8)) / max,
           };
           break;
         }
 
         case 'ANALOG_SYS': {
           parsed = {
-            // !!!!! TODO
-
+            CPU_TEMP: (raw[0] + raw[1] * Math.pow(2, 8)) / max,
+            INPUT_VOLTAGE: (raw[2] + raw[3] * Math.pow(2, 8)) / max,
           };
           break;
         }
@@ -112,8 +127,10 @@ function parse(log) {
       switch (key) {
         case 'PULSE_DATA': {
           parsed = {
-            // !!!!! TODO
-
+            PIN0: (raw[0] + raw[1] * Math.pow(2, 8)),
+            PIN1: (raw[2] + raw[3] * Math.pow(2, 8)),
+            PIN2: (raw[4] + raw[5] * Math.pow(2, 8)),
+            PIN3: (raw[6] + raw[7] * Math.pow(2, 8)),
           };
           break;
         }
@@ -129,8 +146,9 @@ function parse(log) {
       switch (key) {
         case 'ACCELEROMETER_DATA': {
           parsed = {
-            // !!!!! TODO
-
+            x: 4 / 512 * signed(raw[0] + raw[1] * Math.pow(2, 8), 16),
+            y: 4 / 512 * signed(raw[2] + raw[3] * Math.pow(2, 8), 16),
+            z: 4 / 512 * signed(raw[4] + raw[5] * Math.pow(2, 8), 16),
           };
           break;
         }
@@ -145,25 +163,28 @@ function parse(log) {
     case 'GPS': {
       switch (key) {
         case 'GPS_POS': {
-          parsed = {
-            // !!!!! TODO
+          const raw_lat = (raw[0] + raw[1] * Math.pow(2, 8) + raw[2] * Math.pow(2, 16) + raw[3] * Math.pow(2, 24)) * 0.0000001;
+          const raw_lon = (raw[4] + raw[5] * Math.pow(2, 8) + raw[6] * Math.pow(2, 16) + raw[7] * Math.pow(2, 24)) * 0.0000001;
 
+          parsed = {
+            lat: Math.floor(raw_lat) + (((raw_lat % 1) * 100).toFixed(5) / 60),
+            lon: Math.floor(raw_lon) + (((raw_lon % 1) * 100).toFixed(5) / 60),
           };
           break;
         }
 
         case 'GPS_VEC': {
           parsed = {
-            // !!!!! TODO
-
+            speed: (raw[0] + raw[1] * Math.pow(2, 8) + raw[2] * Math.pow(2, 16) + raw[3] * Math.pow(2, 24)) * 0.01,
+            course: (raw[4] + raw[5] * Math.pow(2, 8) + raw[6] * Math.pow(2, 16) + raw[7] * Math.pow(2, 24))
           };
           break;
         }
 
         case 'GPS_TIME': {
           parsed = {
-            // !!!!! TODO
-
+            utc_date: (raw[0] + raw[1] * Math.pow(2, 8) + raw[2] * Math.pow(2, 16) + raw[3] * Math.pow(2, 24)),
+            utc_time: (raw[4] + raw[5] * Math.pow(2, 8) + raw[6] * Math.pow(2, 16) + raw[7] * Math.pow(2, 24))
           };
           break;
         }
@@ -175,6 +196,10 @@ function parse(log) {
       break;
     } // case 'GPS'
   } // switch (source)
+}
+
+function signed(value, bit) {
+  return value > Math.pow(2, bit - 1) - 1 ? value - Math.pow(2, bit) : value;
 }
 
 exports.LOG_LEVEL = LOG_LEVEL;

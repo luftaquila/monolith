@@ -142,7 +142,7 @@ function process_telemetry(data, socket) {
   logger.info('REPORT', {
     id: socket.id,
     ip: socket.handshake.headers['x-forwarded-for'],
-    channel: socket.handshake.query.channel
+    channel: socket.handshake.query.channel,
     data: data
   });
 
