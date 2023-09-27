@@ -14,7 +14,7 @@ const char pwd[]  = "<YOUR Wi-Fi HOTSPOT PASSWORD>";
  * telemetry server configuration                                           *
  ****************************************************************************/
 const char server[] = "monolith.luftaquila.io";
-const char url[] = "/socket.io/?EIO=4&device=ECU&channel=<YOUR CHANNEL NAME>"
+const char url[] = "/socket.io/?EIO=4&device=1&channel=<YOUR CHANNEL NAME>&key=<YOUR CHANNEL KEY>";
 const int port = 80; // telemetry port of socket.io server
 
 // GPIO and I2C configurations
