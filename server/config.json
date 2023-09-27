@@ -1,0 +1,6 @@
+{
+  "port": 9512,
+  "channels": [
+    { "name": "default", "key": "password" }
+  ]
+}

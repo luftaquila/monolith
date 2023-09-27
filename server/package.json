@@ -1,0 +1,26 @@
+{
+  "name": "monolith",
+  "version": "1.0.0",
+  "description": "Monolith TMA-2 telemetry server",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "node index.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/luftaquila/monolith.git"
+  },
+  "author": "LUFT-AQUILA",
+  "license": "Beerware",
+  "bugs": {
+    "url": "https://github.com/luftaquila/monolith/issues"
+  },
+  "homepage": "https://github.com/luftaquila/monolith#readme",
+  "dependencies": {
+    "dateformat": "^5.0.3",
+    "dotenv": "^16.3.1",
+    "socket.io": "^4.7.2",
+    "winston": "^3.10.0",
+    "winston-daily-rotate-file": "^4.7.1"
+  }
+}
