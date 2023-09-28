@@ -16,6 +16,7 @@ extern ring_buffer_t SD_BUFFER;
 
 #ifdef ENABLE_TELEMETRY
 extern uint32_t telemetry_flag;
+extern uint32_t handshake_flag;
 extern ring_buffer_t TELEMETRY_BUFFER;
 #endif
 
@@ -53,7 +54,7 @@ int SYS_LOG(LOG_LEVEL level, LOG_SOURCE source, int key) {
   }
 
 #ifdef ENABLE_TELEMETRY
-  if (sys_state.TELEMETRY) {
+  if (sys_state.TELEMETRY && (handshake_flag & (1 << REMOTE_CONNECTED))) {
     telemetry_flag |= 1 << TELEMETRY_BUFFER_REMAIN;
     ring_buffer_queue_arr(&TELEMETRY_BUFFER, (char *)&syslog, sizeof(LOG));
   }

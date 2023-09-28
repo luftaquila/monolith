@@ -45,8 +45,7 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c) {
       // finish transmission
       telemetry_flag &= ~(1 << TELEMETRY_BUFFER_REMAIN);
       telemetry_flag &= ~(1 << TELEMETRY_BUFFER_TRANSMIT);
-    }
-    else {
+    } else {
       static uint8_t payload[sizeof(LOG)];
       ring_buffer_dequeue_arr(&TELEMETRY_BUFFER, (char *)payload, sizeof(LOG));
       HAL_I2C_Master_Transmit_IT(I2C_TELEMETRY, ESP_I2C_ADDR, payload, sizeof(LOG));
@@ -123,7 +122,6 @@ void TELEMETRY_TRANSMIT_LOG(void) {
     if (ret == HAL_OK) {
       telemetry_flag |= 1 << TELEMETRY_BUFFER_TRANSMIT;
     } else {
-      // restore queue
       ring_buffer_queue_arr(&TELEMETRY_BUFFER, (char *)payload, sizeof(LOG));
     }
   }
