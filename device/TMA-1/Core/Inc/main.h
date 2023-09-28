@@ -49,13 +49,6 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-// macro for debug print
-#ifdef DEBUG_MODE
-#define DEBUG_MSG(f_, ...) printf((f_), ##__VA_ARGS__)
-#else
-#define DEBUG_MSG(f_, ...)
-#endif
-
 // macro for parsing NMEA sentence
 #define FIND_AND_NUL(s, p, c) ( \
    (p) = (uint8_t *)strchr((char *)s, c), \

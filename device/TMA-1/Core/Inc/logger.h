@@ -85,4 +85,11 @@ typedef enum {
 /* Prototypes */
 int SYS_LOG(LOG_LEVEL level, LOG_SOURCE source, int key);
 
+/* macro for debug print */
+#ifdef DEBUG_MODE
+#define DEBUG_MSG(f_, ...) printf((f_), ##__VA_ARGS__)
+#else
+#define DEBUG_MSG(f_, ...)
+#endif
+
 #endif /* CORE_INC_LOGGER_H_ */
