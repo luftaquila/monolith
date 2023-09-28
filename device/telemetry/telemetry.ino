@@ -77,19 +77,13 @@ void setup() {
 void loop() {
   socketIO.loop();
 
-  if (!server_conn) {
-    if (WiFi.status() != WL_CONNECTED) {
-      WiFi.reconnect();
-    }
-  }
-
   // server connection EXTI indicator
-  if (stm_handshake) {
-    if (server_conn && rtc_received) {
-      digitalWrite(ESP_COMM, HIGH);
-    } else {
-      digitalWrite(ESP_COMM, LOW);
+  if (stm_handshake && rtc_received) {
+    if (WiFi.status() != WL_CONNECTED) {
+      server_conn = false;
     }
+
+    digitalWrite(ESP_COMM, server_conn ? HIGH : LOW);
   }
 
   // flush log buffer to server
