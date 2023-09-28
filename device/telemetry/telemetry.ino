@@ -70,10 +70,18 @@ void setup() {
   // attach socket
   socketIO.begin(server, port, url);
   socketIO.onEvent(socketIOEvent);
+
+  disableCore0WDT();
 }
 
 void loop() {
   socketIO.loop();
+
+  if (!server_conn) {
+    if (WiFi.status() != WL_CONNECTED) {
+      WiFi.reconnect();
+    }
+  }
 
   // server connection EXTI indicator
   if (stm_handshake) {
@@ -132,9 +140,6 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t* payload, size_t length) 
 
     case sIOtype_DISCONNECT:
       server_conn = false;
-      if (WiFi.status() != WL_CONNECTED) {
-        WiFi.reconnect();
-      }
       break;
 
     case sIOtype_ACK:
