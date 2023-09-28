@@ -43,12 +43,12 @@ def build_stm32():
     # build
     ret = spawn(['make'])
 
+    # step back to builder
+    os.chdir('../../builder')
+
     if ret != 0:
         print("\nERROR: build job failed. terminating.")
         return -1
-
-    # step back to builder
-    os.chdir('../../builder')
 
     # move target executable
     if os.path.exists('../device/TMA-1/build/TMA-1.elf'):
