@@ -40,7 +40,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
       SYS_LOG(LOG_INFO, SYS, SYS_TELEMETRY_REMOTE);
       HAL_GPIO_WritePin(GPIOE, LED_TELEMETRY_Pin, GPIO_PIN_SET);
 
-
       DEBUG_MSG("[%8lu] [INF] remote telemetry server connected\r\n", HAL_GetTick());
 
       if (!rtc_fix_triggered && !(handshake_flag & (1 << RTC_FIXED))) {
