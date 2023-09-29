@@ -17,6 +17,7 @@ const LOG_KEY = {
     'ACCELEROMETER_INIT',
     'GPS_INIT',
     'SYS_READY',
+    'SYS_UART_RTC_FIX',
     'SYS_SD_FAIL',
     'CAN_ERR_CANERR',
     'CAN_ERR_RXMSGFAIL',
