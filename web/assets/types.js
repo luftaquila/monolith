@@ -111,8 +111,8 @@ function parse(log) {
 
         case 'ANALOG_SYS': {
           parsed = {
-            CPU_TEMP: (raw[0] + raw[1] * Math.pow(2, 8)) / max,
-            INPUT_VOLTAGE: (raw[2] + raw[3] * Math.pow(2, 8)) / max,
+            CPU_TEMP: (raw[0] + raw[1] * Math.pow(2, 8)) / 10,
+            INPUT_VOLTAGE: (raw[2] + raw[3] * Math.pow(2, 8)) / max * 3.3 * 8,
           };
           break;
         }
@@ -197,6 +197,8 @@ function parse(log) {
       break;
     } // case 'GPS'
   } // switch (source)
+
+  return parsed;
 }
 
 function signed(value, bit) {
