@@ -1,6 +1,11 @@
 log = [];
 filename = '';
 
+let map = new kakao.maps.Map(document.getElementById('map'), {
+  center: new kakao.maps.LatLng(37.2829317, 127.0435822)
+});
+Chart.register(window['chartjs-plugin-autocolors']);
+
 /************************************************************************************
  * load a file
  ***********************************************************************************/
@@ -59,33 +64,34 @@ async function process_log(raw) {
   $("#converted-count").text(count - error);
   $("#duration").text(((log[log.length - 1].timestamp - log[0].timestamp) / (1000 * 60)).toFixed(0));
 
-  init_graph(log);
+  init_viewer(log);
 }
 
 
 /************************************************************************************
- * initialize graph data
+ * initialize graph and map data
  ***********************************************************************************/
-function init_graph(log) {
+function init_viewer(log) {
   let keylist = [];
-  gps = {
-    pos: [],
-    vector: [],
-    time: []
-  };
+  let gps = [];
 
   for (let data of log) {
-    if (data.source == 'GPS') {
-      switch (data.key) {
-        case 'GPS_POS' : gps.pos.push(data);    break;
-        case 'GPS_VEC' : gps.vector.push(data); break;
-        case 'GPS_TIME': gps.time.push(data);   break;
-        default: continue;
-      }
+    if (data.source == 'GPS' && data.key == 'GPS_POS') {
+      gps.push(new kakao.maps.LatLng(data.parsed.lat, data.parsed.lon));
     } else if (data.parsed !== null && !keylist.find(x => x.key == data.key)) {
       keylist.push(data);
     }
   }
+
+  new kakao.maps.Polyline({
+    path: gps,
+    strokeWeight: 5,
+    strokeColor: '#00C40D',
+    strokeOpacity: 0.7,
+    strokeStyle: 'solid'
+  }).setMap(map);
+
+  map.panTo(gps[0]);
 
   param = [];
   for (let key of keylist) {
@@ -97,8 +103,6 @@ function init_graph(log) {
       });
     }
   }
-
-  Chart.register(window['chartjs-plugin-autocolors']);
 }
 
 
