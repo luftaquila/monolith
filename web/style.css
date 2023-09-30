@@ -106,3 +106,52 @@ article .content {
   width: 70%;
   font-weight: bold;
 }
+
+.canvas_disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+input.data_input {
+  height: 1.2rem;
+  line-height: 1.2rem;
+  width: 7rem;
+}
+
+input.short {
+  width: 2rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  text-align: right;
+  padding-right: .5rem;
+}
+
+input.mini {
+  width: 1.5rem;
+  height: 1.2rem;
+  line-height: 1.2rem;
+  text-align: right;
+  padding-right: .5rem;
+}
+
+table td {
+  height: 1.75rem;
+  line-height: 1.75rem;
+}
+
+.reset-zoom {
+	position: absolute!important;
+	top: 170px;
+	right: 20px;
+  border: none;
+}
