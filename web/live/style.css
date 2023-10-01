@@ -126,3 +126,10 @@ div.status div.text {
   margin-top: 0.5rem;
   color: rgb(25,35,41);
 }
+
+input.data_input {
+  height: 1.2rem;
+  line-height: 1.2rem;
+  width: 7rem;
+}
+

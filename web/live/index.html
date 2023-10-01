@@ -20,7 +20,7 @@
   <body>
     <div id="header">
       <div id="logo" style='margin-top: 1rem;'>
-        <a href="https://github.com/luftaquila/monolith">
+        <a href="/live">
           <img src="/assets/logo/logo.png">
         </a>
       </div>
@@ -38,7 +38,7 @@
     </div>
 
     <div id="container">
-      <article style='margin-top: .4rem;'>
+      <article id='settings' style='margin-top: .4rem;'>
         <h1><i class="fa-solid fa-fw fa-passport"></i>&nbsp;TMA-2 원격 계측 모니터</h1>
         <div class="content" style='padding-top: 1rem; line-height: 2rem'>
           <div style="text-align: center">
@@ -50,7 +50,14 @@
         </div>
       </article>
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0/dist/chartjs-plugin-streaming.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.31/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5a6908c6e8974084c9c219f330401972"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
   <body>
