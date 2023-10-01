@@ -83,15 +83,17 @@ function init_viewer(log) {
     }
   }
 
-  new kakao.maps.Polyline({
-    path: gps,
-    strokeWeight: 5,
-    strokeColor: '#00C40D',
-    strokeOpacity: 0.7,
-    strokeStyle: 'solid'
-  }).setMap(map);
+  if (gps.length) {
+    new kakao.maps.Polyline({
+      path: gps,
+      strokeWeight: 5,
+      strokeColor: '#00C40D',
+      strokeOpacity: 0.7,
+      strokeStyle: 'solid'
+    }).setMap(map);
 
-  map.panTo(gps[0]);
+    map.panTo(gps[0]);
+  }
 
   param = [];
   for (let key of keylist) {
