@@ -114,6 +114,7 @@ $('#ui_config').click(function() {
       cancelButton: 'btn red'
     },
     preConfirm: function() {
+      // data validation TODO
 
     }
   }).then(result => {
@@ -133,8 +134,18 @@ data_types = [ 'digital', 'state', 'value', 'graph', 'gps' ];
 // add datagroup
 $(document.body).on('click', '#add_data_group', e => {
   let datagroup_html = `<div id='datagroup_${datagroup_count}'style='text-align: left; margin-top: 2rem; border: 2px solid lightgrey; background-color: #eeeeee; border-radius: 10px; padding: 1rem;'>
-    <input id='datagroup_name_${datagroup_count}' placeholder='데이터그룹 이름' maxlength='20' style='font-size: 1.2rem; height: 1.8rem; width: 12rem; font-weight: bold; color: #333333; padding-left: .5rem;'>
+    <i id='datagroup_icon_${datagroup_count}' class='fa-solid fa-fw fa-info'></i>&ensp;
+    <input id='datagroup_name_${datagroup_count}' placeholder='데이터그룹 이름' maxlength='20' style='font-size: 1.2rem; height: 1.8rem; width: 10rem; font-weight: bold; color: #333333; padding-left: .5rem;'>
     <span id='delete_datagroup_${datagroup_count}' class='delete_datagroup btn red' style='height: 1.2rem; line-height: 1.2rem; transform: translate(0px, -0.25rem);'>삭제</span>
+    <div style='margin-top: .5rem; margin-bottom: 1rem;'>
+      <table>
+        <tr>
+          <td>아이콘</td>
+          <td>: <input id='datagroup_iconname_${datagroup_count}' class='datagroup_iconname' value='info' placeholder='아이콘 이름' maxlength='30' style='width: 6rem; height: 1.2rem; line-height: 1.2rem; padding-left: .3rem;'></td>
+          <td>&ensp;<a href='https://fontawesome.com/search?o=r&m=free&s=solid' target='_blank' style='font-size: .8rem; text-decoration: underline; color: #0366d6'>검색</a></td>
+        </tr>
+      </table>
+    </div>
     <div id='datagroup_dataarea_${datagroup_count}' style='margin-top: .5rem; margin-bottom: .5rem;'></div>
     <div style='text-align: center;'>
     <span id='add_data_${datagroup_count}' class='add_data btn green' style='height: 1.2rem; line-height: 1.2rem;'>
@@ -174,9 +185,22 @@ $(document.body).on('click', '.add_data', e => {
     }
   }
 
-  let data_html = `<div id='data_${identifier}' style='text-align: left; background-color: #dddddd; border-radius: 10px; padding: .5rem; margin-bottom: 1rem;'>
-  <input id='data_name_${identifier}' placeholder='데이터 이름' maxlength='20' style='width: 8rem; height: 1.2rem; line-height: 1.2rem; padding-left: .5rem;'>
-  <select id='data_type_${identifier}' style='height: 1.5rem; margin-left: 1rem;'><option value='' disabled selected>타입</option>${data_types.map(x => `<option value='${x}'>${x}</option>`)}</select>
+  let data_html = `<div id='data_${identifier}' style='text-align: left; background-color: #dddddd; border-radius: 10px; padding: .8rem; margin-bottom: 1rem;'>
+  <i id='data_icon_${identifier}' class='fa-solid fa-fw fa-database'></i>&ensp;
+  <input id='data_name_${identifier}' placeholder='데이터 이름' maxlength='20' style='font-size: 1.1rem; width: 12rem; height: 1.5rem; padding-left: .3rem;'>
+  <div style='margin-top: 1rem;'>
+    <table>
+      <tr>
+        <td>아이콘</td>
+        <td>: <input id='data_iconname_${identifier}' class='data_iconname' value='database' placeholder='아이콘 이름' maxlength='30' style='width: 6rem; height: 1.2rem; line-height: 1.2rem; padding-left: .3rem;'></td>
+        <td>&ensp;<a href='https://fontawesome.com/search?o=r&m=free&s=solid' target='_blank' style='font-size: .8rem; text-decoration: underline; color: #0366d6'>검색</a></td>
+      </tr>
+      <tr>
+        <td>디스플레이</td>
+        <td>: <select id='data_type_${identifier}' style='height: 1.5rem;'><option value='' disabled selected>디스플레이 타입</option>${data_types.map(x => `<option value='${x}'>${x}</option>`)}</select></td>
+      </tr>
+    </table>
+  </div>
   <div style='margin-top: 1rem;'>
     <label><input type='radio' name='data_type_${identifier}' value='standard' onclick='$("#can_data_div_${identifier}").css("display", "none"); $("#standard_data_div_${identifier}").css("display", "block")' checked></input>&nbsp;일반</label>&ensp;
     <label><input type='radio' name='data_type_${identifier}' value='can' onclick='$("#standard_data_div_${identifier}").css("display", "none"); $("#can_data_div_${identifier}").css("display", "block");'></input>&nbsp;CAN</label>
@@ -188,7 +212,7 @@ $(document.body).on('click', '.add_data', e => {
       <table style='margin-top: .7rem;'>
         <tr>
           <td>CAN ID</td>
-          <td>: <input id='can_data_id_${identifier}' type='number' class='data_input' style='width: 5rem;'>&ensp;(0x <span id='can_data_id_hex'>00</span>)</td>
+          <td>: <input id='can_data_id_${identifier}' type='number' class='can_data_id data_input' style='width: 5rem;'>&ensp;(0x<span id='can_data_id_hex_${identifier}'>00</span>)</td>
         </tr>
         <tr>
           <td>데이터</td>
@@ -201,16 +225,14 @@ $(document.body).on('click', '.add_data', e => {
       <div id='byte_form_${identifier}' style='margin-left: 1rem;'>
         <table>
           <tr>
-            <td>Endian</td>
-            <td>: <label><input value='big' type='radio' name='endian_${identifier}' checked></input> Big</label> <label style='margin-left: .8rem;'><input value='little' type='radio' name='endian_${identifier}'></input> Little</label></td>
+            <td>Endian : <label><input value='big' type='radio' name='endian_${identifier}' checked></input> Big</label> <label style='margin-left: .8rem;'><input value='little' type='radio' name='endian_${identifier}'></input> Little</label></td>
           </tr>
           <tr>
-            <td>Byte</td>
-            <td>: #<input id='can_start_byte_${identifier}' type='number' class='mini' value='0'> ~ #<input id='can_end_byte_${identifier}' type='number' class='mini' value='0'> <span style='font-size: .8rem;'>(#0 ~ 7)</span></td>
+            <td>Byte : #<input id='can_start_byte_${identifier}' type='number' class='mini' value='0'> ~ #<input id='can_end_byte_${identifier}' type='number' class='mini' value='0'> <span style='font-size: .8rem;'>(#0 ~ 7)</span></td>
           </tr>
         </table>
       </div>
-      <div id='bit_form_${identifier}' style='display: none; margin-left: 2rem;'>
+      <div id='bit_form_${identifier}' style='display: none; margin-left: 1rem;'>
         <table style='marin-left: 1rem;'>
           <tr>
             <td>Bit</td>
@@ -243,47 +265,24 @@ $(document.body).on('click', '.delete_data', e => {
 
 
 // calculate CAN ID in hex
-$(document.body).on('keyup', '#can_data_id', e => {
-  $('#can_data_id_hex').text(Number($('#can_data_id').val()).toString(16).toUpperCase());
+$(document.body).on('keyup', '.can_data_id', e => {
+  let target_identifier = e.target.id.replace('can_data_id_', '');
+
+  $(`#can_data_id_hex_${target_identifier}`).text(Number($(e.target).val()).toString(16).toUpperCase());
 });
 
 
-// detele data TODO
+// datagroup icon previewer
+$(document.body).on('keyup', '.datagroup_iconname', e => {
+  let target_group = e.target.id.replace('datagroup_iconname_', '');
 
-class Viewer {
-  constructor(type, label, unit, icon) {
-    this.type = type;
-    this.label = label;
-    this.unit = unit;
-    this.icon = icon;
-    this.data = { };
+  $(`#datagroup_icon_${target_group}`).removeClass().addClass(`fa-solid fa-fw fa-${$(`#datagroup_iconname_${target_group}`).val()}`);
+});
 
-    switch (this.type) {
-      case 'digital':
-        this.html = `<tr>`;
-        break;
 
-      case 'state':
-        break;
+// data icon previewer
+$(document.body).on('keyup', '.data_iconname', e => {
+  let target_identifier = e.target.id.replace('data_iconname_', '');
 
-      case 'value':
-        break;
-
-      case 'graph':
-        break;
-
-      case 'gps':
-        break;
-    }
-  }
-
-  toString() {
-    return JSON.stringify({
-      type: this.type,
-      label: this.label,
-      unit: this.unit,
-      icon: this.icon,
-      html: this.html,
-    });
-  }
-}
+  $(`#data_icon_${target_identifier}`).removeClass().addClass(`fa-solid fa-fw fa-${$(`#data_iconname_${target_identifier}`).val()}`);
+});

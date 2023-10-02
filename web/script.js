@@ -240,7 +240,7 @@ $(document.body).on('click', '.add_graph_data', async e => {
       </tr>
       <tr>
         <td>CAN ID</td>
-        <td>: <input id='can_data_id' type='number' class='data_input'>&ensp;(0x <span id='can_data_id_hex'>00</span>)</td>
+        <td>: <input id='can_data_id' type='number' class='data_input'>&ensp;(0x<span id='can_data_id_hex'>00</span>)</td>
       </tr>
       <tr>
         <td>데이터</td>
