@@ -10,11 +10,17 @@ if (typeof io === typeof undefined) {
   });
 }
 
-socket = io.connect("/", { query: {
-  client: true,
-  channel: Cookies.get('id'),
-  key: Cookies.get('key')
-} });
+socket = io.connect("/", {
+  query: {
+    client: true,
+    channel: Cookies.get('id'),
+    key: Cookies.get('key')
+  }
+});
+
+socket.on('connect', () => {
+  $("#server i").css("color", "green");
+});
 
 socket.on('connect_error', () => {
   $("#server i").css("color", "red");
@@ -51,20 +57,20 @@ socket.on('disconnect', () => {
  ***********************************************************************************/
 $('#car_id_config').click(function() {
   let html = `<div style='text-align: left;'><span style='font-size: 1.7rem; font-weight: bold;'>차량 ID 설정</span></div>
-<div>
-  <p>사용자 등록 시 설정한 차량 ID와 key를 입력하세요.</p>
-  <p>입력한 정보는 브라우저 쿠키에 저장됩니다.</p>
-</div>
-<table style='margin: auto;'>
-  <tr>
-    <td style='text-align: left; line-height: 1.5rem;'>차량 ID</td>
-    <td>: <input id='car_id' class='data_input' value='${Cookies.get('id') ? Cookies.get('id') : ''}'></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; line-height: 1.5rem;'>key</td>
-    <td>: <input id='car_id_key' class='data_input' value='${Cookies.get('key') ? Cookies.get('key') : ''}'></td>
-  </tr>
-</table>`;
+  <div>
+    <p>사용자 등록 시 설정한 차량 ID와 key를 입력하세요.</p>
+    <p>입력한 정보는 브라우저 쿠키에 저장됩니다.</p>
+  </div>
+  <table style='margin: auto;'>
+    <tr>
+      <td style='text-align: left; line-height: 1.5rem;'>차량 ID</td>
+      <td>: <input id='car_id' class='data_input' value='${Cookies.get('id') ? Cookies.get('id') : ''}'></td>
+    </tr>
+    <tr>
+      <td style='text-align: left; line-height: 1.5rem;'>key</td>
+      <td>: <input id='car_id_key' class='data_input' value='${Cookies.get('key') ? Cookies.get('key') : ''}'></td>
+    </tr>
+  </table>`;
 
   Swal.fire({
     html: html,
@@ -89,11 +95,14 @@ $('#car_id_config').click(function() {
  ***********************************************************************************/
 $('#ui_config').click(function() {
   let html = `<div style='text-align: left;'><span style='font-size: 1.7rem; font-weight: bold;'>UI 설정</span></div>
-<div id='ui_area'></div>
-<div style='margin-top: 1rem;'>
-  <span id='add_data_group' class='btn green' style='height: 1.5rem; line-height: 1.5rem;'>
-    <i class='fa-solid fa-fw fa-object-group'></i>&ensp;데이터 그룹 추가</span>
-</div>`;
+  <div id='ui_area'></div>
+  <div style='margin-top: 1rem;'>
+    <span id='add_data_group' class='btn green' style='height: 1.5rem; line-height: 1.5rem;'><i class='fa-regular fa-fw fa-plus'></i>&ensp;데이터 그룹 추가</span>
+  </div>
+  <div style='margin-top: 1rem;'>
+    <span id='export_ui' class='btn purple' style='height: 1.5rem; line-height: 1.5rem;'><i class='fa-solid fa-fw fa-file-export'></i>&ensp;UI 설정 내보내기</span><br>
+    <span id='import_ui' class='btn purple' style='height: 1.5rem; line-height: 1.5rem;'><i class='fa-solid fa-fw fa-file-import'></i>&ensp;UI 설정 불러오기</span>
+  </div>`;
 
   Swal.fire({
     html: html,
@@ -104,7 +113,7 @@ $('#ui_config').click(function() {
       confirmButton: 'btn green',
       cancelButton: 'btn red'
     },
-    preconfirm: function() {
+    preConfirm: function() {
 
     }
   }).then(result => {
@@ -117,13 +126,127 @@ $('#ui_config').click(function() {
 /************************************************************************************
  * UI configuratior events
  ***********************************************************************************/
-$(document.body).on('click', 'add_data_group', e => {
-  let datagroup_html = ``;
+datagroup_count = 0;
+datagroup = [];
+data_types = [ 'digital', 'state', 'value', 'graph', 'gps' ];
+
+// add datagroup
+$(document.body).on('click', '#add_data_group', e => {
+  let datagroup_html = `<div id='datagroup_${datagroup_count}'style='text-align: left; margin-top: 2rem; border: 2px solid lightgrey; background-color: #eeeeee; border-radius: 10px; padding: 1rem;'>
+    <input id='datagroup_name_${datagroup_count}' placeholder='데이터그룹 이름' maxlength='20' style='font-size: 1.2rem; height: 1.8rem; width: 12rem; font-weight: bold; color: #333333; padding-left: .5rem;'>
+    <span id='delete_datagroup_${datagroup_count}' class='delete_datagroup btn red' style='height: 1.2rem; line-height: 1.2rem; transform: translate(0px, -0.25rem);'>삭제</span>
+    <div id='datagroup_dataarea_${datagroup_count}' style='margin-top: .5rem; margin-bottom: .5rem;'></div>
+    <div style='text-align: center;'>
+    <span id='add_data_${datagroup_count}' class='add_data btn green' style='height: 1.2rem; line-height: 1.2rem;'>
+      <i class='fa-regular fa-fw fa-plus'></i>&ensp;데이터 추가</span>
+    </div>
+  </div>`;
   $('#ui_area').append(datagroup_html);
 
+  datagroup[datagroup_count] = {
+    data_count: 0,
+    data_list: [],
+  };
+
+  datagroup_count++;
 });
 
-let datagroup = [];
+// delete datagroup
+$(document.body).on('click', '.delete_datagroup', e => {
+  let target_group = e.target.id.replace('delete_datagroup_', '');
+
+  $(`#datagroup_${target_group}`).remove();
+});
+
+// add data
+$(document.body).on('click', '.add_data', e => {
+  let target_group = e.target.id.replace('add_data_', '');
+  let identifier = `${target_group}_${datagroup[target_group].data_count}`;
+
+  let standard_records = [];
+  for (let key of Object.keys(LOG_KEY)) {
+    if (key !== 'SYS' && key !== 'CAN') {
+      for (let k of LOG_KEY[key]) {
+        standard_records.push(`${key} / ${k}`);
+      }
+    }
+  }
+
+  let data_html = `<div id='data_${identifier}' style='text-align: left; background-color: #dddddd; border-radius: 10px; padding: .5rem; margin-bottom: 1rem;'>
+  <input id='data_name_${identifier}' placeholder='데이터 이름' maxlength='20' style='width: 8rem; height: 1.2rem; line-height: 1.2rem; padding-left: .5rem;'>
+  <select id='data_type_${identifier}' style='height: 1.5rem; margin-left: 1rem;'><option value='' disabled selected>타입</option>${data_types.map(x => `<option value='${x}'>${x}</option>`)}</select>
+  <div style='margin-top: 1rem;'>
+    <label><input type='radio' name='data_type_${identifier}' value='standard' onclick='$("#can_data_div_${identifier}").css("display", "none"); $("#standard_data_div_${identifier}").css("display", "block")' checked></input>&nbsp;일반</label>&ensp;
+    <label><input type='radio' name='data_type_${identifier}' value='can' onclick='$("#standard_data_div_${identifier}").css("display", "none"); $("#can_data_div_${identifier}").css("display", "block");'></input>&nbsp;CAN</label>
+    <div id='standard_data_div_${identifier}' style='margin-top: 1rem; margin-bottom: 1rem;'>
+      <select id='select_data_${identifier}' style='width: 16rem; height: 2rem;'><option value='' disabled selected>데이터 선택</option>${standard_records.map(x => `<option value='${x}'>${x}</option>`)}</select>
+    </div>
+    <div id='can_data_div_${identifier}' style='display: none; margin-top: 1rem; margin-bottom: 1rem;'>
+      <select id='can_favorite_${identifier}' style='width: 16rem; height: 2rem;'><option value='' disabled selected>즐겨찾기에서 선택</option>${0}</select>
+      <table style='margin-top: .7rem;'>
+        <tr>
+          <td>CAN ID</td>
+          <td>: <input id='can_data_id_${identifier}' type='number' class='data_input' style='width: 5rem;'>&ensp;(0x <span id='can_data_id_hex'>00</span>)</td>
+        </tr>
+        <tr>
+          <td>데이터</td>
+          <td>
+            : <label><input type='radio' name='level_${identifier}' value='byte' onclick='$("#byte_form_${identifier}").css("display", "block"); $("#bit_form_${identifier}").css("display", "none");' checked></input> Byte</label>
+            <label style='margin-left: .8rem;'><input type='radio' name='level_${identifier}' onclick='$("#bit_form_${identifier}").css("display", "block"); $("#byte_form_${identifier}").css("display", "none");' value='bit'></input> Bit</label>
+          </td>
+        </tr>
+      </table>
+      <div id='byte_form_${identifier}' style='margin-left: 1rem;'>
+        <table>
+          <tr>
+            <td>Endian</td>
+            <td>: <label><input value='big' type='radio' name='endian_${identifier}' checked></input> Big</label> <label style='margin-left: .8rem;'><input value='little' type='radio' name='endian_${identifier}'></input> Little</label></td>
+          </tr>
+          <tr>
+            <td>Byte</td>
+            <td>: #<input id='can_start_byte_${identifier}' type='number' class='mini' value='0'> ~ #<input id='can_end_byte_${identifier}' type='number' class='mini' value='0'> <span style='font-size: .8rem;'>(#0 ~ 7)</span></td>
+          </tr>
+        </table>
+      </div>
+      <div id='bit_form_${identifier}' style='display: none; margin-left: 2rem;'>
+        <table style='marin-left: 1rem;'>
+          <tr>
+            <td>Bit</td>
+            <td>: #<input id='can_start_bit_${identifier}' type='number' class='mini' value='0'> ~ #<input id='can_end_bit_${identifier}' type='number' class='mini' value='0'> <span style='font-size: .8rem;'>(#0 ~ 63)</span></td>
+          </tr>
+          <tr><td></td></tr>
+        </table>
+      </div>
+      <div style='margin-top: .7rem;'><label><input id='add_to_favorite_${identifier}' type='checkbox'></input> 즐겨찾기에 추가</label></div>
+    </div>
+  </div>
+  <div> <span>데이터 배율</span>&ensp;&ensp;x <input id='mag_${identifier}' type='number' class='short' value=1> </div>
+  <div style='text-align: center'>
+    <span id='delete_data_${identifier}' class='delete_data btn red' style='height: 1.2rem; line-height: 1.2rem;'>삭제</span>
+  </div>
+  </div>`;
+
+  $(`#datagroup_dataarea_${target_group}`).append(data_html);
+
+  datagroup[target_group].data_count++;
+});
+
+
+// delete data
+$(document.body).on('click', '.delete_data', e => {
+  let target_identifier = e.target.id.replace('delete_data_', '');
+
+  $(`#data_${target_identifier}`).remove();
+});
+
+
+// calculate CAN ID in hex
+$(document.body).on('keyup', '#can_data_id', e => {
+  $('#can_data_id_hex').text(Number($('#can_data_id').val()).toString(16).toUpperCase());
+});
+
+
+// detele data TODO
 
 class Viewer {
   constructor(type, label, unit, icon) {
