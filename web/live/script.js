@@ -19,6 +19,7 @@ socket = io.connect("/", {
 });
 
 socket.on('connect', () => {
+  connect_time = new Date();
   $("#server i").css("color", "green");
 });
 
@@ -29,26 +30,29 @@ socket.on('connect_error', () => {
 socket.on('disconnect', () => {
   $("#server i").css("color", "red");
 
-  if (!Cookies.get('id') && !Cookies.get('key')) {
-    Swal.fire({
-      icon: 'info',
-      title: '차량 ID 정보 없음',
-      html: '<div style="line-height: 2.5rem;">차량 ID가 설정되지 않았습니다.<br>먼저 차량 ID와 key를 설정해 주세요.</div>',
-      confirmButtonText: '확인',
-      customClass: {
-        confirmButton: 'btn green',
-      }
-    });
-  } else {
-    Swal.fire({
-      icon: 'error',
-      title: '서버 연결 비활성화',
-      html: '<div style="line-height: 2.5rem;">서버에서 연결을 거부했습니다.<br>차량 ID와 key 설정을 확인하세요.</div>',
-      confirmButtonText: '확인',
-      customClass: {
-        confirmButton: 'btn green',
-      }
-    });
+  // only if event is at page load
+  if (new Date() - connect_time < 1000) {
+    if (!Cookies.get('id') && !Cookies.get('key')) {
+      Swal.fire({
+        icon: 'info',
+        title: '차량 ID 정보 없음',
+        html: '<div style="line-height: 2.5rem;">차량 ID가 설정되지 않았습니다.<br>먼저 차량 ID와 key를 설정해 주세요.</div>',
+        confirmButtonText: '확인',
+        customClass: {
+          confirmButton: 'btn green',
+        }
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: '서버 연결 비활성화',
+        html: '<div style="line-height: 2.5rem;">서버에서 연결을 거부했습니다.<br>차량 ID와 key 설정을 확인하세요.</div>',
+        confirmButtonText: '확인',
+        customClass: {
+          confirmButton: 'btn green',
+        }
+      });
+    }
   }
 });
 
@@ -193,7 +197,6 @@ $(document.body).on('click', '.add_data', e => {
       <tr>
         <td>아이콘</td>
         <td>: <input id='data_iconname_${identifier}' class='data_iconname' value='database' placeholder='아이콘 이름' maxlength='30' style='width: 6rem; height: 1.2rem; line-height: 1.2rem; padding-left: .3rem;'></td>
-        <td>&ensp;<a href='https://fontawesome.com/search?o=r&m=free&s=solid' target='_blank' style='font-size: .8rem; text-decoration: underline; color: #0366d6'>검색</a></td>
       </tr>
       <tr>
         <td>디스플레이</td>
