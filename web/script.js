@@ -218,28 +218,29 @@ $(document.body).on('click', '.add_graph_data', async e => {
   let html = `<div style='text-align: left'>
   <label>
     <span style='font-weight: bold; font-size: 1.25rem;'>
-      <input type='radio' name='data_type' value='standard' onclick='$("#can_data_div").addClass("disabled"); $("#standard_data_div").removeClass("disabled")' checked></input>&ensp;일반 데이터 추가 </label>
+      <input type='radio' name='data_type' value='standard' onclick='$("#can_data_div").addClass("disabled"); $("#standard_data_div").removeClass("disabled")' checked></input>&ensp;일반 데이터 추가
+    </span>
+  </label>
   <div id='standard_data_div' style='margin-top: 1rem; margin-bottom: 2rem; margin-left: 2rem;'>
     <select id='select_data' style='width: 18rem; height: 2rem;'>
-      <option value='' disabled selected>그래프에 추가할 데이터를 선택하세요.</option>${param.map(x => ` <option value='${x.source}/${x.key}/${x.param}'>${x.source} / ${x.param}</option>`)}
+      <option value='' disabled selected>그래프에 추가할 데이터를 선택하세요.</option>${param.map(x => `<option value='${x.source}/${x.key}/${x.param}'>${x.source} / ${x.param}</option>`)}
     </select>
   </div>
   <label>
     <span style='font-weight: bold; font-size: 1.25rem;'>
-      <input type='radio' name='data_type' value='can' onclick='$("#standard_data_div").addClass("disabled"); $("#can_data_div").removeClass("disabled");'></input>&ensp;CAN 데이터 추가 </label>
+      <input type='radio' name='data_type' value='can' onclick='$("#standard_data_div").addClass("disabled"); $("#can_data_div").removeClass("disabled");'></input>&ensp;CAN 데이터 추가
+    </span>
+  </label>
   <div id='can_data_div' class='disabled' style='margin-top: 1rem; margin-bottom: 2rem; margin-left: 2rem;'>
-  <select id='can_favorite' style='width: 18rem; height: 2rem;'><option value='' disabled selected>즐겨찾기에서 선택</option>${0}</select>
+    <select id='can_favorite' style='width: 18rem; height: 2rem;'><option value='' disabled selected>즐겨찾기에서 선택</option>${0}</select>
     <table style='margin-top: .7rem;'>
       <tr>
         <td>레이블</td>
-        <td>: <input id='data_label' class='data_input'>
-        </td>
+        <td>: <input id='data_label' class='data_input'></td>
       </tr>
       <tr>
         <td>CAN ID</td>
-        <td>: <input id='can_data_id' type='number' class='data_input'>
-        </td>
-        <td style='padding-left: .5rem;'>(0x <span id='can_data_id_hex'>00</span>) </td>
+        <td>: <input id='can_data_id' type='number' class='data_input'>&ensp;(0x <span id='can_data_id_hex'>00</span>)</td>
       </tr>
       <tr>
         <td>데이터</td>
@@ -264,18 +265,12 @@ $(document.body).on('click', '.add_graph_data', async e => {
           <td>Bit</td>
           <td>: #<input id='can_start_bit' type='number' class='mini' value='0'> ~ #<input id='can_end_bit' type='number' class='mini' value='0'> <span style='font-size: .8rem;'>(#0 ~ #63)</span></td>
         </tr>
-        <tr>
-          <td></td>
-        </tr>
+        <tr><td></td></tr>
       </table>
     </div>
-    <div style='margin-top: .7rem;'>
-      <label><input id='add_to_favorite' type='checkbox'></input> 즐겨찾기에 추가</label>
-    </div>
+    <div style='margin-top: .7rem;'><label><input id='add_to_favorite' type='checkbox'></input> 즐겨찾기에 추가</label></div>
   </div>
-  <div>
-    <span style='font-weight: bold;'>데이터 배율</span>&ensp;&ensp;x <input id='mag' type='number' class='short' value=1>
-  </div>
+  <div><span style='font-weight: bold;'>데이터 배율</span>&ensp;&ensp;x <input id='mag' type='number' class='short' value=1></div>
 </div>`;
 
   Swal.fire({

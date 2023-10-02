@@ -4,31 +4,44 @@ const LOG_LEVEL = [ 'FATAL', 'ERROR', 'WARN', 'INFO', 'DEBUG' ];
 const LOG_SOURCE = [ 'SYS', 'CAN', 'DIGITAL', 'ANALOG', 'PULSE', 'ACCELEROMETER', 'GPS' ];
 const LOG_KEY = {
   'SYS': [
-    'SYS_SD_INIT',
-    'SYS_CORE_INIT',
-    'SYS_SERIAL_INIT',
-    'SYS_TELEMETRY_REMOTE',
-    'SYS_TELEMETRY_RTC_FIX',
-    'SYS_TELEMETRY_INIT',
-    'CAN_INIT',
-    'DIGITAL_INIT',
-    'ANALOG_INIT',
-    'PULSE_INIT',
-    'ACCELEROMETER_INIT',
-    'GPS_INIT',
-    'SYS_READY',
-    'SYS_UART_RTC_FIX',
-    'SYS_SD_FAIL',
-    'CAN_ERR_CANERR',
-    'CAN_ERR_RXMSGFAIL',
-    'CAN_ERR_FIFOFULL'
+    { name: 'SYS_SD_INIT', parsed: null },
+    { name: 'SYS_CORE_INIT', parsed: null },
+    { name: 'SYS_SERIAL_INIT', parsed: null },
+    { name: 'SYS_TELEMETRY_REMOTE', parsed: null },
+    { name: 'SYS_TELEMETRY_RTC_FIX', parsed: null },
+    { name: 'SYS_TELEMETRY_INIT', parsed: null },
+    { name: 'CAN_INIT', parsed: null },
+    { name: 'DIGITAL_INIT', parsed: null },
+    { name: 'ANALOG_INIT', parsed: null },
+    { name: 'PULSE_INIT', parsed: null },
+    { name: 'ACCELEROMETER_INIT', parsed: null },
+    { name: 'GPS_INIT', parsed: null },
+    { name: 'SYS_READY', parsed: null },
+    { name: 'SYS_UART_RTC_FIX', parsed: null },
+    { name: 'SYS_SD_FAIL', parsed: null },
+    { name: 'CAN_ERR_CANERR', parsed: null },
+    { name: 'CAN_ERR_RXMSGFAIL', parsed: null },
+    { name: 'CAN_ERR_FIFOFULL', parsed: null }
   ],
   'CAN': [], // key is CAN message ID
-  'DIGITAL': [ 'DIGITAL_DATA' ],
-  'ANALOG': [ 'ANALOG_SYS', 'ANALOG_DATA' ],
-  'PULSE': [ 'PULSE_DATA' ],
-  'ACCELEROMETER': [ 'ACCELEROMETER_DATA' ],
-  'GPS': [ 'GPS_POS', 'GPS_VEC', 'GPS_TIME' ]
+  'DIGITAL': [
+    { name: 'DIGITAL_DATA', parsed: [ 'DIN0', 'DIN1', 'DIN2', 'DIN3', 'DIN4', 'DIN5', 'DIN6', 'DIN7' ] }
+  ],
+  'ANALOG': [
+    { name: 'ANALOG_SYS', parsed: [ 'CPU_TEMP', 'INPUT_VOLTAGE' ] },
+    { name: 'ANALOG_DATA', parsed: [ 'AIN0', 'AIN1', 'AIN2', 'AIN3' ] }
+  ],
+  'PULSE': [
+    { name: 'PULSE_DATA', parsed: [ 'PIN0', 'PIN1', 'PIN2', 'PIN3' ] }
+  ],
+  'ACCELEROMETER': [
+    { name: 'ACCELEROMETER_DATA', parsed: [ 'x', 'y', 'z' ] }
+  ],
+  'GPS': [
+    { name: 'GPS_POS', parsed: [ 'lat', 'lon' ] },
+    { name: 'GPS_VEC', parsed: [ 'speed', 'course' ] },
+    { name: 'GPS_TIME', parsed: [ 'utc_date', 'utc_time' ] }
+  ]
 };
 
 function translate(raw) {
@@ -38,7 +51,7 @@ function translate(raw) {
       datetime: null,
       level: LOG_LEVEL[raw[4]],
       source: LOG_SOURCE[raw[5]],
-      key: LOG_SOURCE[raw[5]] === 'CAN' ? raw[6] : LOG_KEY[LOG_SOURCE[raw[5]]][raw[6]],
+      key: LOG_SOURCE[raw[5]] === 'CAN' ? raw[6] : LOG_KEY[LOG_SOURCE[raw[5]]][raw[6]].name,
       checksum: raw[7] == ((raw[0] + raw[1] + raw[2] + raw[3] + raw[4] + raw[5] + raw[6] + raw[8] + raw[9] + raw[10] + raw[11] + raw[12] + raw[13] + raw[14] + raw[15]) % 256),
       value: raw[8] + raw[9] * Math.pow(2, 8) + raw[10] * Math.pow(2, 16) + raw[11] * Math.pow(2, 24) + raw[12] * Math.pow(2, 32) + raw[13] * Math.pow(2, 40) + raw[14] * Math.pow(2, 48) + raw[15] * Math.pow(2, 56),
       raw: raw.slice(8)

@@ -167,7 +167,9 @@ $(document.body).on('click', '.add_data', e => {
   for (let key of Object.keys(LOG_KEY)) {
     if (key !== 'SYS' && key !== 'CAN') {
       for (let k of LOG_KEY[key]) {
-        standard_records.push(`${key} / ${k}`);
+        for (let p of k.parsed) {
+          standard_records.push(`${key} / ${p}`);
+        }
       }
     }
   }
@@ -179,7 +181,7 @@ $(document.body).on('click', '.add_data', e => {
     <label><input type='radio' name='data_type_${identifier}' value='standard' onclick='$("#can_data_div_${identifier}").css("display", "none"); $("#standard_data_div_${identifier}").css("display", "block")' checked></input>&nbsp;일반</label>&ensp;
     <label><input type='radio' name='data_type_${identifier}' value='can' onclick='$("#standard_data_div_${identifier}").css("display", "none"); $("#can_data_div_${identifier}").css("display", "block");'></input>&nbsp;CAN</label>
     <div id='standard_data_div_${identifier}' style='margin-top: 1rem; margin-bottom: 1rem;'>
-      <select id='select_data_${identifier}' style='width: 16rem; height: 2rem;'><option value='' disabled selected>데이터 선택</option>${standard_records.map(x => `<option value='${x}'>${x}</option>`)}</select>
+      <select id='select_data_${identifier}' style='width: 16rem; height: 2rem;'><option value='' disabled selected>데이터 소스 선택</option>${standard_records.map(x => `<option value='${x}'>${x}</option>`)}</select>
     </div>
     <div id='can_data_div_${identifier}' style='display: none; margin-top: 1rem; margin-bottom: 1rem;'>
       <select id='can_favorite_${identifier}' style='width: 16rem; height: 2rem;'><option value='' disabled selected>즐겨찾기에서 선택</option>${0}</select>
