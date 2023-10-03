@@ -29,7 +29,7 @@ int SYS_LOG(LOG_LEVEL level, LOG_SOURCE source, int key) {
   syslog.timestamp = HAL_GetTick();
   syslog.level = level;
   syslog.source = source;
-  syslog.key = key;
+  syslog.key = (uint8_t)(key & 0xff);
 
   uint32_t sum = *(uint8_t *)(&syslog);
   sum += *((uint8_t *)(&syslog) + 1);
