@@ -10,11 +10,14 @@ if (typeof io === typeof undefined) {
   });
 }
 
+/************************************************************************************
+ * Socket.io events
+ ***********************************************************************************/
 socket = io.connect("/", {
   query: {
     client: true,
-    channel: Cookies.get('id'),
-    key: Cookies.get('key')
+    channel: localStorage.getItem('id'),
+    key: localStorage.getItem('key')
   }
 });
 
@@ -32,7 +35,8 @@ socket.on('disconnect', () => {
 
   // only if event is at page load
   if (new Date() - connect_time < 1000) {
-    if (!Cookies.get('id') && !Cookies.get('key')) {
+    // no saved car id cookies
+    if (!localStorage.getItem('id') && !localStorage.getItem('key')) {
       Swal.fire({
         icon: 'info',
         title: '차량 ID 정보 없음',
@@ -42,7 +46,7 @@ socket.on('disconnect', () => {
           confirmButton: 'btn green',
         }
       });
-    } else {
+    } else { // invalid car id cookies
       Swal.fire({
         icon: 'error',
         title: '서버 연결 비활성화',
@@ -68,11 +72,11 @@ $('#car_id_config').click(function() {
   <table style='margin: auto;'>
     <tr>
       <td style='text-align: left; line-height: 1.5rem;'>차량 ID</td>
-      <td>: <input id='car_id' class='data_input' value='${Cookies.get('id') ? Cookies.get('id') : ''}'></td>
+      <td>: <input id='car_id' class='data_input' value='${localStorage.getItem('id') ? localStorage.getItem('id') : ''}'></td>
     </tr>
     <tr>
       <td style='text-align: left; line-height: 1.5rem;'>key</td>
-      <td>: <input id='car_id_key' class='data_input' value='${Cookies.get('key') ? Cookies.get('key') : ''}'></td>
+      <td>: <input id='car_id_key' class='data_input' value='${localStorage.getItem('key') ? localStorage.getItem('key') : ''}'></td>
     </tr>
   </table>`;
 
@@ -87,8 +91,8 @@ $('#car_id_config').click(function() {
     },
   }).then(result => {
     if (result.isConfirmed) {
-      Cookies.set('id', $('#car_id').val().trim(), { expires: 365 });
-      Cookies.set('key', $('#car_id_key').val().trim(), { expires: 365 });
+      localStorage.setItem('id', $('#car_id').val().trim(), { expires: 365 });
+      localStorage.setItem('key', $('#car_id_key').val().trim(), { expires: 365 });
       location.reload();
     }
   })
@@ -117,16 +121,18 @@ $('#ui_config').click(function() {
       confirmButton: 'btn green',
       cancelButton: 'btn red'
     },
-    preConfirm: function() {
-      // data validation TODO
-
-    }
+    preConfirm: ui_validator
   }).then(result => {
     if (result.isConfirmed) {
 
     }
   });
 });
+
+// data validation TODO
+function ui_validator() {
+
+}
 
 /************************************************************************************
  * UI configuratior events
@@ -258,14 +264,12 @@ $(document.body).on('click', '.add_data', e => {
   datagroup[target_group].data_count++;
 });
 
-
 // delete data
 $(document.body).on('click', '.delete_data', e => {
   let target_identifier = e.target.id.replace('delete_data_', '');
 
   $(`#data_${target_identifier}`).remove();
 });
-
 
 // calculate CAN ID in hex
 $(document.body).on('keyup', '.can_data_id', e => {
@@ -274,18 +278,10 @@ $(document.body).on('keyup', '.can_data_id', e => {
   $(`#can_data_id_hex_${target_identifier}`).text(Number($(e.target).val()).toString(16).toUpperCase());
 });
 
+// icon previewer
+$(document.body).on('keyup', '.datagroup_iconname, .data_iconname', e => {
+  let type = e.target.id.includes('group') ? 'group' : '';
+  let target = e.target.id.replace(`data${type}_iconname_`, '');
 
-// datagroup icon previewer
-$(document.body).on('keyup', '.datagroup_iconname', e => {
-  let target_group = e.target.id.replace('datagroup_iconname_', '');
-
-  $(`#datagroup_icon_${target_group}`).removeClass().addClass(`fa-solid fa-fw fa-${$(`#datagroup_iconname_${target_group}`).val()}`);
-});
-
-
-// data icon previewer
-$(document.body).on('keyup', '.data_iconname', e => {
-  let target_identifier = e.target.id.replace('data_iconname_', '');
-
-  $(`#data_icon_${target_identifier}`).removeClass().addClass(`fa-solid fa-fw fa-${$(`#data_iconname_${target_identifier}`).val()}`);
+  $(`#data${type}_icon_${target}`).removeClass().addClass(`fa-solid fa-fw fa-${$(`#data${type}_iconname_${target}`).val()}`);
 });
