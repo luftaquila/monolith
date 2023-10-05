@@ -124,14 +124,210 @@ $('#ui_config').click(function() {
     preConfirm: ui_validator
   }).then(result => {
     if (result.isConfirmed) {
-
+      console.log(result.value);
+      localStorage.setItem('ui', JSON.stringify(result.value));
+      location.reload();
     }
   });
 });
 
-// data validation TODO
+// data validation
 function ui_validator() {
+  let datagroups = $('.datagroup').toArray().map(x => ({ elem: x, data: $(`#${x.id} .datagroup_data`).toArray() }) );
 
+  let result = [];
+  let target;
+
+  /* datagroup validation */
+  for (let grp of datagroups) {
+    let group_id = grp.elem.id.replace('datagroup_', '');
+    let group = { };
+
+    // datagroup data element count
+    target = $(`#datagroup_${group_id}`);
+    if (!grp.data.length) {
+      target.css('border', '2px solid red');
+      Swal.showValidationMessage('Datagroup with no data presents!');
+      return false;
+    } else {
+      target.css('border', '2px solid lightgrey');
+      group.datacount = grp.data.length;
+    }
+
+    // datagroup name
+    target = $(`#datagroup_name_${group_id}`);
+    if (!target.val().trim()) {
+      target.css('border', '1px solid red');
+      Swal.showValidationMessage('Datagroup with no name presents!');
+      return false;
+    } else {
+      target.css('border', '1px solid #767676');
+      group.name = target.val().trim();
+    }
+
+    group.icon = $(`#datagroup_iconname_${group_id}`).val().trim();
+
+    group.data = [];
+
+    /* group data validation */
+    for (let dataitem of grp.data) {
+      let data_id = dataitem.id.replace('data_', '');
+      let data = { };
+
+      // data name
+      target = $(`#data_name_${data_id}`);
+      target.css('border', '1px solid #767676');
+      if (!target.val().trim()) {
+        target.css('border', '1px solid red');
+        Swal.showValidationMessage('Data with no name presents!');
+        return false;
+      } else {
+        data.name = target.val().trim();
+      }
+
+      data.icon = $(`#data_iconname_${data_id}`).val().trim();
+
+      // display type
+      target = $(`#data_type_${data_id}`);
+      target.css('border', '1px solid #767676');
+      if (!target.val()) {
+        target.css('border', '1px solid red');
+        Swal.showValidationMessage('Data with no display type presents!');
+        return false;
+      } else {
+        data.display = target.val();
+      }
+
+      if (data.display === 'gps') {
+        group.data.push(data);
+        continue;
+      }
+
+      // data magnification value
+      target = $(`#mag_${data_id}`);
+      target.css('border', '1px solid #767676');
+      if (isNaN(Number(target.val().trim())) || !target.val().trim()) {
+        target.css('border', '1px solid red');
+        Swal.showValidationMessage('Invalid data magnification value presents!');
+        return false;
+      } else {
+        data.magnification = Number(target.val().trim());
+      }
+
+      // data type
+      $(dataitem).css('border', '1px solid #dddddd');
+      target = $(`input[name=data_type_${data_id}]:checked`);
+      switch (target.val()) {
+        case 'standard':
+          data.type = 'standard';
+
+          // data source
+          target = $(`#select_data_${data_id}`);
+          if (!target.val()) {
+            target.css('border', '1px solid red');
+            Swal.showValidationMessage('Data with no source presents!');
+            return false;
+          } else {
+            target.css('border', '1px solid #767676');
+            data.source = target.val();
+          }
+          break;
+
+        case 'can':
+          data.type = 'can';
+          data.can = { };
+
+          // can id
+          target = $(`#can_data_id_${data_id}`);
+          if (isNaN(Number(target.val().trim())) || !target.val().trim()) {
+            target.css('border', '1px solid red');
+            Swal.showValidationMessage('Data with no CAN ID presents!');
+            return false;
+          } else {
+            target.css('border', '1px solid #767676');
+            data.can.id = Number(target.val().trim());
+          }
+
+          // can data level
+          target = $(`input[name=level_${data_id}]:checked`);
+          switch (target.val()) {
+            case 'byte': {
+              // endianness
+              target = $(`input[name=endian_${data_id}]:checked`);
+              if (!(target.val() === 'big') && !(target.val() === 'little')) {
+                $(dataitem).css('border', '1px solid red');
+                Swal.showValidationMessage('Data with invalid endianness presents!');
+                return false;
+              } else {
+                data.can.endian = target.val();
+              }
+
+              // byte range
+              let start = $(`#can_start_byte_${data_id}`).val().trim();
+              let end = $(`#can_end_byte_${data_id}`).val().trim();
+              if (!start || isNaN(Number(start)) || Number(start) < 0 || Number(start) > 7 || Number(start) % 1 != 0) {
+                $(dataitem).css('border', '1px solid red');
+                Swal.showValidationMessage('Data with Invalid start byte presents!');
+                return false;
+              } else if (!end || isNaN(Number(end)) || Number(end) < 0 || Number(end) > 7 || Number(end) % 1 != 0) {
+                $(dataitem).css('border', '1px solid red');
+                Swal.showValidationMessage('Data with Invalid end byte presents!');
+                return false;
+              } else if (Number(start) > Number(end)) {
+                $(dataitem).css('border', '1px solid red');
+                Swal.showValidationMessage('Data with larger start byte then end byte presents!');
+                return false;
+              } else {
+                data.can.byte = {
+                  start: start,
+                  end: end
+                };
+              }
+              break;
+            }
+
+            case 'bit': {
+              let start = $(`#can_start_bit_${data_id}`).val().trim();
+              let end = $(`#can_end_bit_${data_id}`).val().trim();
+              if (!start || isNaN(Number(start)) || Number(start) < 0 || Number(start) > 63 || Number(start) % 1 != 0) {
+                $(dataitem).css('border', '1px solid red');
+                Swal.showValidationMessage('Data with Invalid start bit presents!');
+                return false;
+              } else if (!end || isNaN(Number(end)) || Number(end) < 0 || Number(end) > 63 || Number(end) % 1 != 0) {
+                $(dataitem).css('border', '1px solid red');
+                Swal.showValidationMessage('Data with Invalid end bit presents!');
+                return false;
+              } else if (Number(start) > Number(end)) {
+                $(dataitem).css('border', '1px solid red');
+                Swal.showValidationMessage('Data with larger start bit than end bit presents!');
+                return false;
+              } else {
+                data.can.bit = {
+                  start: start,
+                  end: end
+                };
+              }
+              break;
+            }
+
+            default:
+              $(dataitem).css('border', '1px solid red');
+              Swal.showValidationMessage('Invalid data level(byte/bit) presents!');
+              return false;
+          }
+          break;
+
+        default:
+          $(dataitem).css('border', '1px solid red');
+          Swal.showValidationMessage('Invalid data type(standard/CAN) presents!');
+          return false;
+      }
+      group.data.push(data);
+    }
+    result.push(group);
+  }
+
+  return result;
 }
 
 /************************************************************************************
@@ -139,11 +335,11 @@ function ui_validator() {
  ***********************************************************************************/
 datagroup_count = 0;
 datagroup = [];
-data_types = [ 'digital', 'state', 'value', 'graph', 'gps' ];
+data_types = [ 'digital', 'value', 'graph', 'gps' ];
 
 // add datagroup
 $(document.body).on('click', '#add_data_group', e => {
-  let datagroup_html = `<div id='datagroup_${datagroup_count}'style='text-align: left; margin-top: 2rem; border: 2px solid lightgrey; background-color: #eeeeee; border-radius: 10px; padding: 1rem;'>
+  let datagroup_html = `<div id='datagroup_${datagroup_count}' class='datagroup' style='text-align: left; margin-top: 2rem; border: 2px solid lightgrey; background-color: #eeeeee; border-radius: 10px; padding: 1rem;'>
     <i id='datagroup_icon_${datagroup_count}' class='fa-solid fa-fw fa-info'></i>&ensp;
     <input id='datagroup_name_${datagroup_count}' placeholder='데이터그룹 이름' maxlength='20' style='font-size: 1.2rem; height: 1.8rem; width: 10rem; font-weight: bold; color: #333333; padding-left: .5rem;'>
     <span id='delete_datagroup_${datagroup_count}' class='delete_datagroup btn red' style='height: 1.2rem; line-height: 1.2rem; transform: translate(0px, -0.25rem);'>삭제</span>
@@ -195,7 +391,7 @@ $(document.body).on('click', '.add_data', e => {
     }
   }
 
-  let data_html = `<div id='data_${identifier}' style='text-align: left; background-color: #dddddd; border-radius: 10px; padding: .8rem; margin-bottom: 1rem;'>
+  let data_html = `<div id='data_${identifier}' class='datagroup_data' style='text-align: left; background-color: #dddddd; border: 1px solid #dddddd; border-radius: 10px; padding: .8rem; margin-bottom: 1rem;'>
   <i id='data_icon_${identifier}' class='fa-solid fa-fw fa-database'></i>&ensp;
   <input id='data_name_${identifier}' placeholder='데이터 이름' maxlength='20' style='font-size: 1.1rem; width: 12rem; height: 1.5rem; padding-left: .3rem;'>
   <div style='margin-top: 1rem;'>
@@ -206,11 +402,11 @@ $(document.body).on('click', '.add_data', e => {
       </tr>
       <tr>
         <td>디스플레이</td>
-        <td>: <select id='data_type_${identifier}' style='height: 1.5rem;'><option value='' disabled selected>디스플레이 타입</option>${data_types.map(x => `<option value='${x}'>${x}</option>`)}</select></td>
+        <td>: <select id='data_type_${identifier}' class='data_type' style='height: 1.5rem;'><option value='' disabled selected>디스플레이 타입</option>${data_types.map(x => `<option value='${x}'>${x}</option>`)}</select></td>
       </tr>
     </table>
   </div>
-  <div style='margin-top: 1rem;'>
+  <div id='div_dataspec_${identifier}' style='margin-top: 1rem;'>
     <label><input type='radio' name='data_type_${identifier}' value='standard' onclick='$("#can_data_div_${identifier}").css("display", "none"); $("#standard_data_div_${identifier}").css("display", "block")' checked></input>&nbsp;일반</label>&ensp;
     <label><input type='radio' name='data_type_${identifier}' value='can' onclick='$("#standard_data_div_${identifier}").css("display", "none"); $("#can_data_div_${identifier}").css("display", "block");'></input>&nbsp;CAN</label>
     <div id='standard_data_div_${identifier}' style='margin-top: 1rem; margin-bottom: 1rem;'>
@@ -253,7 +449,7 @@ $(document.body).on('click', '.add_data', e => {
       <div style='margin-top: .7rem;'><label><input id='add_to_favorite_${identifier}' type='checkbox'></input> 즐겨찾기에 추가</label></div>
     </div>
   </div>
-  <div> <span>데이터 배율</span>&ensp;&ensp;x <input id='mag_${identifier}' type='number' class='short' value=1> </div>
+  <div id='div_mag_${identifier}'> <span>데이터 배율</span>&ensp;&ensp;x <input id='mag_${identifier}' type='number' class='short' value=1> </div>
   <div style='text-align: center'>
     <span id='delete_data_${identifier}' class='delete_data btn red' style='height: 1.2rem; line-height: 1.2rem;'>삭제</span>
   </div>
@@ -284,4 +480,34 @@ $(document.body).on('keyup', '.datagroup_iconname, .data_iconname', e => {
   let target = e.target.id.replace(`data${type}_iconname_`, '');
 
   $(`#data${type}_icon_${target}`).removeClass().addClass(`fa-solid fa-fw fa-${$(`#data${type}_iconname_${target}`).val()}`);
+});
+
+// display type change
+$(document.body).on('change', '.data_type', e => {
+  let target = e.target.id.replace('data_type_', '');
+
+  if ($(e.target).val() === 'gps') {
+    $(`#div_dataspec_${target}`).css('display', 'none');
+    $(`#div_mag_${target}`).css('display', 'none');
+  } else {
+    $(`#div_dataspec_${target}`).css('display', 'block');
+    $(`#div_mag_${target}`).css('display', 'block');
+  }
+});
+
+// export UI config
+$(document.body).on('click', '#export_ui', e => {
+  let data = ui_validator();
+  if (data === false) {
+    return;
+  }
+
+  let json = JSON.stringify(data, null, 2);
+
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(json);
+  a.download = 'ui_config.json';
+  document.body.appendChild(a);
+  a.click();
 });

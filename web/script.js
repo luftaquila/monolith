@@ -293,10 +293,10 @@ $(document.body).on('click', '.add_graph_data', async e => {
           break;
 
         case 'can':
-          if (!$('#data_label').val()) {
+          if (!$('#data_label').val().trim()) {
             Swal.showValidationMessage('No data label!');
             return false;
-          } else if (!$('#can_data_id').val() || isNaN(Number($('#can_data_id').val()))) {
+          } else if (!$('#can_data_id').val().trim() || isNaN(Number($('#can_data_id').val().trim()))) {
             Swal.showValidationMessage('Invalid CAN ID!');
             return false;
           }
@@ -307,8 +307,8 @@ $(document.body).on('click', '.add_graph_data', async e => {
                 Swal.showValidationMessage('No endian specified!');
                 return false;
               } else {
-                let start = $("#can_start_byte").val();
-                let end = $("#can_end_byte").val();
+                let start = $("#can_start_byte").val().trim();
+                let end = $("#can_end_byte").val().trim();
                 if (!start || isNaN(Number(start)) || Number(start) < 0 || Number(start) > 7 || Number(start) % 1 != 0) {
                   Swal.showValidationMessage('Invalid start byte!');
                   return false;
@@ -323,12 +323,12 @@ $(document.body).on('click', '.add_graph_data', async e => {
               break;
 
             case 'bit': {
-              let start = $("#can_start_bit").val();
-              let end = $("#can_end_bit").val();
-              if (!start || isNaN(Number(start)) || Number(start) < 0 || Number(start) > 7 || Number(start) % 1 != 0) {
+              let start = $("#can_start_bit").val().trim();
+              let end = $("#can_end_bit").val().trim();
+              if (!start || isNaN(Number(start)) || Number(start) < 0 || Number(start) > 63 || Number(start) % 1 != 0) {
                 Swal.showValidationMessage('Invalid start bit!');
                 return false;
-              } else if (!end || isNaN(Number(end)) || Number(end) < 0 || Number(end) > 7 || Number(end) % 1 != 0) {
+              } else if (!end || isNaN(Number(end)) || Number(end) < 0 || Number(end) > 63 || Number(end) % 1 != 0) {
                 Swal.showValidationMessage('Invalid end bit!');
                 return false;
               } else if (Number(start) > Number(end)) {
@@ -350,7 +350,8 @@ $(document.body).on('click', '.add_graph_data', async e => {
           break;
       }
 
-      if (!$('#mag').val()) {
+      let mag = $('#mag').val().trim();
+      if (!mag || isNaN(Number(mag))) {
         Swal.showValidationMessage('Invalid magnification value!');
         return false;
       }
