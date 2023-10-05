@@ -138,6 +138,12 @@ function ui_validator() {
   let result = [];
   let target;
 
+  // datagroup count
+  if (!datagroups.length) {
+    Swal.showValidationMessage('No datagroups presents!');
+    return false;
+  }
+
   /* datagroup validation */
   for (let grp of datagroups) {
     let group_id = grp.elem.id.replace('datagroup_', '');
@@ -511,3 +517,52 @@ $(document.body).on('click', '#export_ui', e => {
   document.body.appendChild(a);
   a.click();
 });
+
+// import UI config
+$(document.body).on('click', '#import_ui', e => {
+  Swal.fire({
+    title: 'ui_config.json 업로드',
+    html: `<input id="file" type="file" name="file" accept=".json" style="margin-top: 1rem;">`,
+    showCancelButton: true,
+    confirmButtonText: '확인',
+    cancelButtonText: '취소',
+    customClass: {
+      confirmButton: 'btn green',
+      cancelButton: 'btn red'
+    },
+    preConfirm: async function() {
+      let file = document.getElementById('file').files[0];
+
+      if (!file) {
+        Swal.showValidationMessage('No file presents!');
+        return false;
+      }
+
+      try {
+        let json = JSON.parse(await readfile(file));
+        return JSON.stringify(json);
+      } catch (e) {
+        Swal.showValidationMessage('JSON file processing error!');
+        return false;
+      }
+    }
+  }).then(result => {
+    if (result.isConfirmed) {
+      localStorage.setItem('ui', result.value);
+      location.reload();
+    }
+  });
+});
+
+function readfile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsText(file);
+
+    reader.onload = e => {
+      resolve(e.target.result);
+    };
+
+    reader.onerror = reject;
+  });
+}
