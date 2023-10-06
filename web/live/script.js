@@ -67,6 +67,7 @@ let ui = localStorage.getItem('ui');
 
 if (ui) {
   let json;
+
   try {
     json = JSON.parse(ui);
   } catch (e) {
@@ -122,7 +123,43 @@ $('#ui_config').click(function() {
       confirmButton: 'btn green',
       cancelButton: 'btn red'
     },
-    preConfirm: ui_validator
+    preConfirm: ui_validator,
+    willOpen: function() {
+      let json;
+
+      try {
+        json = JSON.parse(localStorage.getItem('ui'));
+      } catch (e) {
+        // do nothing
+      }
+
+      for (const [ gid, group ] of json.entries()) {
+        $('#ui_area').append(create_html('config_datagroup', {
+          id: gid,
+          default: false,
+          name: group.name,
+          icon: group.icon
+        }));
+
+        for (const [ did, data ] of group.data.entries()) {
+          const id = `${gid}_${did}`;
+
+          $(`#datagroup_dataarea_${gid}`).append(create_html('config_data', {
+            id: id,
+            default: false,
+            name: data.name,
+            icon: data.icon,
+            display: data.display,
+            scale: data.scale ? data.scale : '',
+            type: data.type ? data.type : '',
+            source: data.source ? data.source : ''
+          }));
+
+          datagroup[gid] = { data_count: group.data.length };
+        }
+        datagroup_count = json.length;
+      }
+    }
   }).then(result => {
     if (result.isConfirmed) {
       console.log(result.value);
@@ -209,15 +246,15 @@ function ui_validator() {
         continue;
       }
 
-      // data magnification value
-      target = $(`#mag_${data_id}`);
+      // data scale
+      target = $(`#scale_${data_id}`);
       target.css('border', '1px solid #767676');
       if (isNaN(Number(target.val().trim())) || !target.val().trim()) {
         target.css('border', '1px solid red');
-        Swal.showValidationMessage('Invalid data magnification value presents!');
+        Swal.showValidationMessage('Invalid data scale presents!');
         return false;
       } else {
-        data.magnification = Number(target.val().trim());
+        data.scale = Number(target.val().trim());
       }
 
       // data type
@@ -241,7 +278,7 @@ function ui_validator() {
 
         case 'can':
           data.type = 'can';
-          data.can = { };
+          data.source = { };
 
           // can id
           target = $(`#can_data_id_${data_id}`);
@@ -251,7 +288,7 @@ function ui_validator() {
             return false;
           } else {
             target.css('border', '1px solid #767676');
-            data.can.id = Number(target.val().trim());
+            data.source.id = Number(target.val().trim());
           }
 
           // can data level
@@ -265,7 +302,7 @@ function ui_validator() {
                 Swal.showValidationMessage('Data with invalid endianness presents!');
                 return false;
               } else {
-                data.can.endian = target.val();
+                data.source.endian = target.val();
               }
 
               // byte range
@@ -284,7 +321,7 @@ function ui_validator() {
                 Swal.showValidationMessage('Data with larger start byte then end byte presents!');
                 return false;
               } else {
-                data.can.byte = {
+                data.source.byte = {
                   start: start,
                   end: end
                 };
@@ -308,7 +345,7 @@ function ui_validator() {
                 Swal.showValidationMessage('Data with larger start bit than end bit presents!');
                 return false;
               } else {
-                data.can.bit = {
+                data.source.bit = {
                   start: start,
                   end: end
                 };
@@ -343,15 +380,22 @@ datagroup_count = 0;
 datagroup = [];
 data_types = [ 'digital', 'value', 'graph', 'gps' ];
 
+standard_records = [];
+for (let key of Object.keys(LOG_KEY)) {
+  if (key !== 'SYS' && key !== 'CAN') {
+    for (let k of LOG_KEY[key]) {
+      for (let p of k.parsed) {
+        standard_records.push(`${key} / ${p}`);
+      }
+    }
+  }
+}
+
 // add datagroup
 $(document.body).on('click', '#add_data_group', e => {
-  $('#ui_area').append(create_html('config_datagroup', { id: datagroup_count }));
+  $('#ui_area').append(create_html('config_datagroup', { id: datagroup_count, default: true }));
 
-  datagroup[datagroup_count] = {
-    data_count: 0,
-    data_list: [],
-  };
-
+  datagroup[datagroup_count] = { data_count: 0 };
   datagroup_count++;
 });
 
@@ -367,18 +411,7 @@ $(document.body).on('click', '.add_data', e => {
   let target_group = e.target.id.replace('add_data_', '');
   let identifier = `${target_group}_${datagroup[target_group].data_count}`;
 
-  let standard_records = [];
-  for (let key of Object.keys(LOG_KEY)) {
-    if (key !== 'SYS' && key !== 'CAN') {
-      for (let k of LOG_KEY[key]) {
-        for (let p of k.parsed) {
-          standard_records.push(`${key} / ${p}`);
-        }
-      }
-    }
-  }
-
-  $(`#datagroup_dataarea_${target_group}`).append(create_html('config_data', { id: identifier, stdrec: standard_records, datatypes: data_types }));
+  $(`#datagroup_dataarea_${target_group}`).append(create_html('config_data', { id: identifier, default: true }));
 
   datagroup[target_group].data_count++;
 });
@@ -411,10 +444,10 @@ $(document.body).on('change', '.data_type', e => {
 
   if ($(e.target).val() === 'gps') {
     $(`#div_dataspec_${target}`).css('display', 'none');
-    $(`#div_mag_${target}`).css('display', 'none');
+    $(`#div_scale_${target}`).css('display', 'none');
   } else {
     $(`#div_dataspec_${target}`).css('display', 'block');
-    $(`#div_mag_${target}`).css('display', 'block');
+    $(`#div_scale_${target}`).css('display', 'block');
   }
 });
 
@@ -489,18 +522,6 @@ function readfile(file) {
  ***********************************************************************************/
 function create_html(type, data) {
   switch (type) {
-    case 'ui_datagroup':
-      return `<article id='group_${data.id}'>
-        <h1 style='margin-top: .3rem;'><i class='fa-solid fa-fw fa-${data.icon}'></i>&ensp;${data.name}</h1>
-        <div class='content'>
-          <table id='group_table_${data.id}' class='param' style='margin-top: 1.2rem;'></table>
-        </div>
-      </article>`;
-      break;
-
-    case 'ui_data':
-      break;
-
     case 'config_car':
       return `<div style='text-align: left;'><span style='font-size: 1.7rem; font-weight: bold;'>차량 ID 설정</span></div>
       <div>
@@ -533,14 +554,14 @@ function create_html(type, data) {
 
     case 'config_datagroup':
       return `<div id='datagroup_${data.id}' class='datagroup' style='text-align: left; margin-top: 2rem; border: 2px solid lightgrey; background-color: #eeeeee; border-radius: 10px; padding: 1rem;'>
-        <i id='datagroup_icon_${data.id}' class='fa-solid fa-fw fa-circle-info'></i>&ensp;
-        <input id='datagroup_name_${data.id}' placeholder='데이터그룹 이름' maxlength='20' style='font-size: 1.2rem; height: 1.8rem; width: 10rem; font-weight: bold; color: #333333; padding-left: .5rem;'>
+        <i id='datagroup_icon_${data.id}' class='fa-solid fa-fw fa-${data.default ? 'circle-info': data.icon}'></i>&ensp;
+        <input id='datagroup_name_${data.id}' value='${data.default ? '' : data.name}' placeholder='데이터그룹 이름' maxlength='20' style='font-size: 1.2rem; height: 1.8rem; width: 10rem; font-weight: bold; color: #333333; padding-left: .5rem;'>
         <span id='delete_datagroup_${data.id}' class='delete_datagroup btn red' style='height: 1.2rem; line-height: 1.2rem; transform: translate(0px, -0.25rem);'>삭제</span>
         <div style='margin-top: .5rem; margin-bottom: 1rem;'>
           <table>
             <tr>
               <td>아이콘</td>
-              <td>: <input id='datagroup_iconname_${data.id}' class='datagroup_iconname' value='circle-info' placeholder='아이콘 이름' maxlength='30' style='width: 6rem; height: 1.2rem; line-height: 1.2rem; padding-left: .3rem;'></td>
+              <td>: <input id='datagroup_iconname_${data.id}' class='datagroup_iconname' value='${data.default ? 'circle-info' : data.icon}' placeholder='아이콘 이름' maxlength='30' style='width: 6rem; height: 1.2rem; line-height: 1.2rem; padding-left: .3rem;'></td>
               <td>&ensp;<a href='https://fontawesome.com/search?o=r&m=free&s=solid' target='_blank' style='font-size: .8rem; text-decoration: underline; color: #0366d6'>검색</a></td>
             </tr>
           </table>
@@ -555,56 +576,56 @@ function create_html(type, data) {
 
     case 'config_data':
       return `<div id='data_${data.id}' class='datagroup_data' style='text-align: left; background-color: #dddddd; border: 1px solid #dddddd; border-radius: 10px; padding: .8rem; margin-bottom: 1rem;'>
-      <i id='data_icon_${data.id}' class='fa-solid fa-fw fa-database'></i>&ensp;
-      <input id='data_name_${data.id}' placeholder='데이터 이름' maxlength='20' style='font-size: 1.1rem; width: 12rem; height: 1.5rem; padding-left: .3rem;'>
+      <i id='data_icon_${data.id}' class='fa-solid fa-fw fa-${data.default ? 'database' : data.icon}'></i>&ensp;
+      <input id='data_name_${data.id}' value='${data.default ? '' : data.name}' placeholder='데이터 이름' maxlength='20' style='font-size: 1.1rem; width: 12rem; height: 1.5rem; padding-left: .3rem;'>
       <div style='margin-top: 1rem;'>
         <table>
           <tr>
             <td>아이콘</td>
-            <td>: <input id='data_iconname_${data.id}' class='data_iconname' value='database' placeholder='아이콘 이름' maxlength='30' style='width: 6rem; height: 1.2rem; line-height: 1.2rem; padding-left: .3rem;'></td>
+            <td>: <input id='data_iconname_${data.id}' class='data_iconname' value='${data.default ? 'database' : data.icon}' placeholder='아이콘 이름' maxlength='30' style='width: 6rem; height: 1.2rem; line-height: 1.2rem; padding-left: .3rem;'></td>
           </tr>
           <tr>
             <td>디스플레이</td>
-            <td>: <select id='data_type_${data.id}' class='data_type' style='height: 1.5rem;'><option value='' disabled selected>디스플레이 타입</option>${data.datatypes.map(x => `<option value='${x}'>${x}</option>`)}</select></td>
+            <td>: <select id='data_type_${data.id}' class='data_type' style='height: 1.5rem;'><option value='' disabled ${data.default ? 'selected' : ''}>디스플레이 타입</option>${data_types.map(x => `<option value='${x}' ${(!data.default && data.display === x) ? 'selected' : ''}>${x}</option>`)}</select></td>
           </tr>
         </table>
       </div>
-      <div id='div_dataspec_${data.id}' style='margin-top: 1rem;'>
-        <label><input type='radio' name='data_type_${data.id}' value='standard' onclick='$("#can_data_div_${data.id}").css("display", "none"); $("#standard_data_div_${data.id}").css("display", "block")' checked></input>&nbsp;일반</label>&ensp;
-        <label><input type='radio' name='data_type_${data.id}' value='can' onclick='$("#standard_data_div_${data.id}").css("display", "none"); $("#can_data_div_${data.id}").css("display", "block");'></input>&nbsp;CAN</label>
-        <div id='standard_data_div_${data.id}' style='margin-top: 1rem; margin-bottom: 1rem;'>
-          <select id='select_data_${data.id}' style='width: 16rem; height: 2rem;'><option value='' disabled selected>데이터 소스 선택</option>${data.stdrec.map(x => `<option value='${x}'>${x}</option>`)}</select>
+      <div id='div_dataspec_${data.id}' style='margin-top: 1rem; display: ${(!data.default && data.display === 'gps') ? 'none' : 'block'}'>
+        <label><input type='radio' name='data_type_${data.id}' value='standard' onclick='$("#can_data_div_${data.id}").css("display", "none"); $("#standard_data_div_${data.id}").css("display", "block")' ${(data.default || data.display === 'gps' || data.type === 'standard') ? 'checked' : ''}></input>&nbsp;일반</label>&ensp;
+        <label><input type='radio' name='data_type_${data.id}' value='can' onclick='$("#standard_data_div_${data.id}").css("display", "none"); $("#can_data_div_${data.id}").css("display", "block");' ${(!data.default && data.type === 'can') ? 'checked' : ''}></input>&nbsp;CAN</label>
+        <div id='standard_data_div_${data.id}' style='margin-top: 1rem; margin-bottom: 1rem; display: ${(data.default || data.display === 'gps' || data.type === 'standard') ? 'block' : 'none'}'>
+          <select id='select_data_${data.id}' style='width: 16rem; height: 2rem;'><option value='' disabled ${data.default || data.display === 'gps' || data.type === 'can' ? 'selected' : ''}>데이터 소스 선택</option>${standard_records.map(x => `<option value='${x}' ${(!data.default && data.source === x) ? 'selected' : ''}>${x}</option>`)}</select>
         </div>
-        <div id='can_data_div_${data.id}' style='display: none; margin-top: 1rem; margin-bottom: 1rem;'>
+        <div id='can_data_div_${data.id}' style='display: ${(!data.default && data.type === 'can') ? 'block' : 'none'}; margin-top: 1rem; margin-bottom: 1rem;'>
           <select id='can_favorite_${data.id}' style='width: 16rem; height: 2rem;'><option value='' disabled selected>즐겨찾기에서 선택</option>${0}</select>
           <table style='margin-top: .7rem;'>
             <tr>
               <td>CAN ID</td>
-              <td>: <input id='can_data_id_${data.id}' type='number' class='can_data_id data_input' style='width: 5rem;'>&ensp;(0x<span id='can_data_id_hex_${data.id}'>00</span>)</td>
+              <td>: <input id='can_data_id_${data.id}' value='${(!data.default && data.type === 'can') ? data.source.id : ''}' type='number' class='can_data_id data_input' style='width: 5rem;'>&ensp;(0x<span id='can_data_id_hex_${data.id}'>${(!data.default && data.type === 'can') ? data.source.id.toString(16).toUpperCase() : '00'}</span>)</td>
             </tr>
             <tr>
               <td>데이터</td>
               <td>
-                : <label><input type='radio' name='level_${data.id}' value='byte' onclick='$("#byte_form_${data.id}").css("display", "block"); $("#bit_form_${data.id}").css("display", "none");' checked></input> Byte</label>
-                <label style='margin-left: .8rem;'><input type='radio' name='level_${data.id}' onclick='$("#bit_form_${data.id}").css("display", "block"); $("#byte_form_${data.id}").css("display", "none");' value='bit'></input> Bit</label>
+                : <label><input type='radio' name='level_${data.id}' value='byte' onclick='$("#byte_form_${data.id}").css("display", "block"); $("#bit_form_${data.id}").css("display", "none");' ${(data.default || data.display === 'gps' || (data.type === 'standard') || (data.type === 'can' && data.source.byte)) ? 'checked' : ''}></input> Byte</label>
+                <label style='margin-left: .8rem;'><input type='radio' name='level_${data.id}' onclick='$("#bit_form_${data.id}").css("display", "block"); $("#byte_form_${data.id}").css("display", "none");' value='bit' ${(!data.default && data.type === 'can' && data.source.bit) ? 'checked' : ''}></input> Bit</label>
               </td>
             </tr>
           </table>
-          <div id='byte_form_${data.id}' style='margin-left: 1rem;'>
+          <div id='byte_form_${data.id}' style='margin-left: 1rem; display: ${(data.default || data.display === 'gps' || (data.type === 'standard') || (data.type === 'can' && data.source.byte)) ? 'block' : 'none'}'>
             <table>
               <tr>
-                <td>Endian : <label><input value='big' type='radio' name='endian_${data.id}' checked></input> Big</label> <label style='margin-left: .8rem;'><input value='little' type='radio' name='endian_${data.id}'></input> Little</label></td>
+                <td>Endian : <label><input value='big' type='radio' name='endian_${data.id}' ${(data.default || data.display === 'gps' || data.type === 'standard' || (!data.default && data.type === 'can' && data.source.bit) || (data.type === 'can' && data.source.byte && data.source.endian === 'big')) ? 'checked' : ''}></input> Big</label> <label style='margin-left: .8rem;'><input value='little' type='radio' name='endian_${data.id}' ${(!data.default && data.type === 'can' && data.source.byte && data.source.endian === 'little') ? 'checked' : ''}></input> Little</label></td>
               </tr>
               <tr>
-                <td>Byte : #<input id='can_start_byte_${data.id}' type='number' class='mini' value='0'> ~ #<input id='can_end_byte_${data.id}' type='number' class='mini' value='0'> <span style='font-size: .8rem;'>(#0 ~ 7)</span></td>
+                <td>Byte : #<input id='can_start_byte_${data.id}' type='number' class='mini' value='${(!data.default && data.type === 'can' && data.source.byte) ? data.source.byte.start : 0}'> ~ #<input id='can_end_byte_${data.id}' type='number' class='mini' value='${(!data.default && data.type === 'can' && data.source.byte) ? data.source.byte.end : 0}'> <span style='font-size: .8rem;'>(#0 ~ 7)</span></td>
               </tr>
             </table>
           </div>
-          <div id='bit_form_${data.id}' style='display: none; margin-left: 1rem;'>
+          <div id='bit_form_${data.id}' style='display: ${(!data.default && data.type === 'can' && data.source.bit) ? 'block' : 'none'}; margin-left: 1rem;'>
             <table style='marin-left: 1rem;'>
               <tr>
                 <td>Bit</td>
-                <td>: #<input id='can_start_bit_${data.id}' type='number' class='mini' value='0'> ~ #<input id='can_end_bit_${data.id}' type='number' class='mini' value='0'> <span style='font-size: .8rem;'>(#0 ~ 63)</span></td>
+                <td>: #<input id='can_start_bit_${data.id}' type='number' class='mini' value='${(!data.default && data.type === 'can' && data.source.bit) ? data.source.bit.start : 0}'> ~ #<input id='can_end_bit_${data.id}' type='number' class='mini' value='${(!data.default && data.type === 'can' && data.source.bit) ? data.source.bit.end : 0}'> <span style='font-size: .8rem;'>(#0 ~ 63)</span></td>
               </tr>
               <tr><td></td></tr>
             </table>
@@ -612,11 +633,23 @@ function create_html(type, data) {
           <div style='margin-top: .7rem;'><label><input id='add_to_favorite_${data.id}' type='checkbox'></input> 즐겨찾기에 추가</label></div>
         </div>
       </div>
-      <div id='div_mag_${data.id}'> <span>데이터 배율</span>&ensp;&ensp;x <input id='mag_${data.id}' type='number' class='short' value=1> </div>
+      <div id='div_scale_${data.id}' style='display: ${data.display === 'gps' ? 'none' : 'block'}'> <span>데이터 배율</span>&ensp;&ensp;x <input id='scale_${data.id}' type='number' class='short' value='${data.default || data.display === 'gps' ? 1 : data.scale}'> </div>
       <div style='text-align: center'>
         <span id='delete_data_${data.id}' class='delete_data btn red' style='height: 1.2rem; line-height: 1.2rem;'>삭제</span>
       </div>
       </div>`;
+      break;
+
+    case 'ui_datagroup':
+      return `<article id='group_${data.id}'>
+        <h1 style='margin-top: .3rem;'><i class='fa-solid fa-fw fa-${data.icon}'></i>&ensp;${data.name}</h1>
+        <div class='content'>
+          <table id='group_table_${data.id}' class='param' style='margin-top: 1.2rem;'></table>
+        </div>
+      </article>`;
+      break;
+
+    case 'ui_data':
       break;
   }
 }

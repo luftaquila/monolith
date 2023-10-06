@@ -52,14 +52,14 @@ body {
   width: 70%;
 }
 
-div#container, div#header {
+div.container, div#header {
   padding: 1rem;
   padding-top: 0rem;
   display: flex;
   max-width: none;
   flex-wrap: wrap;
 }
-div#container {
+div.container {
   justify-content: space-evenly;
 }
 div#header {
