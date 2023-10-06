@@ -63,7 +63,9 @@ socket.on('disconnect', () => {
 /************************************************************************************
  * UI drawer
  ***********************************************************************************/
-let ui = localStorage.getItem('ui');
+ui = localStorage.getItem('ui');
+graphs = { };
+maps = { };
 
 if (ui) {
   let json;
@@ -85,6 +87,81 @@ if (ui) {
   // draw ui
   for (const [ gid, group ] of json.entries()) {
     $('#dataarea').append(create_html('ui_datagroup', { name: group.name, icon: group.icon, id: gid }));
+
+    for (const [ did, data ] of group.data.entries()) {
+      const id = `${gid}_${did}`;
+
+      $(`#group_table_${gid}`).append(create_html('ui_data', {
+        id: id,
+        name: data.name,
+        icon: data.icon,
+        display: data.display,
+        scale: data.scale,
+        unit: data.unit,
+        type: data.type,
+        source: data.source,
+      }));
+
+
+      if (data.display === 'gps') {
+        maps[`${data.name}_${gid}`] = new kakao.maps.Map(document.getElementById(`map_${id}`), {
+          center: new kakao.maps.LatLng(37.2829317, 127.0435822)
+        });
+      } else if (data.display === 'graph') {
+        graphs[`${data.name}_${gid}`] = {
+          data: [],
+          chart: null
+        }
+
+        graphs[`${data.name}_${gid}`].chart = new Chart($(`#graph_${id}`), {
+          type: 'line',
+          data: {
+            datasets: [{
+              data: graphs[`${data.name}_${gid}`].data,
+              cubicInterpolationMode: 'monotone',
+              tension: 0.2,
+              borderColor: '#000000',
+            }]
+          },
+          options: {
+            responsive: true,
+            interaction: { intersect: false, },
+            scales: {
+              x: {
+                type: 'realtime',
+                distribution: 'linear',
+                time: {
+                  unit: 'second',
+                  unitStepSize: 15,
+                  stepSize: 15,
+                  displayFormats: {
+                    hour: 'h:mm:ss',
+                    minute: 'h:mm:ss',
+                    second: 'h:mm:ss'
+                  }
+                },
+                realtime: {
+                  duration: 60000,
+                  refresh: 500,
+                  delay: 0
+                }
+              },
+              y: { grace: 5 }
+            },
+            plugins: {
+              legend: { display: false }
+            },
+            elements: {
+              point: {
+                borderWidth: 0,
+                radius: 10,
+                backgroundColor: 'rgba(0, 0, 0, 0)'
+              }
+            }
+          }
+        });
+      }
+    }
   }
 }
 
@@ -93,7 +170,7 @@ if (ui) {
  ***********************************************************************************/
 $('#car_id_config').click(function() {
   Swal.fire({
-    html: create_html('config_car', { id: localStorage.getItem('id') }),
+    html: create_html('config_car', { id: localStorage.getItem('id'), key: localStorage.getItem('key') }),
     showCancelButton: true,
     confirmButtonText: '확인',
     cancelButtonText: '취소',
@@ -133,31 +210,34 @@ $('#ui_config').click(function() {
         // do nothing
       }
 
-      for (const [ gid, group ] of json.entries()) {
-        $('#ui_area').append(create_html('config_datagroup', {
-          id: gid,
-          default: false,
-          name: group.name,
-          icon: group.icon
-        }));
-
-        for (const [ did, data ] of group.data.entries()) {
-          const id = `${gid}_${did}`;
-
-          $(`#datagroup_dataarea_${gid}`).append(create_html('config_data', {
-            id: id,
+      if (json) {
+        for (const [ gid, group ] of json.entries()) {
+          $('#ui_area').append(create_html('config_datagroup', {
+            id: gid,
             default: false,
-            name: data.name,
-            icon: data.icon,
-            display: data.display,
-            scale: data.scale ? data.scale : '',
-            type: data.type ? data.type : '',
-            source: data.source ? data.source : ''
+            name: group.name,
+            icon: group.icon
           }));
 
-          datagroup[gid] = { data_count: group.data.length };
+          for (const [ did, data ] of group.data.entries()) {
+            const id = `${gid}_${did}`;
+
+            $(`#datagroup_dataarea_${gid}`).append(create_html('config_data', {
+              id: id,
+              default: false,
+              name: data.name,
+              icon: data.icon,
+              display: data.display,
+              scale: data.scale,
+              unit: data.unit,
+              type: data.type,
+              source: data.source,
+            }));
+
+            datagroup[gid] = { data_count: group.data.length };
+          }
+          datagroup_count = json.length;
         }
-        datagroup_count = json.length;
       }
     }
   }).then(result => {
@@ -244,17 +324,6 @@ function ui_validator() {
       if (data.display === 'gps') {
         group.data.push(data);
         continue;
-      }
-
-      // data scale
-      target = $(`#scale_${data_id}`);
-      target.css('border', '1px solid #767676');
-      if (isNaN(Number(target.val().trim())) || !target.val().trim()) {
-        target.css('border', '1px solid red');
-        Swal.showValidationMessage('Invalid data scale presents!');
-        return false;
-      } else {
-        data.scale = Number(target.val().trim());
       }
 
       // data type
@@ -365,6 +434,26 @@ function ui_validator() {
           Swal.showValidationMessage('Invalid data type(standard/CAN) presents!');
           return false;
       }
+
+      if (data.display === 'digital') {
+        group.data.push(data);
+        continue;
+      }
+
+      // data scale
+      target = $(`#scale_${data_id}`);
+      target.css('border', '1px solid #767676');
+      if (isNaN(Number(target.val().trim())) || !target.val().trim()) {
+        target.css('border', '1px solid red');
+        Swal.showValidationMessage('Invalid data scale presents!');
+        return false;
+      } else {
+        data.scale = Number(target.val().trim());
+      }
+
+      // data unit
+      target = $(`#unit_${data_id}`);
+      data.unit = target.val().trim();
       group.data.push(data);
     }
     result.push(group);
@@ -444,10 +533,13 @@ $(document.body).on('change', '.data_type', e => {
 
   if ($(e.target).val() === 'gps') {
     $(`#div_dataspec_${target}`).css('display', 'none');
-    $(`#div_scale_${target}`).css('display', 'none');
+    $(`#datainfo_${target}`).css('display', 'none');
+  } else if ($(e.target).val() === 'digital') {
+    $(`#div_dataspec_${target}`).css('display', 'block');
+    $(`#datainfo_${target}`).css('display', 'none');
   } else {
     $(`#div_dataspec_${target}`).css('display', 'block');
-    $(`#div_scale_${target}`).css('display', 'block');
+    $(`#datainfo_${target}`).css('display', 'block');
   }
 });
 
@@ -535,7 +627,7 @@ function create_html(type, data) {
         </tr>
         <tr>
           <td style='text-align: left; line-height: 1.5rem;'>key</td>
-          <td>: <input id='car_id_key' class='data_input' value='${data.id ? data.id : ''}'></td>
+          <td>: <input id='car_id_key' class='data_input' value='${data.key ? data.key : ''}'></td>
         </tr>
       </table>`;
       break;
@@ -547,7 +639,7 @@ function create_html(type, data) {
         <span id='add_data_group' class='btn green' style='height: 1.5rem; line-height: 1.5rem;'><i class='fa-regular fa-fw fa-plus'></i>&ensp;데이터 그룹 추가</span>
       </div>
       <div style='margin-top: 1rem;'>
-        <span id='export_ui' class='btn purple' style='height: 1.5rem; line-height: 1.5rem;'><i class='fa-solid fa-fw fa-file-export'></i>&ensp;UI 설정 내보내기</span><br>
+        <span id='export_ui' class='btn purple' style='height: 1.5rem; line-height: 1.5rem;'><i class='fa-solid fa-fw fa-file-export'></i>&ensp;UI 설정 내보내기</span>
         <span id='import_ui' class='btn purple' style='height: 1.5rem; line-height: 1.5rem;'><i class='fa-solid fa-fw fa-file-import'></i>&ensp;UI 설정 불러오기</span>
       </div>`;
       break;
@@ -633,7 +725,18 @@ function create_html(type, data) {
           <div style='margin-top: .7rem;'><label><input id='add_to_favorite_${data.id}' type='checkbox'></input> 즐겨찾기에 추가</label></div>
         </div>
       </div>
-      <div id='div_scale_${data.id}' style='display: ${data.display === 'gps' ? 'none' : 'block'}'> <span>데이터 배율</span>&ensp;&ensp;x <input id='scale_${data.id}' type='number' class='short' value='${data.default || data.display === 'gps' ? 1 : data.scale}'> </div>
+      <table id='datainfo_${data.id}' style='display: ${data.display === 'gps' || data.display === 'digital' ? 'none' : 'block'}'>
+        <tr>
+          <td>데이터 단위</td>
+          <td style='width: 1rem;'></td>
+          <td><input id='unit_${data.id}' class='short' value='${data.default || !data.unit ? '' : data.unit}'></td>
+        </tr>
+        <tr>
+          <td>데이터 배율</td>
+          <td style='width: 1rem; text-align: right'>x</td>
+          <td><input id='scale_${data.id}' type='number' class='short' value='${data.default || !data.scale ? 1 : data.scale}'></td>
+        </tr>
+      </table>
       <div style='text-align: center'>
         <span id='delete_data_${data.id}' class='delete_data btn red' style='height: 1.2rem; line-height: 1.2rem;'>삭제</span>
       </div>
@@ -650,6 +753,48 @@ function create_html(type, data) {
       break;
 
     case 'ui_data':
+      switch (data.display) {
+        case 'digital':
+          return `<tr>
+            <th class="param-label">
+              <h2><i class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
+            </th>
+            <th id="data_val_${data.id}" class="param-data-digital">OFF</th>
+          </tr>
+          <tr><td class="spacing">&ensp;</td></tr>`;
+          break;
+
+        case 'value':
+          return `<tr>
+            <th class="param-label">
+              <h2><i class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
+            </th>
+            <th id="data_val_${data.id}" class="param-data">0</th>
+            <th class="param-unit">${data.unit}</th>
+          </tr>
+          <tr><td class="spacing">&ensp;</td></tr>`;
+          break;
+
+        case 'graph':
+          return `<tr>
+            <th class="param-label">
+              <h2><i class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
+            </th>
+            <th id="data_val_${data.id}" class="param-data">0</th>
+            <th class="param-unit">${data.unit}</th>
+          </tr>
+          <tr>
+            <td colspan="3" class="param-graph">
+              <canvas id="graph_${data.id}" class="graph" width="100%" height="60vh"></canvas>
+            </td>
+          </tr>
+          <tr><td class="spacing">&ensp;</td></tr>`;
+          break;
+
+        case 'gps':
+          return `<div id="map_${data.id}" style="width: 100%; height: 50vh;"></div>`;
+          break;
+      }
       break;
   }
 }

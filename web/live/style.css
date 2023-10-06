@@ -94,8 +94,72 @@ article h1 {
   color: rgb(59,130,246);
 }
 
+article h2 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+article th.param-data h2 {
+  margin-top: -.5rem;
+}
+
 article .content {
   padding-left: 1rem;
+}
+
+table.param {
+  margin-top: 1rem;
+  width: -webkit-fill-available;
+}
+
+table.param .graph {
+  display: none;
+}
+
+table.param .param-label {
+  color: rgb(65,75,81);
+  text-align: left;
+}
+
+table.param .param-data {
+  text-align: right;
+  font-size: 2.5rem;
+  font-family: 'S-CoreDream-6Bold';
+}
+
+table.param .param-data-digital {
+  text-align: right;
+  font-size: 2rem;
+  padding-right: 1.5rem;
+  font-family: 'S-CoreDream-6Bold';
+}
+
+table.param .param-unit {
+  text-align: left;
+  font-size: 1rem;
+  padding-top: 1rem;
+  padding-left: .5rem;
+  font-family: 'S-CoreDream-6Bold';
+}
+
+table.param tr th:last-child {
+  width: 1%;
+  white-space: nowrap;
+  padding-right: 1rem;
+}
+
+table.param td.spacing {
+  height: 1rem;
+  line-height: 0rem;
+}
+
+table.param tr:last-child td {
+  height: 0rem;
+}
+
+canvas.graph {
+  display: none;
+  margin-right: 1rem;
 }
 
 .btn_download span {
@@ -144,8 +208,8 @@ input.data_input {
 }
 
 input.short {
-  width: 2rem;
-  height: 1.5rem;
+  width: 3rem;
+  height: 1.2rem;
   line-height: 1.5rem;
   text-align: right;
   padding-right: .5rem;
