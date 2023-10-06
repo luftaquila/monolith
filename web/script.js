@@ -150,7 +150,7 @@ $('#add_graph').click(async function() {
           time: {
             unit: 'second',
             displayFormats: {
-              second: 'hh:mm:ss'
+              second: 'H:mm:ss'
             }
           },
         },

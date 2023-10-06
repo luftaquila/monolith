@@ -135,9 +135,9 @@ if (ui) {
                   unitStepSize: 15,
                   stepSize: 15,
                   displayFormats: {
-                    hour: 'h:mm:ss',
-                    minute: 'h:mm:ss',
-                    second: 'h:mm:ss'
+                    hour: 'H:mm:ss',
+                    minute: 'H:mm:ss',
+                    second: 'H:mm:ss'
                   }
                 },
                 realtime: {
@@ -242,7 +242,6 @@ $('#ui_config').click(function() {
     }
   }).then(result => {
     if (result.isConfirmed) {
-      console.log(result.value);
       localStorage.setItem('ui', JSON.stringify(result.value));
       location.reload();
     }
