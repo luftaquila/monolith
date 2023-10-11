@@ -60,12 +60,36 @@ socket.on('disconnect', () => {
   }
 });
 
+// update UI on telemetry report
+socket.on('report', data => {
+  let target;
+
+  if (data.data.source == 'CAN') {
+    target = [ data.data.key ];
+  } else if (data.data.parsed) {
+    target = data.data.parsed.map(x => `${data.data.source} / ${x}`);
+  }
+
+  for (let tgt of target) {
+    if (watchlist[tgt]) {
+      for (let watch of watchlist[tgt]) {
+        update_ui(watch, data);
+      }
+    }
+  }
+});
+
+function update_ui(target, data) {
+  // TODO
+}
+
 /************************************************************************************
  * UI drawer
  ***********************************************************************************/
 ui = localStorage.getItem('ui');
 graphs = { };
 maps = { };
+watchlist = { };
 
 if (ui) {
   let json;
@@ -102,12 +126,16 @@ if (ui) {
         source: data.source,
       }));
 
-
+      // draw map on gps display
       if (data.display === 'gps') {
         maps[`${data.name}_${gid}`] = new kakao.maps.Map(document.getElementById(`map_${id}`), {
           center: new kakao.maps.LatLng(37.2829317, 127.0435822)
         });
-      } else if (data.display === 'graph') {
+        continue; // skip to the next one
+      }
+
+      // draw graph
+      if (data.display === 'graph') {
         graphs[`${data.name}_${gid}`] = {
           data: [],
           chart: null
@@ -161,7 +189,22 @@ if (ui) {
           }
         });
       }
-    }
+
+      // attach listener to the data
+      let tgt = {
+        id: id,
+        display: data.display,
+        type: data.type,
+        data: data.source,
+        scale: data.scale
+      };
+
+      if (watchlist[data.type === 'standard' ? data.source : data.source.id]) {
+        watchlist[data.type === 'standard' ? data.source : data.source.id].push(tgt);
+      } else {
+        watchlist[data.type === 'standard' ? data.source : data.source.id] = [ tgt ];
+      }
+    } // for (const [ did, data ] of group.data.entries())
   }
 }
 
