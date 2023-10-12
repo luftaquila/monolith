@@ -126,6 +126,7 @@ function process_telemetry(data, socket) {
     return;
   }
 
+  let raw = data.log;
   data = translate(data.log.match(/.{2}/g).map(x => parseInt(x, 16)));
 
   if (data instanceof Error) {
@@ -133,7 +134,8 @@ function process_telemetry(data, socket) {
       id: socket.id,
       ip: socket.handshake.headers['x-forwarded-for'],
       channel: socket.handshake.query.channel,
-      data: data
+      data: data.toString(),
+      raw: raw
     });
 
     return;
@@ -143,7 +145,8 @@ function process_telemetry(data, socket) {
     id: socket.id,
     ip: socket.handshake.headers['x-forwarded-for'],
     channel: socket.handshake.query.channel,
-    data: data
+    data: data,
+    raw: raw
   });
 
   socket.broadcast.to(socket.handshake.query.channel).emit('report', { data: data });
