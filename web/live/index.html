@@ -43,6 +43,15 @@
         <h1><i class="fa-solid fa-fw fa-passport"></i>&nbsp;TMA-2 원격 계측 모니터</h1>
         <div class="content" style='padding-top: 1rem; line-height: 2rem'>
           <div style="text-align: center">
+            <table class='param' style='margin-top: .5rem; margin-bottom: .5rem;'>
+              <tr>
+                <th class="param-label">
+                  <h2><i class="fa-solid fa-fw fa-1x fa-stopwatch"></i>&ensp;boot</h2>
+                </th>
+                <th id="timestamp" class="param-data" style='font-size: 2rem;'>0</th>
+                <th class="param-unit">ms</th>
+              </tr>
+            </table>
             <div><a id='car_id_config' class="btn_download"><span class="btn blue"><i class="fa-solid fa-fw fa-car"></i>&ensp;차량 ID 설정</span></a></div>
             <div><a id='ui_config' class="btn_download"><span class="btn blue"><i class="fa-solid fa-fw fa-tv"></i>&ensp;UI 설정</span></a></div>
             <div><a class="btn_download" href='https://github.com/luftaquila/monolith' target='_blank'><span class="btn purple"><i class="fa-brands fa-fw fa-github"></i>&ensp;GitHub</span></a></div>
@@ -52,7 +61,7 @@
       </article>
     </div>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0/dist/chartjs-plugin-streaming.min.js"></script>

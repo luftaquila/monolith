@@ -97,7 +97,7 @@ function register_device(socket) {
       channel: socket.handshake.query.channel
     });
 
-    socket.broadcast.to('client').emit('socket_lost', { data: reason });
+    socket.broadcast.to(socket.handshake.query.channel).emit('socket-lost', { data: reason });
   });
 
   // on telemetry report

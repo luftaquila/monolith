@@ -126,7 +126,7 @@ table.param .param-data {
 table.param .param-data-digital {
   text-align: right;
   font-size: 2rem;
-  padding-right: 1.5rem;
+  padding-right: 1.5rem!important;
   font-family: 'S-CoreDream-6Bold';
 }
 

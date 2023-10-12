@@ -60,8 +60,15 @@ socket.on('disconnect', () => {
   }
 });
 
+socket.on('socket-lost', () => {
+  $("#telemetry i").css("color", "red");
+});
+
 // update UI on telemetry report
 socket.on('report', data => {
+  $('#timestamp').text(data.data.timestamp);
+  $('#telemetry i').css('color', 'green');
+
   let watchlists = watchlist[data.data.key];
   if (watchlists) {
     for (let watch of watchlists) {
@@ -73,8 +80,12 @@ socket.on('report', data => {
 function update_display(target, data) {
   if (target.type === 'can') {
     data = parse_CAN(target.source, data);
+    data *= target.scale;
   } else if (target.display !== 'gps') {
     data = data[target.parsed];
+    if (target.scale) {
+      data *= target.scale;
+    }
   }
 
   switch (target.display) {
@@ -84,12 +95,12 @@ function update_display(target, data) {
     }
 
     case 'value': {
-      $(`#data_val_${target.id}`).text(parseFloat(data.toFixed(Math.abs(data) < 10 ? 2 : 1)));
+      $(`#data_val_${target.id}`).text(data ? (data.toFixed(Math.abs(data) < 10 ? 2 : 1)) : 0);
       break;
     }
 
     case 'graph': {
-      $(`#data_val_${target.id}`).text(parseFloat(data.toFixed(Math.abs(data) < 10 ? 2 : 1)));
+      $(`#data_val_${target.id}`).text(data ? (data.toFixed(Math.abs(data) < 10 ? 2 : 1)) : 0);
       graphs[target.id].data.push({ x: new Date(), y: data });
       break;
     }
@@ -190,7 +201,7 @@ if (ui) {
               data: graphs[`${id}`].data,
               cubicInterpolationMode: 'monotone',
               tension: 0.2,
-              borderColor: '#000000',
+              borderColor: 'rgb(54, 162, 235)'
             }]
           },
           options: {
@@ -219,7 +230,7 @@ if (ui) {
               y: { grace: 5 }
             },
             plugins: {
-              legend: { display: false }
+              legend: { display: false },
             },
             elements: {
               point: {
@@ -854,7 +865,7 @@ function create_html(type, data) {
             <th class="param-label">
               <h2><i class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
             </th>
-            <th id="data_val_${data.id}" class="param-data-digital">OFF</th>
+            <th id="data_val_${data.id}" class="param-data-digital" colspan='2'>OFF</th>
           </tr>
           <tr><td class="spacing">&ensp;</td></tr>`;
           break;
