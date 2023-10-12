@@ -62,6 +62,10 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c) {
     RTC_FIX(RTC_ESP);
   }
 }
+
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
+  
+}
 #endif
 
 /* ADXL345 accelerometer memory read */
@@ -80,6 +84,8 @@ int TELEMETRY_SETUP(void) {
   // initialize buffer
   ring_buffer_init(&TELEMETRY_BUFFER, (char *)TELEMETRY_BUFFER_ARR, sizeof(TELEMETRY_BUFFER_ARR));
 
+  HAL_Delay(500);
+
   // polling ESP boot (ESP_COMM == HIGH)
   uint32_t start_time = HAL_GetTick();
   while (HAL_GPIO_ReadPin(GPIOB, ESP_COMM_Pin) == GPIO_PIN_RESET) {
@@ -90,10 +96,17 @@ int TELEMETRY_SETUP(void) {
   }
 
   // handshake call
-  int ret = HAL_I2C_Master_Transmit(I2C_TELEMETRY, ESP_I2C_ADDR, (uint8_t *)"READY", 5, 100);
+  int ret = HAL_I2C_IsDeviceReady(I2C_TELEMETRY, ESP_I2C_ADDR, 5, 100);
 
   if (ret != 0) {
-    DEBUG_MSG("[%8lu] [ERR] ESP handshake call timeout\r\n", HAL_GetTick());
+    DEBUG_MSG("[%8lu] [ERR] ESP i2c not ready %u/%u\r\n", HAL_GetTick(), ret, HAL_I2C_GetError(I2C_TELEMETRY));
+    goto esp_fail;
+  }
+
+  ret = HAL_I2C_Master_Transmit(I2C_TELEMETRY, ESP_I2C_ADDR, (uint8_t *)"READY", 5, 100);
+
+  if (ret != 0) {
+    DEBUG_MSG("[%8lu] [ERR] ESP handshake error %u\r\n", HAL_GetTick(), HAL_I2C_GetError(I2C_TELEMETRY));
     goto esp_fail;
   }
 
