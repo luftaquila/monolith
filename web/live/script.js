@@ -62,25 +62,54 @@ socket.on('disconnect', () => {
 
 // update UI on telemetry report
 socket.on('report', data => {
-  let target;
-
-  if (data.data.source == 'CAN') {
-    target = [ data.data.key ];
-  } else if (data.data.parsed) {
-    target = data.data.parsed.map(x => `${data.data.source} / ${x}`);
-  }
-
-  for (let tgt of target) {
-    if (watchlist[tgt]) {
-      for (let watch of watchlist[tgt]) {
-        update_ui(watch, data);
-      }
+  let watchlists = watchlist[data.data.key];
+  if (watchlists) {
+    for (let watch of watchlists) {
+      update_display(watch, data.data.parsed);
     }
   }
 });
 
-function update_ui(target, data) {
+function update_display(target, data) {
+  if (target.type === 'can') {
+    data = parse_CAN(target.source, data);
+  } else if (target.display !== 'gps') {
+    data = data[target.parsed];
+  }
+
+  switch (target.display) {
+    case 'digital': {
+      $(`#data_val_${target.id}`).text(data ? 'ON' : 'OFF');
+      break;
+    }
+
+    case 'value': {
+      $(`#data_val_${target.id}`).text(parseFloat(data.toFixed(Math.abs(data) < 10 ? 2 : 1)));
+      break;
+    }
+
+    case 'graph': {
+      $(`#data_val_${target.id}`).text(parseFloat(data.toFixed(Math.abs(data) < 10 ? 2 : 1)));
+      graphs[target.id].data.push({ x: new Date(), y: data });
+      break;
+    }
+
+    case 'gps': {
+      let pos = new kakao.maps.LatLng(data.lat, data.lon);
+      maps[target.id].path.push(pos);
+      maps[target.id].line.setPath(maps[target.id].path);
+      maps[target.id].map.panTo(pos);
+      break;
+    }
+  }
+}
+
+/************************************************************************************
+ * CAN data parser
+ ***********************************************************************************/
+function parse_CAN(source, data) {
   // TODO
+  return null;
 }
 
 /************************************************************************************
@@ -128,24 +157,37 @@ if (ui) {
 
       // draw map on gps display
       if (data.display === 'gps') {
-        maps[`${data.name}_${gid}`] = new kakao.maps.Map(document.getElementById(`map_${id}`), {
-          center: new kakao.maps.LatLng(37.2829317, 127.0435822)
-        });
+        maps[`${id}`] = {
+          map: new kakao.maps.Map(document.getElementById(`map_${id}`), {
+            center: new kakao.maps.LatLng(37.2829317, 127.0435822)
+          }),
+          path: [],
+          line: new kakao.maps.Polyline({
+            strokeWeight: 5,
+            strokeColor: '#00C40D',
+            strokeOpacity: 0.8,
+            strokeStyle: 'solid'
+          })
+        };
+
+        maps[`${id}`].line.setPath(maps[`${id}`].path);
+        maps[`${id}`].line.setMap(maps[`${id}`].map);
+
         continue; // skip to the next one
       }
 
       // draw graph
       if (data.display === 'graph') {
-        graphs[`${data.name}_${gid}`] = {
+        graphs[`${id}`] = {
           data: [],
           chart: null
         }
 
-        graphs[`${data.name}_${gid}`].chart = new Chart($(`#graph_${id}`), {
+        graphs[`${id}`].chart = new Chart($(`#graph_${id}`), {
           type: 'line',
           data: {
             datasets: [{
-              data: graphs[`${data.name}_${gid}`].data,
+              data: graphs[`${id}`].data,
               cubicInterpolationMode: 'monotone',
               tension: 0.2,
               borderColor: '#000000',
@@ -190,19 +232,27 @@ if (ui) {
         });
       }
 
-      // attach listener to the data
+      // attach listener
       let tgt = {
         id: id,
         display: data.display,
         type: data.type,
-        data: data.source,
         scale: data.scale
       };
 
-      if (watchlist[data.type === 'standard' ? data.source : data.source.id]) {
-        watchlist[data.type === 'standard' ? data.source : data.source.id].push(tgt);
+      if (data.type === 'can') {
+        tgt.source = data.source;
       } else {
-        watchlist[data.type === 'standard' ? data.source : data.source.id] = [ tgt ];
+        let [ src, parsed ] = data.source.split(' / ');
+        tgt.source = src;
+        tgt.key = LOG_KEY[src].find(x => x.parsed.find(y => y === parsed)).name;
+        tgt.parsed = parsed;
+      }
+
+      if (watchlist[tgt.type === 'standard' ? tgt.key : data.source.id]) {
+        watchlist[tgt.type === 'standard' ? tgt.key : data.source.id].push(tgt);
+      } else {
+        watchlist[tgt.type === 'standard' ? tgt.key : data.source.id] = [ tgt ];
       }
     } // for (const [ did, data ] of group.data.entries())
   }
@@ -413,7 +463,9 @@ function ui_validator() {
                 Swal.showValidationMessage('Data with invalid endianness presents!');
                 return false;
               } else {
-                data.source.endian = target.val();
+                data.source.byte = {
+                  endian: target.val()
+                }
               }
 
               // byte range
@@ -432,10 +484,8 @@ function ui_validator() {
                 Swal.showValidationMessage('Data with larger start byte then end byte presents!');
                 return false;
               } else {
-                data.source.byte = {
-                  start: start,
-                  end: end
-                };
+                data.source.byte.start = start;
+                data.source.byte.end = end;
               }
               break;
             }
@@ -660,7 +710,7 @@ function create_html(type, data) {
       return `<div style='text-align: left;'><span style='font-size: 1.7rem; font-weight: bold;'>차량 ID 설정</span></div>
       <div>
         <p>사용자 등록 시 설정한 차량 ID와 key를 입력하세요.</p>
-        <p>입력한 정보는 브라우저 쿠키에 저장됩니다.</p>
+        <p>입력한 정보는 브라우저에 저장됩니다.</p>
       </div>
       <table style='margin: auto;'>
         <tr>
@@ -669,9 +719,12 @@ function create_html(type, data) {
         </tr>
         <tr>
           <td style='text-align: left; line-height: 1.5rem;'>key</td>
-          <td>: <input id='car_id_key' class='data_input' value='${data.key ? data.key : ''}'></td>
+          <td>: <input id='car_id_key' type='password' class='data_input' value='${data.key ? data.key : ''}'></td>
         </tr>
-      </table>`;
+      </table>
+      <div style='margin-top: 1.5rem; font-size: 1rem;'>
+        <p>사용자 등록 신청: <a href='mailto:mail@luftaquila.io' style='text-decoration: none; color: #0366d6'>mail@luftaquila.io</a><br>학교와 팀 이름, 사용할 차량 ID와 key를 보내주세요.</p>
+      </div>`;
       break;
 
     case 'config_ui':
@@ -748,7 +801,7 @@ function create_html(type, data) {
           <div id='byte_form_${data.id}' style='margin-left: 1rem; display: ${(data.default || data.display === 'gps' || (data.type === 'standard') || (data.type === 'can' && data.source.byte)) ? 'block' : 'none'}'>
             <table>
               <tr>
-                <td>Endian : <label><input value='big' type='radio' name='endian_${data.id}' ${(data.default || data.display === 'gps' || data.type === 'standard' || (!data.default && data.type === 'can' && data.source.bit) || (data.type === 'can' && data.source.byte && data.source.endian === 'big')) ? 'checked' : ''}></input> Big</label> <label style='margin-left: .8rem;'><input value='little' type='radio' name='endian_${data.id}' ${(!data.default && data.type === 'can' && data.source.byte && data.source.endian === 'little') ? 'checked' : ''}></input> Little</label></td>
+                <td>Endian : <label><input value='big' type='radio' name='endian_${data.id}' ${(data.default || data.display === 'gps' || data.type === 'standard' || (!data.default && data.type === 'can' && data.source.bit) || (data.type === 'can' && data.source.byte && data.source.byte.endian === 'big')) ? 'checked' : ''}></input> Big</label> <label style='margin-left: .8rem;'><input value='little' type='radio' name='endian_${data.id}' ${(!data.default && data.type === 'can' && data.source.byte && data.source.byte.endian === 'little') ? 'checked' : ''}></input> Little</label></td>
               </tr>
               <tr>
                 <td>Byte : #<input id='can_start_byte_${data.id}' type='number' class='mini' value='${(!data.default && data.type === 'can' && data.source.byte) ? data.source.byte.start : 0}'> ~ #<input id='can_end_byte_${data.id}' type='number' class='mini' value='${(!data.default && data.type === 'can' && data.source.byte) ? data.source.byte.end : 0}'> <span style='font-size: .8rem;'>(#0 ~ 7)</span></td>
