@@ -1,0 +1,13 @@
+[Unit]
+Description=Monolith TMA-2 telemetry server
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=<YOUR_MONOLITH_INSTALLATION_PATH>/server
+ExecStart=/usr/bin/node index.mjs
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
