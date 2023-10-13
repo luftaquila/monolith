@@ -10,7 +10,8 @@ if (typeof io === typeof undefined) {
   });
 }
 
-let timer = setTimeout(() => { $("#telemetry i").css("color", "red"); }, 3000);
+const timeout = 3000;
+let timer = setTimeout(() => { $("#telemetry i").css("color", "red"); }, timeout);
 
 /************************************************************************************
  * Socket.io events
@@ -71,7 +72,7 @@ socket.on('report', data => {
   $('#timestamp').text(data.data.timestamp);
   $('#telemetry i').css('color', 'green');
   clearTimeout(timer);
-  timer = setTimeout(() => { $("#telemetry i").css("color", "red"); }, 3000);
+  timer = setTimeout(() => { $("#telemetry i").css("color", "red"); }, timeout);
 
   let watchlists = watchlist[data.data.key];
   if (watchlists) {
@@ -95,17 +96,29 @@ function update_display(target, data) {
   switch (target.display) {
     case 'digital': {
       $(`#data_val_${target.id}`).text(data ? 'ON' : 'OFF');
+
+      $(`#icon_${target.id}`).css('color', 'green');
+      clearTimeout(timers[target.id]);
+      timers[target.id] = setTimeout(() => { $(`#icon_${target.id}`).css("color", "red"); }, timeout);
       break;
     }
 
     case 'value': {
       $(`#data_val_${target.id}`).text(data ? (data.toFixed(Math.abs(data) < 10 ? 2 : 1)) : 0);
+
+      $(`#icon_${target.id}`).css('color', 'green');
+      clearTimeout(timers[target.id]);
+      timers[target.id] = setTimeout(() => { $(`#icon_${target.id}`).css("color", "red"); }, timeout);
       break;
     }
 
     case 'graph': {
       $(`#data_val_${target.id}`).text(data ? (data.toFixed(Math.abs(data) < 10 ? 2 : 1)) : 0);
       graphs[target.id].data.push({ x: new Date(), y: data });
+
+      $(`#icon_${target.id}`).css('color', 'green');
+      clearTimeout(timers[target.id]);
+      timers[target.id] = setTimeout(() => { $(`#icon_${target.id}`).css("color", "red"); }, timeout);
       break;
     }
 
@@ -134,6 +147,7 @@ ui = localStorage.getItem('ui');
 graphs = { };
 maps = { };
 watchlist = { };
+timers = { };
 
 if (ui) {
   let json;
@@ -158,6 +172,8 @@ if (ui) {
 
     for (const [ did, data ] of group.data.entries()) {
       const id = `${gid}_${did}`;
+
+      timers[id] = setTimeout(() => { $(`#icon_${id}`).css("color", "red"); }, timeout);
 
       $(`#group_table_${gid}`).append(create_html('ui_data', {
         id: id,
@@ -867,7 +883,7 @@ function create_html(type, data) {
         case 'digital':
           return `<tr>
             <th class="param-label">
-              <h2><i class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
+              <h2><i id='icon_${data.id}' class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
             </th>
             <th id="data_val_${data.id}" class="param-data-digital" colspan='2'>OFF</th>
           </tr>
@@ -877,7 +893,7 @@ function create_html(type, data) {
         case 'value':
           return `<tr>
             <th class="param-label">
-              <h2><i class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
+              <h2><i id='icon_${data.id}' class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
             </th>
             <th id="data_val_${data.id}" class="param-data">0</th>
             <th class="param-unit">${data.unit}</th>
@@ -888,7 +904,7 @@ function create_html(type, data) {
         case 'graph':
           return `<tr>
             <th class="param-label">
-              <h2><i class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
+              <h2><i id='icon_${data.id}' class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
             </th>
             <th id="data_val_${data.id}" class="param-data">0</th>
             <th class="param-unit">${data.unit}</th>
