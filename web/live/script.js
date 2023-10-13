@@ -10,6 +10,8 @@ if (typeof io === typeof undefined) {
   });
 }
 
+let timer = setTimeout(() => { $("#telemetry i").css("color", "red"); }, 3000);
+
 /************************************************************************************
  * Socket.io events
  ***********************************************************************************/
@@ -68,6 +70,8 @@ socket.on('socket-lost', () => {
 socket.on('report', data => {
   $('#timestamp').text(data.data.timestamp);
   $('#telemetry i').css('color', 'green');
+  clearTimeout(timer);
+  timer = setTimeout(() => { $("#telemetry i").css("color", "red"); }, 3000);
 
   let watchlists = watchlist[data.data.key];
   if (watchlists) {
