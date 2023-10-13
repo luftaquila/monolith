@@ -90,7 +90,7 @@ void loop() {
   if (server_conn && !tx_buf.isEmpty()) {
     char pop;
     char buf[16];
-    
+
     for (int x = 0; x < 16; x++) {
       tx_buf.lockedPop(pop);
       buf[x] = pop;
@@ -100,7 +100,7 @@ void loop() {
         "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\"}]",
         buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7],
         buf[8], buf[9], buf[10], buf[11], buf[12], buf[13], buf[14], buf[15]);
-    
+
     socketIO.sendEVENT(log_payload, 51);
   }
 }
@@ -146,15 +146,15 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t* payload, size_t length) 
 }
 
 void i2c_rcv_callback(int len) {
-  if (len > 16) {
-    return;
-  }
-
   int i = 0;
   char buffer[16];
 
   while (Wire.available()) {
-    buffer[i++] = Wire.read();
+    if (i < 16) {
+      buffer[i++] = Wire.read();
+    } else {
+      Wire.read(); // just flush buffers
+    }
   }
 
   // STM32 handshake sequence
