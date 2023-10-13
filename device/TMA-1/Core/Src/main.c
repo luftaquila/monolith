@@ -531,14 +531,14 @@ void SystemClock_Config(void)
 void TIMER_100ms(void) {
 #ifdef ENABLE_MONITOR_DIGITAL
   /* record digital input channels */
-  syslog.value[0] = HAL_GPIO_ReadPin(GPIOD, DIN0_Pin);
-  syslog.value[1] = HAL_GPIO_ReadPin(GPIOD, DIN1_Pin);
-  syslog.value[2] = HAL_GPIO_ReadPin(GPIOD, DIN2_Pin);
-  syslog.value[3] = HAL_GPIO_ReadPin(GPIOD, DIN3_Pin);
-  syslog.value[4] = HAL_GPIO_ReadPin(GPIOD, DIN4_Pin);
-  syslog.value[5] = HAL_GPIO_ReadPin(GPIOD, DIN5_Pin);
-  syslog.value[6] = HAL_GPIO_ReadPin(GPIOD, DIN6_Pin);
-  syslog.value[7] = HAL_GPIO_ReadPin(GPIOD, DIN7_Pin);
+  syslog.value[0] = !HAL_GPIO_ReadPin(GPIOD, DIN0_Pin);
+  syslog.value[1] = !HAL_GPIO_ReadPin(GPIOD, DIN1_Pin);
+  syslog.value[2] = !HAL_GPIO_ReadPin(GPIOD, DIN2_Pin);
+  syslog.value[3] = !HAL_GPIO_ReadPin(GPIOD, DIN3_Pin);
+  syslog.value[4] = !HAL_GPIO_ReadPin(GPIOD, DIN4_Pin);
+  syslog.value[5] = !HAL_GPIO_ReadPin(GPIOD, DIN5_Pin);
+  syslog.value[6] = !HAL_GPIO_ReadPin(GPIOD, DIN6_Pin);
+  syslog.value[7] = !HAL_GPIO_ReadPin(GPIOD, DIN7_Pin);
   SYS_LOG(LOG_INFO, DIGITAL, DIGITAL_DATA);
 #endif
 
