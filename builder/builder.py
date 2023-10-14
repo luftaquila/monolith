@@ -102,7 +102,7 @@ def build_esp32():
     with open("./config/build_config.json", "r") as file:
         build_config = json.load(file)
 
-    ret = spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'compile', '--board-options', 'LoopCore=0', '-e', '--fqbn', 'esp32:esp32:esp32', '-v', '--build-property', f'compiler.cpp.extra_flags="-DNETWORK_SSID="{build_config["ESP32"]["network"]["ssid"]}"" -DNETWORK_PASSWORD="{build_config["ESP32"]["network"]["password"]}" -DCHANNEL_NAME="{build_config["ESP32"]["channel"]["name"]}" -DCHANNEL_KEY="{build_config["ESP32"]["channel"]["key"]}" -DSERVER_NAME="{build_config["ESP32"]["server"]["name"]}"', '../device/telemetry/telemetry.ino'])
+    ret = spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'compile', '-e', '--fqbn', 'esp32:esp32:esp32', '-v', '--build-property', f'compiler.cpp.extra_flags="-DNETWORK_SSID="{build_config["ESP32"]["network"]["ssid"]}"" -DNETWORK_PASSWORD="{build_config["ESP32"]["network"]["password"]}" -DCHANNEL_NAME="{build_config["ESP32"]["channel"]["name"]}" -DCHANNEL_KEY="{build_config["ESP32"]["channel"]["key"]}" -DSERVER_NAME="{build_config["ESP32"]["server"]["name"]}"', '../device/telemetry/telemetry.ino'])
 
     if ret != 0:
         print("\nERROR: build job failed. terminating.")
