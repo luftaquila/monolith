@@ -223,7 +223,6 @@ def config(target):
 # check toolchain installation
 def validate(target):
     if target == 'stm':
-        print('stm')
         if not os.path.exists(path["arm"]) or \
            not os.path.exists(path["make"]) or \
            not os.path.exists(path["openocd"]):
@@ -233,13 +232,14 @@ def validate(target):
                 print("\nERROR: toolchain installation failed. terminating.")
                 return -1
 
-            print('INFO: toolchain validation completed!\n')
+        print('INFO: toolchain validation completed!\n')
 
-            # configure toolchain PATH
-            os.environ["PATH"] = os.getenv("PATH") + ';' + \
-                                    f'{path["toolchain_abs"]}\\arm\\bin;' + \
-                                    f'{path["toolchain_abs"]}\\make\\bin;' + \
-                                    f'{path["toolchain_abs"]}\\openocd\\bin'
+        # configure toolchain PATH
+        os.environ["PATH"] = os.getenv("PATH") + ';' + \
+                                f'{path["toolchain_abs"]}\\arm\\bin;' + \
+                                f'{path["toolchain_abs"]}\\make\\bin;' + \
+                                f'{path["toolchain_abs"]}\\openocd\\bin'
+
 
     elif target == 'esp':
         if not os.path.exists(path["arduino"]):
