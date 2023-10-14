@@ -3,16 +3,18 @@ import sys
 import json
 import shutil
 import subprocess
+import serial.tools.list_ports
 
 import toolchain
 
 # spawn a subprocess
 def spawn(argv):
-    p = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    p = subprocess.Popen(argv, encoding='utf-8', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
     while p.poll() == None:
         print(p.stdout.readline(), end='')
 
     return p.poll()
+
 
 ##### STM32 build and flash process START #####
 def build_stm32():
@@ -77,14 +79,82 @@ def flash_stm32():
         print("ERROR: max retry count reached. terminating.")
         return -1
 
+    # move target executable
+    if os.path.exists('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.elf'):
+        os.makedirs('./build', exist_ok=True)
+        shutil.copyfile('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.elf', './build/telemetry.elf')
+        print("INFO: build of TMA-1 ESP32 binary completed! binary copied to build/telemetry.elf")
+        return 0
+
     print('INFO: TMA-1 STM32 binary successfully flashed. please recyle the power.')
     return 0
 ##### STM32 build and flash process END #####
 
-# Monolith TMA-1 software build and flash process
-def build():
+
+##### ESP32 build and flash process START #####
+def build_esp32():
+    print("INFO: building TMA-1 ESP32 binary...")
+
+    # set build environment variables
+    with open("./config/build_config.json", "r") as file:
+        build_config = json.load(file)
+
+    ret = spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'compile', '--board-options', 'LoopCore=0', '-e', '--fqbn', 'esp32:esp32:esp32', '-v', '../device/telemetry/telemetry.ino'])
+
+    if ret != 0:
+        print("\nERROR: build job failed. terminating.")
+        return -1
+
+    # move target executable
+    if os.path.exists('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.elf'):
+        os.makedirs('./build', exist_ok=True)
+        shutil.copyfile('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.elf', './build/telemetry.elf')
+        shutil.copyfile('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.bin', './build/telemetry.bin')
+        shutil.copyfile('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.map', './build/telemetry.map')
+        shutil.copyfile('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.bootloader.bin', './build/telemetry.bootloader.bin')
+        shutil.copyfile('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.partitions.bin', './build/telemetry.partitions.bin')
+        print("INFO: build of TMA-1 ESP32 binary completed! binary copied to build/telemetry.*")
+        return 0
+
+    print("INFO: build of TMA-1 ESP32 binary completed!")
+    return 0
+
+def flash_esp32():
+    print("INFO: flashing TMA-1 ESP32 binary...")
+
+    # set build environment variables
+    port = None
+    with open("./config/build_config.json", "r") as file:
+        build_config = json.load(file)
+        port = build_config["ESP32"]["port"]
+
+    # auto-detect esp32 port
+    if port == "":
+        for p in serial.tools.list_ports.comports():
+            if p.vid == 0x10C4 and p.pid == 0xEA60:
+                port = p.name
+                break
+
+    # auto-detect failure
+    if port == "":
+        print("ERROR: no ESP32 found! please check connection or specify the COM port in the Configuration Tool.")
+        return -1
+
+    ret = spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'upload', '-i', './build/telemetry.elf', '--fqbn', 'esp32:esp32:esp32', '-p', port ])
+
+    if ret != 0:
+        print("ERROR: flashing failed. terminating.")
+        return -1
+
+    print('INFO: TMA-1 ESP32 binary successfully flashed. please recyle the power.')
+    return 0
+##### ESP32 build and flash process END #####
+
+
+##### Monolith TMA-1 STM32 firmware build and flash process START #####
+def stm32():
     print("INFO: checking toolchain...")
-    if toolchain.validate() != 0:
+    if toolchain.validate('stm') != 0:
         print("\nERROR: toolchain is corrupt. please delete builder/toolchain/.cache and retry.")
         return -1
     print('INFO: toolchain validation finished. start build...')
@@ -92,14 +162,41 @@ def build():
     if build_stm32() != 0:
         print("\nERROR: build of TMA-1 STM32 binary failed. please delete builder/toolchain and retry.")
         return -1
+
     print('\nINFO: build finished. start flashing...\n')
 
     if flash_stm32() != 0:
         print("\nERROR: flashing of TMA-1 STM32 binary failed. please check debugger and retry.")
         return -1
-    print('\nINFO: flashing finished.')
+
+    print('\nINFO: TMA-1 STM32 flashing finished.')
 
     return 0
+##### Monolith TMA-1 STM32 firmware build and flash process end #####
+
+
+##### Monolith TMA-1 ESP32 firmware build and flash process START #####
+def esp32():
+    print("INFO: checking toolchain...")
+    if toolchain.validate('esp') != 0:
+        print("\nERROR: toolchain is corrupt. please delete builder/toolchain/.cache and retry.")
+        return -1
+    print('INFO: toolchain validation finished. start build...')
+
+    if build_esp32() != 0:
+        print("\nERROR: build of TMA-1 ESP32 binary failed. please check console output and retry.")
+        return -1
+
+    print('\nINFO: build finished. start flashing...\n')
+
+    if flash_esp32() != 0:
+        print("\nERROR: flashing of TMA-1 ESP32 binary failed. please check connection and retry.")
+        return -1
+
+    print('\nINFO: TMA-1 ESP32 flashing finished.')
+
+    return 0
+##### Monolith TMA-1 ESP32 firmware build and flash process end #####
 
 # clean build directories
 def clean():
@@ -109,17 +206,43 @@ def clean():
         shutil.rmtree('./build')
 
     # STM32CubeMX build directory
-    print("cleaning ./device/TMA-1/build...")
+    print("cleaning ../device/TMA-1/build...")
     if os.path.exists('../device/TMA-1/build'):
         shutil.rmtree('../device/TMA-1/build')
+
+    print("cleaning ../device/telemetry/build...")
+    if os.path.exists('../device/telemetry/build'):
+        shutil.rmtree('../device/telemetry/build')
 
     print("clean done!")
 
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        build()
-    elif sys.argv[1] == "build":
-        build()
+    if len(sys.argv) < 2:
+        print(f'ERROR: no command specified')
+    elif sys.argv[1] == "stm":
+        if len(sys.argv) < 4:
+            if sys.argv[2] == "build":
+                if toolchain.validate('stm') == 0:
+                    build_stm32()
+            elif sys.argv[2] == "flash":
+                if toolchain.validate('stm') == 0:
+                    flash_stm32()
+            else:
+                print(f'ERROR: unknown command {sys.argv[2]}')
+        else:
+            stm32()
+    elif sys.argv[1] == "esp":
+        if len(sys.argv) < 4:
+            if sys.argv[2] == "build":
+                if toolchain.validate('esp') == 0:
+                    build_esp32()
+            elif sys.argv[2] == "flash":
+                if toolchain.validate('esp') == 0:
+                    flash_esp32()
+            else:
+                print(f'ERROR: unknown command {sys.argv[2]}')
+        else:
+            esp32()
     elif sys.argv[1] == "clean":
         clean()
     else:
