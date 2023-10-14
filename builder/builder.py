@@ -19,7 +19,7 @@ def build_stm32():
     print("INFO: building TMA-1 STM32 binary...")
 
     # set build environment variables
-    with open("build_config.json", "r") as file:
+    with open("./config/build_config.json", "r") as file:
         build_config = json.load(file)
 
         os.environ["ENABLE_TELEMETRY"] = '1' if build_config["STM32"]["output"]["telemetry"] else '0'

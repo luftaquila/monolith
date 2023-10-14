@@ -16,5 +16,8 @@
       "debug_mode": false,
       "release_build": true
     }
+  },
+  "ESP32": {
+    "port": ""
   }
 }

@@ -18,7 +18,7 @@ import builder
 class MainApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.screen = Builder.load_file('./layout.kv')
+        self.screen = Builder.load_file('./config/layout.kv')
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
@@ -27,7 +27,7 @@ class MainApp(MDApp):
 
     # read build_config.json and init checkboxes on startup
     def on_start(self, **kwargs):
-        with open("build_config.json", "r") as file:
+        with open("./config/build_config.json", "r") as file:
             build_config = json.load(file)
 
             self.screen.ids.telemetry.state = 'down' if build_config["STM32"]["output"]["telemetry"] else 'normal'
@@ -49,7 +49,7 @@ class MainApp(MDApp):
         if checkbox in self.screen.ids.values():
             id = list(self.screen.ids.keys())[list(self.screen.ids.values()).index(checkbox)]
 
-            with open("build_config.json", "r+") as file:
+            with open("./config/build_config.json", "r+") as file:
                 build_config = json.load(file)
 
                 if id in build_config["STM32"]["output"]:
