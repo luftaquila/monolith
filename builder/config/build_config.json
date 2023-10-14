@@ -18,6 +18,14 @@
     }
   },
   "ESP32": {
-    "port": ""
+    "port": "",
+    "network": {
+      "ssid": "WIFI_HOTSPOT_SSID",
+      "password": "WIFI_HOTSPOT_PASSWD"
+    },
+    "channel": {
+      "name": "default",
+      "key": "password"
+    }
   }
 }

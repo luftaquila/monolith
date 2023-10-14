@@ -7,14 +7,14 @@
 /****************************************************************************
  * Hotspot AP configurations                                                *
  ****************************************************************************/
-const char ssid[] = "<YOUR Wi-Fi HOTSPOT SSID>";
-const char pwd[]  = "<YOUR Wi-Fi HOTSPOT PASSWORD>";
+const char ssid[] = NETWORK_SSID;
+const char pwd[]  = NETWORK_PASSWORD;
 
 /****************************************************************************
  * telemetry server configuration                                           *
  ****************************************************************************/
 const char server[] = "monolith.luftaquila.io";
-const char url[] = "/socket.io/?EIO=4&device=1&channel=<YOUR CHANNEL NAME>&key=<YOUR CHANNEL KEY>";
+const char url[] = "/socket.io/?EIO=4&device=1&channel="CHANNEL_NAME"&key="CHANNEL_KEY;
 const int port = 80; // telemetry port of socket.io server
 
 // GPIO and I2C configurations

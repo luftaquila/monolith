@@ -11,7 +11,10 @@ import toolchain
 def spawn(argv):
     p = subprocess.Popen(argv, encoding='utf-8', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
     while p.poll() == None:
-        print(p.stdout.readline(), end='')
+        try:
+            print(p.stdout.readline(), end='')
+        except UnicodeDecodeError:
+            pass
 
     return p.poll()
 
@@ -99,7 +102,7 @@ def build_esp32():
     with open("./config/build_config.json", "r") as file:
         build_config = json.load(file)
 
-    ret = spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'compile', '--board-options', 'LoopCore=0', '-e', '--fqbn', 'esp32:esp32:esp32', '-v', '../device/telemetry/telemetry.ino'])
+    ret = spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'compile', '--board-options', 'LoopCore=0', '-e', '--fqbn', 'esp32:esp32:esp32', '-v', '--build-property', f'compiler.cpp.extra_flags="-DNETWORK_SSID="{build_config["ESP32"]["network"]["ssid"]}"" -DNETWORK_PASSWORD="{build_config["ESP32"]["network"]["password"]}" -DCHANNEL_NAME="{build_config["ESP32"]["channel"]["name"]}" -DCHANNEL_KEY="{build_config["ESP32"]["channel"]["key"]}"', '../device/telemetry/telemetry.ino'])
 
     if ret != 0:
         print("\nERROR: build job failed. terminating.")
@@ -220,7 +223,9 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(f'ERROR: no command specified')
     elif sys.argv[1] == "stm":
-        if len(sys.argv) < 4:
+        if len(sys.argv) < 3:
+            stm32()
+        else:
             if sys.argv[2] == "build":
                 if toolchain.validate('stm') == 0:
                     build_stm32()
@@ -229,10 +234,11 @@ if __name__ == "__main__":
                     flash_stm32()
             else:
                 print(f'ERROR: unknown command {sys.argv[2]}')
-        else:
-            stm32()
+
     elif sys.argv[1] == "esp":
-        if len(sys.argv) < 4:
+        if len(sys.argv) < 3:
+            esp32()
+        else:
             if sys.argv[2] == "build":
                 if toolchain.validate('esp') == 0:
                     build_esp32()
@@ -241,8 +247,6 @@ if __name__ == "__main__":
                     flash_esp32()
             else:
                 print(f'ERROR: unknown command {sys.argv[2]}')
-        else:
-            esp32()
     elif sys.argv[1] == "clean":
         clean()
     else:
