@@ -25,7 +25,7 @@ MDScreen
                         font_size: '16sp'
 
                     MDLabel:
-                        text: '[u][color=#0366d6][ref=https://github.com/luftaquila/monolith]Manual[/ref][/color][/u]'
+                        text: '[u][color=#0366d6][ref=https://github.com/luftaquila/monolith/wiki]Manual[/ref][/color][/u]'
                         font_name: 'consola'
                         font_size: '15sp'
                         markup: True
@@ -337,12 +337,12 @@ MDScreen
                     spacing: '30dp'
 
                     MDFillRoundFlatIconButton:
-                        id: flash
+                        id: flash_stm32
                         icon: 'chip'
                         text: '[b]Flash TMA-1[/b]'
                         markup: True
                         font_size: '18sp'
-                        on_press: app.flash()
+                        on_press: app.flash_stm32()
 
                     MDFillRoundFlatIconButton:
                         id: sync_rtc
@@ -359,6 +359,100 @@ MDScreen
                         markup: True
                         font_size: '18sp'
                         on_press: app.clean()
+
+                MDLabel:
+                    text: 'Telemetry'
+                    font_size: '24sp'
+                    bold: True
+                    size: self.texture_size
+                    size_hint_y: None
+                    padding: 0, '20dp', 0, 0
+
+                MDGridLayout:
+                    cols: 2
+                    padding: '100dp', '10dp', 0, 0
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    MDLabel:
+                        text: "Wi-Fi Hotspot SSID"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '170dp', '50dp'
+                        MDTextField:
+                            id: network_ssid
+                            on_text: app.on_text_change(*args)
+
+                    MDLabel:
+                        text: "Wi-Fi Hotspot Password"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '170dp', '50dp'
+                        MDTextField:
+                            id: network_password
+                            on_text: app.on_text_change(*args)
+
+                    MDLabel:
+                        text: "Channel Name"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '170dp', '50dp'
+                        MDTextField:
+                            id: channel_name
+                            on_text: app.on_text_change(*args)
+
+                    MDLabel:
+                        text: "Channel Key"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '170dp', '50dp'
+                        MDTextField:
+                            id: channel_key
+                            on_text: app.on_text_change(*args)
+
+                    MDLabel:
+                        text: "Server Name"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '170dp', '50dp'
+                        MDTextField:
+                            id: server_name
+                            on_text: app.on_text_change(*args)
+
+                MDBoxLayout:
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: '50dp', '10dp', 0, '30dp'
+                    spacing: '30dp'
+
+                    MDFillRoundFlatIconButton:
+                        id: flash_esp32
+                        icon: 'satellite-variant'
+                        text: '[b]Flash ESP32[/b]'
+                        markup: True
+                        font_size: '18sp'
+                        on_press: app.flash_esp32()
+
 
 #                MDLabel:
 #                    text: 'Console'

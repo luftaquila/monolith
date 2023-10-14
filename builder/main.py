@@ -25,6 +25,7 @@ class MainApp(MDApp):
         self.title = "TMA-1 Configuration Tool"
         return self.screen
 
+
     # read build_config.json and init checkboxes on startup
     def on_start(self, **kwargs):
         with open("./config/build_config.json", "r") as file:
@@ -42,6 +43,13 @@ class MainApp(MDApp):
 
             self.screen.ids.debug_mode.state    = 'down' if build_config["STM32"]["debug"]["debug_mode"] else 'normal'
             self.screen.ids.release_build.state = 'down' if build_config["STM32"]["debug"]["release_build"] else 'normal'
+
+            self.screen.ids.network_ssid.text   = build_config['ESP32']['network']['ssid']
+            self.screen.ids.network_password.text   = build_config['ESP32']['network']['password']
+            self.screen.ids.channel_name.text   = build_config['ESP32']['channel']['name']
+            self.screen.ids.channel_key.text   = build_config['ESP32']['channel']['key']
+
+            self.screen.ids.server_name.text   = build_config['ESP32']['server']['name']
 
 
     # update build_config.json on checkbox event
@@ -65,8 +73,40 @@ class MainApp(MDApp):
                 json.dump(build_config, file, indent=2)
                 file.truncate()
 
-    def flash(self):
-        ret = builder.build()
+
+    # update build_config.json on checkbox event
+    def on_text_change(self, textfield, value):
+        if textfield in self.screen.ids.values():
+            id = list(self.screen.ids.keys())[list(self.screen.ids.values()).index(textfield)]
+
+            with open("./config/build_config.json", "r+") as file:
+                build_config = json.load(file)
+
+                if id == 'network_ssid':
+                    build_config["ESP32"]["network"]["ssid"] = value.strip()
+
+                elif id == 'network_password':
+                    build_config["ESP32"]["network"]["password"] = value.strip()
+
+                elif id == 'channel_name':
+                    build_config["ESP32"]["channel"]["name"] = value.strip()
+                    self.screen.ids.channel_name.text = value.strip()
+
+                elif id == 'channel_key':
+                    build_config["ESP32"]["channel"]["key"] = value.strip()
+                    self.screen.ids.channel_key.text = value.strip()
+
+                elif id == 'server_name':
+                    build_config["ESP32"]["server"]["name"] = value.strip()
+                    self.screen.ids.server_name.text = value.strip()
+
+                file.seek(0)
+                json.dump(build_config, file, indent=2)
+                file.truncate()
+
+
+    def flash_stm32(self):
+        ret = builder.stm32()
 
         if ret == 0:
             self.dialog = MDDialog(text=f'[font=consola.ttf][color=00ff00]&bl;OK&br;[/color] [color=ffffff]flashing successfully finished.[/color][/font]', buttons=[MDFlatButton(text='OK', on_release=self.close_dialog)])
@@ -75,6 +115,18 @@ class MainApp(MDApp):
             self.dialog = MDDialog(text=f'[font=consola.ttf][color=ff0000]&bl;FAIL&br;[/color] [color=ffffff]flashing failed. please check the console output.[/color][/font]', buttons=[MDFlatButton(text='OK', on_release=self.close_dialog)])
             self.dialog.open()
 
+
+    def flash_esp32(self):
+        ret = builder.esp32()
+
+        if ret == 0:
+            self.dialog = MDDialog(text=f'[font=consola.ttf][color=00ff00]&bl;OK&br;[/color] [color=ffffff]flashing successfully finished.[/color][/font]', buttons=[MDFlatButton(text='OK', on_release=self.close_dialog)])
+            self.dialog.open()
+        else:
+            self.dialog = MDDialog(text=f'[font=consola.ttf][color=ff0000]&bl;FAIL&br;[/color] [color=ffffff]flashing failed. please check the console output.[/color][/font]', buttons=[MDFlatButton(text='OK', on_release=self.close_dialog)])
+            self.dialog.open()
+
+
     def sync_rtc(self):
         ports = sorted([port for port in serial.tools.list_ports.comports()], key=lambda s: int(re.search(r'\d+', s.name).group()))
         ports = list(map(lambda x: OneLineAvatarIconListItem(text=f'[font=Malgun.ttf]{x.description}[/font]', id=x.name, on_release=self.select_port), ports))
@@ -82,8 +134,10 @@ class MainApp(MDApp):
         self.dialog = MDDialog(title='[font=consola.ttf]Select UART COM port[/font]', type='confirmation', items=ports, buttons=[MDFlatButton(text='Cancel', on_release=self.close_dialog)])
         self.dialog.open()
 
+
     def close_dialog(self, inst):
         self.dialog.dismiss()
+
 
     def select_port(self, inst):
         self.dialog.dismiss()
@@ -114,6 +168,7 @@ class MainApp(MDApp):
             target.close()
         except serial.serialutil.SerialException as e:
             print(f'{e}\nERROR: serial communication failed. please check COM port number or re-plug the adapter.')
+
 
     def clean(self):
         builder.clean()

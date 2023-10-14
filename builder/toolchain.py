@@ -179,18 +179,18 @@ def config_arduino():
             shutil.unpack_archive(f'{path["cache"]}/arduino-cli.zip', f'{path["cache"]}/arduino')
             os.rename(f'{path["cache"]}/arduino', path["arduino"])
 
-        print("  configuring arduino-cli...")
+            print("  configuring arduino-cli...")
 
-        os.environ["PATH"] = os.getenv("PATH") + f';{path["toolchain_abs"]}\\arduino;'
+            os.environ["PATH"] = os.getenv("PATH") + f';{path["toolchain_abs"]}\\arduino;'
 
-        spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'core', 'update-index'])
-        spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'core', 'install', 'esp32:esp32'])
-        spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'ArduinoJson'])
-        spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'RingBuffer'])
-        spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'WebSockets'])
+            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'core', 'update-index'])
+            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'core', 'install', 'esp32:esp32'])
+            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'ArduinoJson'])
+            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'RingBuffer'])
+            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'WebSockets'])
 
-        print("arduino-cli configured!")
-        
+            print("arduino-cli configured!")
+
         return 0
 
     except Exception as e:

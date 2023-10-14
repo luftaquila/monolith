@@ -20,12 +20,15 @@
   "ESP32": {
     "port": "",
     "network": {
-      "ssid": "WIFI_HOTSPOT_SSID",
-      "password": "WIFI_HOTSPOT_PASSWD"
+      "ssid": "YOUR_WIFI_SSID",
+      "password": "YOUR_WIFI_PWD"
     },
     "channel": {
       "name": "default",
       "key": "password"
+    },
+    "server": {
+      "name": "monolith.luftaquila.io"
     }
   }
 }

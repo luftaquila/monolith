@@ -13,7 +13,7 @@ const char pwd[]  = NETWORK_PASSWORD;
 /****************************************************************************
  * telemetry server configuration                                           *
  ****************************************************************************/
-const char server[] = "monolith.luftaquila.io";
+const char server[] = SERVER_NAME;
 const char url[] = "/socket.io/?EIO=4&device=1&channel="CHANNEL_NAME"&key="CHANNEL_KEY;
 const int port = 80; // telemetry port of socket.io server
 
@@ -41,6 +41,7 @@ char rtc[19];
 
 void setup() {
   Serial.begin(115200);
+  Serial.printf("Wi-Fi:\n\tSSID: %s / PW: %s\nSERVER:\n\tname: %s\n\turl: %s\n", ssid, pwd, server, url);
 
   // init ESP_COMM
   pinMode(ESP_COMM, OUTPUT);
