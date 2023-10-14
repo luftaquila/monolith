@@ -41,7 +41,7 @@ char rtc[19];
 
 void setup() {
   Serial.begin(115200);
-  Serial.printf("Wi-Fi:\n\tSSID: %s / PW: %s\nSERVER:\n\tname: %s\n\turl: %s\n", ssid, pwd, server, url);
+  Serial.printf("Wi-Fi:\n\tSSID: %s / PW: %s\nSERVER:\n\tname: %s:%d\n\turl: %s\nI2C:\n\tFREQ: %dHz / ADDR: 0x%02x / SDA: %d / SCL: %d\n", ssid, pwd, server, port, url, I2C_FREQ, I2C_ADDR, I2C_SDA, I2C_SCL);
 
   // init ESP_COMM
   pinMode(ESP_COMM, OUTPUT);
