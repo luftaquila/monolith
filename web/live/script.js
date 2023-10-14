@@ -104,7 +104,8 @@ function update_display(target, data) {
     }
 
     case 'value': {
-      $(`#data_val_${target.id}`).text(data ? (data.toFixed(Math.abs(data) < 10 ? 2 : 1)) : 0);
+      let val = data.toFixed(Math.abs(data) < 10 ? 2 : 1);
+      $(`#data_val_${target.id}`).text((val !== '0.00') ? val : 0);
 
       $(`#icon_${target.id}`).css('color', 'green');
       clearTimeout(timers[target.id]);
@@ -113,7 +114,8 @@ function update_display(target, data) {
     }
 
     case 'graph': {
-      $(`#data_val_${target.id}`).text(data ? (data.toFixed(Math.abs(data) < 10 ? 2 : 1)) : 0);
+      let val = data.toFixed(Math.abs(data) < 10 ? 2 : 1);
+      $(`#data_val_${target.id}`).text((val !== '0.00') ? val : 0);
       graphs[target.id].data.push({ x: new Date(), y: data });
 
       $(`#icon_${target.id}`).css('color', 'green');
