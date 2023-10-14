@@ -920,7 +920,7 @@ function create_html(type, data) {
           break;
 
         case 'gps':
-          return `<div id="map_${data.id}" style="width: 100%; height: 50vh;"></div>`;
+          return `<tr><td colspan='3'><div id="map_${data.id}" style="width: 100%; height: 400px; margin-bottom: 1rem;"></div></td></tr>`;
           break;
       }
       break;
