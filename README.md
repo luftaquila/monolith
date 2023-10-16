@@ -12,7 +12,7 @@
 
 ### [가이드 문서](https://github.com/luftaquila/monolith/wiki)
 
-`TMA-1` 데이터로거, `TMA-2` 실시간 중계 서버, `TMA-3` 데이터 분석 도구로 구성되어 있습니다.
+`TMA-1` 데이터로거, `TMA-2` 텔레메트리 모니터, `TMA-3` 데이터 분석 도구로 구성되어 있습니다.
 
 ## TMA-1 데이터로거
 차량에 장착되어 데이터를 수집하는 장비입니다. 기록할 수 있는 데이터는 다음과 같습니다.
@@ -20,42 +20,45 @@
 * CAN 버스 트래픽
 * 8채널 디지털 입력 신호
 * 4채널 아날로그 입력 신호
-* 4채널 디지털 파형 주기(휠 스피드)
+* 4채널 휠 스피드 신호(디지털 파형 주기 측정)
 * 3축 ±4g 가속도 (ADXL345)
-* GPS 위치 정보 (NEO-7M)
-* 전원 전압(LV)
-* 자체 CPU 온도
-* RTC를 통한 실제 시간 정보 추적 및 동기화
+* GPS 위치 정보 (NEO-6/7M)
+* 전원(LV) 전압 및 자체 CPU 온도
+* RTC 실제 시간 정보
 
 각 기능에 대한 상세 설명은 [TMA‐1 기능 및 사용 가이드](https://github.com/luftaquila/monolith/wiki/TMA%E2%80%901-%EA%B8%B0%EB%8A%A5-%EB%B0%8F-%EC%82%AC%EC%9A%A9-%EA%B0%80%EC%9D%B4%EB%93%9C)를 참고하세요.
 
 ### 1-1. TMA-1 Do It Yourself!
-TMA-1은 쉽게 제작할 수 있도록 SMD 부품 대신 시중에 판매하는 모듈을 최대한 사용하여 설계되었습니다.
+TMA-1은 쉽게 제작할 수 있도록 SMD 부품 대신 최대한 시중에 판매하는 모듈과 스루홀 부품을 사용하여 설계되었습니다.
 
-![image](https://github.com/luftaquila/monolith/assets/17094868/7883bb92-a58b-4ab8-9087-d2fc6ee720ea)
+제작에 필요한 부품 목록과 제작 방법은 [TMA-1 DIY 가이드](https://github.com/luftaquila/monolith/wiki/TMA%E2%80%901-DIY-%EA%B0%80%EC%9D%B4%EB%93%9C)를 참고하세요.
 
-* [TMA-1 DIY 가이드](https://github.com/luftaquila/monolith/wiki/TMA%E2%80%901-DIY-%EA%B0%80%EC%9D%B4%EB%93%9C)
-* [PCB 거버 파일](https://github.com/luftaquila/monolith/blob/main/device/hardware/gerber/gerber.zip)
-* [PCB 설계도](https://github.com/luftaquila/monolith/tree/main/device/hardware) (KiCAD 7.0 회로도/PCB 아트웍)
+<img src='https://github.com/luftaquila/monolith/assets/17094868/062e846b-619e-4b5e-a784-63690c4cd73f' style='width: 700px'>
 
 ### 1-2. TMA-1 설정 도구
-TMA-1에서 활성화할 기능을 선택하여 펌웨어를 직접 빌드하고 보드에 업로드하는 GUI 설정 도구입니다.
+TMA-1에서 활성화할 기능을 선택하여 펌웨어를 빌드하고 업로드하는 GUI 설정 도구입니다. 또한, TMA-1의 RTC를 컴퓨터의 시계에 동기화하는 기능을 제공합니다.
 
-또한, TMA-1의 RTC를 컴퓨터의 시계에 동기화하는 기능을 제공합니다.
+텔레메트리 기능을 사용하는 경우 Wi-Fi 핫스팟 네트워크, 차량 ID 및 서버 주소 등을 추가로 설정할 수 있습니다.
 
-* [TMA-1 설정 도구 가이드](https://github.com/luftaquila/monolith/wiki/TMA%E2%80%901-%EC%84%A4%EC%A0%95-%EB%8F%84%EA%B5%AC-%EA%B0%80%EC%9D%B4%EB%93%9C)
+자세한 사용법은 [TMA-1 설정 도구 가이드](https://github.com/luftaquila/monolith/wiki/TMA%E2%80%901-%EC%84%A4%EC%A0%95-%EB%8F%84%EA%B5%AC-%EA%B0%80%EC%9D%B4%EB%93%9C)을 참고하세요.
 
-<img src='https://github.com/luftaquila/monolith/assets/17094868/aee092ce-9f0a-4a0e-9fb4-b2b1cbcccda3' style='width: 700px'>
+<img src='https://github.com/luftaquila/monolith/assets/17094868/9a511364-806c-4d61-9d72-e0326a6888e1' style='width: 700px'>
 
-## TMA-2 무선 통신 중계 서버
-TMA-1 데이터로거의 텔레메트리 기능 사용 시, TMA-1이 전송한 로그를 실시간으로 해석하여 웹 클라이언트에 중계하는 서버입니다.
+## TMA-2 텔레메트리 모니터
+TMA-1 데이터로거의 텔레메트리 기능을 활성화할 경우 사용하는 서버와 웹 클라이언트입니다.
 
-미리 구축된 모노리스 서버가 기본적으로 제공됩니다. 서버를 개별적으로 구축하고 싶다면 [TMA-2 서버 구축 가이드](https://github.com/luftaquila/monolith/wiki/TMA%E2%80%902-%EC%84%9C%EB%B2%84-%EA%B5%AC%EC%B6%95-%EA%B0%80%EC%9D%B4%EB%93%9C)를 참고하여 직접 self-hosting 하여 사용할 수 있습니다.
+### 서버
+따로 설정한 서버를 사용하지 않는 한 모노리스 기본 서버(monolith.luftaquila.io)를 사용합니다.
 
 > 기본 제공되는 TMA-2 서버를 사용하려면 먼저 사용자 등록을 해야 합니다.<br>
-> 등록을 원하시면 mail@luftaquila.io 로 메일 주세요.
+> 등록을 원하시면 mail@luftaquila.io 로 학교와 팀 이름, 사용할 차량 ID와 key를 보내 주세요.
 
-클라이언트는 https://monolith.luftaquila.io/live 에서 개별적으로 UI를 구성해 사용할 수 있습니다.
+서버를 개별적으로 구축하고 싶다면 [TMA-2 서버 구축 가이드](https://github.com/luftaquila/monolith/wiki/TMA%E2%80%902-%EC%84%9C%EB%B2%84-%EA%B5%AC%EC%B6%95-%EA%B0%80%EC%9D%B4%EB%93%9C)를 참고하여 직접 self-hosting하여 구축할 수 있습니다.
+
+### 클라이언트
+실시간 모니터링을 위한 웹 클라이언트는 https://monolith.luftaquila.io/live 에서 제공됩니다.
+
+각 사용자가 개별적으로 UI를 설정할 수 있으며, UI 설정 파일을 내보내고 불러오는 기능도 지원합니다.
 
 <img src='https://github.com/luftaquila/monolith/assets/17094868/5ba95b27-f435-4d70-a965-757269b4843e'><br>
 
