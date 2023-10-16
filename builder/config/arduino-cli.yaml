@@ -7,9 +7,9 @@ build_cache:
 daemon:
   port: "50051"
 directories:
-  data: ./toolchain/arduino\data
-  downloads: ./toolchain/arduino\downloads
-  user: ./toolchain/arduino\user
+  data: ./toolchain/arduino/data
+  downloads: ./toolchain/.cache/arduino
+  user: ./toolchain/arduino/user
 library:
   enable_unsafe_install: false
 logging:
