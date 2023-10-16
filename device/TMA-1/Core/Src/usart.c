@@ -416,7 +416,7 @@ int GPS_SETUP(void) {
   HAL_Delay(50);
 
   // match our baud rate to 115200bps
-  USART2->BRR = HAL_RCC_GetPCLK1Freq() / 115200;
+  USART3->BRR = HAL_RCC_GetPCLK1Freq() / 115200;
 
   // receive UART data until line idle
   HAL_UARTEx_ReceiveToIdle_DMA(UART_GPS, gps_data, 1 << 7);
