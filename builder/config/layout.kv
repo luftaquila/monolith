@@ -279,7 +279,7 @@ MDScreen
                             on_active: app.on_checkbox_active(*args)
 
                 MDLabel:
-                    text: 'Debugging'
+                    text: 'Upload'
                     font_size: '24sp'
                     bold: True
                     size: self.texture_size
@@ -288,14 +288,14 @@ MDScreen
 
                 MDGridLayout:
                     cols: 2
-                    padding: '100dp', '10dp', 0, 0
+                    padding: '50dp', '10dp', 0, 0
                     size_hint_y: None
                     height: self.minimum_height
 
                     MDLabel:
                         text: "Debug Mode"
                         font_name: 'consola'
-                        size: '300sp', self.height
+                        size: '350sp', self.height
                         size_hint_x: None
 
                     MDBoxLayout:
@@ -310,7 +310,7 @@ MDScreen
                     MDLabel:
                         text: "Release Build"
                         font_name: 'consola'
-                        size: '300sp', self.height
+                        size: '350sp', self.height
                         size_hint_x: None
 
                     MDBoxLayout:
@@ -321,14 +321,6 @@ MDScreen
                             active: True
                             color_inactive: 'grey'
                             on_active: app.on_checkbox_active(*args)
-
-                MDLabel:
-                    text: 'Upload'
-                    font_size: '24sp'
-                    bold: True
-                    size: self.texture_size
-                    size_hint_y: None
-                    padding: 0, '20dp', 0, 0
 
                 MDBoxLayout:
                     size_hint_y: None
@@ -370,7 +362,7 @@ MDScreen
 
                 MDGridLayout:
                     cols: 2
-                    padding: '100dp', '10dp', 0, 0
+                    padding: '50dp', '10dp', 0, 0
                     size_hint_y: None
                     height: self.minimum_height
 
@@ -382,7 +374,7 @@ MDScreen
 
                     MDBoxLayout:
                         size_hint: None, None
-                        size: '170dp', '50dp'
+                        size: '200dp', '50dp'
                         MDTextField:
                             id: network_ssid
                             on_text: app.on_text_change(*args)
@@ -395,7 +387,7 @@ MDScreen
 
                     MDBoxLayout:
                         size_hint: None, None
-                        size: '170dp', '50dp'
+                        size: '200dp', '50dp'
                         MDTextField:
                             id: network_password
                             on_text: app.on_text_change(*args)
@@ -408,7 +400,7 @@ MDScreen
 
                     MDBoxLayout:
                         size_hint: None, None
-                        size: '170dp', '50dp'
+                        size: '200dp', '50dp'
                         MDTextField:
                             id: channel_name
                             on_text: app.on_text_change(*args)
@@ -421,7 +413,7 @@ MDScreen
 
                     MDBoxLayout:
                         size_hint: None, None
-                        size: '170dp', '50dp'
+                        size: '200dp', '50dp'
                         MDTextField:
                             id: channel_key
                             on_text: app.on_text_change(*args)
@@ -434,9 +426,23 @@ MDScreen
 
                     MDBoxLayout:
                         size_hint: None, None
-                        size: '170dp', '50dp'
+                        size: '200dp', '50dp'
                         MDTextField:
                             id: server_name
+                            on_text: app.on_text_change(*args)
+
+                    MDLabel:
+                        text: "COM Port"
+                        font_name: 'consola'
+                        size: '300sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '200dp', '50dp'
+                        MDTextField:
+                            id: comport
+                            hint_text: "Leave empty to auto-detect"
                             on_text: app.on_text_change(*args)
 
                 MDBoxLayout:

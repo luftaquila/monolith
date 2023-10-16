@@ -51,6 +51,8 @@ class MainApp(MDApp):
 
             self.screen.ids.server_name.text   = build_config['ESP32']['server']['name']
 
+            self.screen.ids.comport.text = build_config['ESP32']['port']
+
 
     # update build_config.json on checkbox event
     def on_checkbox_active(self, checkbox, value):
@@ -99,6 +101,10 @@ class MainApp(MDApp):
                 elif id == 'server_name':
                     build_config["ESP32"]["server"]["name"] = value.strip()
                     self.screen.ids.server_name.text = value.strip()
+
+                elif id == 'comport':
+                    build_config["ESP32"]["port"] = value.strip()
+                    self.screen.ids.comport.text = value.strip()
 
                 file.seek(0)
                 json.dump(build_config, file, indent=2)
