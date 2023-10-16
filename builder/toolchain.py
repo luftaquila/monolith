@@ -108,12 +108,12 @@ def config_arm_toolchain():
                 print("  cached file detected. skipping download...")
 
             else:
-                download('arm_toolchain.zip', path["cache"], 'https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-win32.zip?rev=8f4a92e2ec2040f89912f372a55d8cf3&hash=8A9EAF77EF1957B779C59EADDBF2DAC118170BBF')
+                download('arm_toolchain.zip', path["cache"], 'https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-mingw-w64-i686-arm-none-eabi.zip?rev=e6948d78806d4815912a858a6f6a85f6&hash=B20A83F31B9938D5EF819B14924A67E3')
 
             print("  extracting ARM GNU toolchain...")
 
             shutil.unpack_archive(f'{path["cache"]}/arm_toolchain.zip', f'{path["cache"]}/arm_toolchain')
-            os.rename(f'{path["cache"]}/arm_toolchain/gcc-arm-none-eabi-10.3-2021.10', path["arm"])
+            os.rename(f'{path["cache"]}/arm_toolchain/arm-gnu-toolchain-12.3.rel1-mingw-w64-i686-arm-none-eabi', path["arm"])
 
             print("ARM GNU toolchain installed!")
 
