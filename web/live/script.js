@@ -104,7 +104,7 @@ function update_display(target, data) {
     }
 
     case 'value': {
-      let val = data.toFixed(Math.abs(data) < 10 ? 2 : 1);
+      let val = target.key == 'GPS_POS' ? data.toFixed(6) : data.toFixed(Math.abs(data) < 10 ? 2 : 1);
       $(`#data_val_${target.id}`).text((val !== '0.00') ? val : 0);
 
       $(`#icon_${target.id}`).css('color', 'green');
@@ -895,6 +895,7 @@ function create_html(type, data) {
       break;
 
     case 'ui_data':
+      let is_coord = (data.source == 'GPS / lat' || data.source == 'GPS / lon') ? true : false;
       switch (data.display) {
         case 'digital':
           return `<tr>
@@ -911,7 +912,7 @@ function create_html(type, data) {
             <th class="param-label">
               <h2><i id='icon_${data.id}' class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
             </th>
-            <th id="data_val_${data.id}" class="param-data">0</th>
+            <th id="data_val_${data.id}" class="param-data ${is_coord ? 'coord' : ''}">0</th>
             <th class="param-unit">${data.unit}</th>
           </tr>
           <tr><td class="spacing">&ensp;</td></tr>`;
@@ -922,7 +923,7 @@ function create_html(type, data) {
             <th class="param-label">
               <h2><i id='icon_${data.id}' class="fa-solid fa-fw fa-1x fa-${data.icon}"></i>&ensp;${data.name}</h2>
             </th>
-            <th id="data_val_${data.id}" class="param-data">0</th>
+            <th id="data_val_${data.id}" class="param-data ${is_coord ? 'coord' : ''}">0</th>
             <th class="param-unit">${data.unit}</th>
           </tr>
           <tr>

@@ -130,6 +130,10 @@ table.param .param-data-digital {
   font-family: 'S-CoreDream-6Bold';
 }
 
+table.param .param-data.coord {
+  font-size: 1.5rem;
+}
+
 table.param .param-unit {
   text-align: left;
   font-size: 1rem;
