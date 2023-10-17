@@ -91,7 +91,7 @@ int TELEMETRY_SETUP(void) {
   while (HAL_GPIO_ReadPin(GPIOB, ESP_COMM_Pin) == GPIO_PIN_RESET) {
     if (HAL_GetTick() > start_time + 3000) {
       DEBUG_MSG("[%8lu] [ERR] ESP not found\r\n", HAL_GetTick());
-      goto esp_fail; // 3s timeout
+      return ESP_NOT_FOUND; // 3s timeout
     }
   }
 
@@ -100,29 +100,26 @@ int TELEMETRY_SETUP(void) {
 
   if (ret != 0) {
     DEBUG_MSG("[%8lu] [ERR] ESP i2c not ready %u/%u\r\n", HAL_GetTick(), ret, HAL_I2C_GetError(I2C_TELEMETRY));
-    goto esp_fail;
+    return ESP_I2C_NOT_READY;
   }
 
   ret = HAL_I2C_Master_Transmit(I2C_TELEMETRY, ESP_I2C_ADDR, (uint8_t *)"READY", 5, 100);
 
   if (ret != 0) {
     DEBUG_MSG("[%8lu] [ERR] ESP handshake error %u\r\n", HAL_GetTick(), HAL_I2C_GetError(I2C_TELEMETRY));
-    goto esp_fail;
+    return ESP_HANDSHAKE_ERR;
   }
 
   // ESP should set ESP_COMM to LOW after handshake
   while (HAL_GPIO_ReadPin(GPIOB, ESP_COMM_Pin) == GPIO_PIN_SET) {
     if (HAL_GetTick() > start_time + 3000) {
       DEBUG_MSG("[%8lu] [ERR] ESP handshaking process totally ruined\r\n", HAL_GetTick());
-      goto esp_fail; // 3s timeout
+      return ESP_HANDSHAKE_RUINED; // 3s timeout
     }
   }
 
   handshake_flag |= (1 << HANDSHAKE_FINISHED);
   return SYS_OK;
-
-esp_fail:
-  return SYS_ERROR;
 }
 
 

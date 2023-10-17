@@ -125,4 +125,11 @@ typedef enum {
   SYS_ERROR
 } SYS_STAUS;
 
+typedef enum {
+  ESP_NOT_FOUND = 1,
+  ESP_I2C_NOT_READY,
+  ESP_HANDSHAKE_ERR,
+  ESP_HANDSHAKE_RUINED
+} ESP_INIT_FAIL;
+
 #endif /* CORE_INC_TYPES_H_ */
