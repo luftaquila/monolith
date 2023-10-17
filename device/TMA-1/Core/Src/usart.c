@@ -406,18 +406,18 @@ int GPS_SETUP(void) {
   HAL_UART_Transmit(UART_GPS, GPS_DISABLE_NMEA_INFO, sizeof(GPS_DISABLE_NMEA_INFO), 100);
   HAL_Delay(50);
 
-  // set target module baud rate to 115200bps
-  // reference: u-blox 7 Receiver Description Including Protocol Specification V14, 35.13 CFG-PRT
-  const uint8_t GPS_BAUD_115200[] = { 0xB5, 0x62, 0x06, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0xD0, 0x08, 0x00, 0x00, 0x00, 0xC2, 0x01, 0x00, 0x07, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x7E };
-
-  HAL_UART_Transmit(UART_GPS, GPS_BAUD_115200, sizeof(GPS_BAUD_115200), 100);
-  HAL_Delay(50);
-
   // set target module refresh rate to 10Hz
   // reference: u-blox 7 Receiver Description Including Protocol Specification V14, 35.14 CFG-RATE
   const uint8_t GPS_RATE_10HZ[] = { 0xB5, 0x62, 0x06, 0x08, 0x06, 0x00, 0x64, 0x00, 0x01, 0x00, 0x01, 0x00, 0x7A, 0x12 };
 
   HAL_UART_Transmit(UART_GPS, GPS_RATE_10HZ, sizeof(GPS_RATE_10HZ), 100);
+  HAL_Delay(50);
+
+  // set target module baud rate to 115200bps
+  // reference: u-blox 7 Receiver Description Including Protocol Specification V14, 35.13 CFG-PRT
+  const uint8_t GPS_BAUD_115200[] = { 0xB5, 0x62, 0x06, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0xD0, 0x08, 0x00, 0x00, 0x00, 0xC2, 0x01, 0x00, 0x07, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x7E };
+
+  HAL_UART_Transmit(UART_GPS, GPS_BAUD_115200, sizeof(GPS_BAUD_115200), 100);
   HAL_Delay(50);
 
   // match our baud rate to 115200bps
