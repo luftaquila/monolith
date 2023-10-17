@@ -206,6 +206,20 @@ if (ui) {
         maps[`${id}`].line.setPath(maps[`${id}`].path);
         maps[`${id}`].line.setMap(maps[`${id}`].map);
 
+        if (watchlist['GPS_POS']) {
+          watchlist['GPS_POS'].push({
+            id: id,
+            display: data.display,
+            type: data.type
+          });
+        } else {
+          watchlist['GPS_POS'] = [{
+            id: id,
+            display: data.display,
+            type: data.type
+          }];
+        }
+
         continue; // skip to the next one
       }
 
