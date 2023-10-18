@@ -15,6 +15,9 @@
     "debug": {
       "debug_mode": false,
       "release_build": true
+    },
+    "can": {
+      "baudrate": "500 kbit/s"
     }
   },
   "ESP32": {

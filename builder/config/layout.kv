@@ -204,6 +204,23 @@ MDScreen
                             on_active: app.on_checkbox_active(*args)
 
                     MDLabel:
+                        text: "CAN baud rate"
+                        font_name: 'consola'
+                        padding: '30dp', 0, 0, 0
+                        size: '200sp', self.height
+                        size_hint_x: None
+
+                    MDBoxLayout:
+                        size_hint: None, None
+                        size: '150dp', '50dp'
+                        padding: '-70dp', 0, 0, 0
+                        MDDropDownItem:
+                            id: can_baudrate
+                            text: "500 kbit/s"
+                            pos_hint: {'center_x': 0, 'center_y': .5}
+                            on_release: app.can_baudrate_menu.open()
+
+                    MDLabel:
                         text: "Digital"
                         font_name: 'consola'
                         size: '300sp', self.height
