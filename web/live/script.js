@@ -105,7 +105,14 @@ function update_display(target, data) {
     }
 
     case 'value': {
-      let val = target.key == 'GPS_POS' ? data.toFixed(6) : data.toFixed(Math.abs(data) < 10 ? 2 : 1);
+      let val;
+
+      if (target.key == 'GPS_POS') {
+        val = data.toFixed(6);
+      } else {
+        val = data.toFixed(Math.abs(data) < 1000 ? (Math.abs(data) < 10 ? 2 : 1) : 0);
+      }
+
       $(`#data_val_${target.id}`).text((val !== '0.00') ? val : 0);
 
       $(`#icon_${target.id}`).css('color', 'green');
@@ -115,7 +122,14 @@ function update_display(target, data) {
     }
 
     case 'graph': {
-      let val = data.toFixed(Math.abs(data) < 10 ? 2 : 1);
+      let val;
+
+      if (target.key == 'GPS_POS') {
+        val = data.toFixed(6);
+      } else {
+        val = data.toFixed(Math.abs(data) < 1000 ? (Math.abs(data) < 10 ? 2 : 1) : 0);
+      }
+
       $(`#data_val_${target.id}`).text((val !== '0.00') ? val : 0);
       graphs[target.id].data.push({ x: new Date(), y: data });
 
