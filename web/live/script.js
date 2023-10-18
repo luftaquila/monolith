@@ -77,20 +77,21 @@ socket.on('report', data => {
   let watchlists = watchlist[data.data.key];
   if (watchlists) {
     for (let watch of watchlists) {
-      update_display(watch, data.data.parsed);
+      update_display(watch, data.data);
     }
   }
 });
 
 function update_display(target, data) {
+  // setup data
   if (target.type === 'can') {
-    data = parse_CAN(target.source, data);
-    data *= target.scale;
+    data = parse_CAN({ type: target.source.type, info: target.source[target.source.type] }, data.raw);
   } else if (target.display !== 'gps') {
-    data = data[target.parsed];
-    if (target.scale) {
-      data *= target.scale;
-    }
+    data = data.parsed[target.parsed];
+  }
+
+  if (target.scale) {
+    data *= target.scale;
   }
 
   switch (target.display) {
@@ -132,14 +133,6 @@ function update_display(target, data) {
       break;
     }
   }
-}
-
-/************************************************************************************
- * CAN data parser
- ***********************************************************************************/
-function parse_CAN(source, data) {
-  // TODO
-  return null;
 }
 
 /************************************************************************************
@@ -510,6 +503,7 @@ function ui_validator() {
                 Swal.showValidationMessage('Data with invalid endianness presents!');
                 return false;
               } else {
+                data.source.type = 'byte';
                 data.source.byte = {
                   endian: target.val()
                 }
@@ -553,6 +547,7 @@ function ui_validator() {
                 Swal.showValidationMessage('Data with larger start bit than end bit presents!');
                 return false;
               } else {
+                data.source.type = 'bit';
                 data.source.bit = {
                   start: start,
                   end: end

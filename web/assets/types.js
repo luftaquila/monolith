@@ -213,6 +213,45 @@ function parse(log) {
   return parsed;
 }
 
+function parse_CAN(source, raw) {
+  switch (source.type) {
+    case 'byte': {
+      let value = 0;
+
+      switch (source.info.endian) {
+        case 'big': {
+          for (let i = Number(source.info.end), cnt = 0; i > Number(source.info.start) - 1; i--, cnt++) {
+            value += raw[i] * Math.pow(2, cnt * 8);
+          }
+          return value;
+        }
+
+        case 'little': {
+          for (let i = Number(source.info.start), cnt = 0; i < Number(source.info.end) + 1; i++, cnt++) {
+            value += raw[i] * Math.pow(2, cnt * 8);
+          }
+          return value;
+        }
+
+        default:
+          return null;
+      }
+      break;
+    }
+
+    case 'bit': {
+      let including_byte = {
+        start: Math.floor(Number(source.info.start) / 8),
+        end: Math.floor(Number(source.info.end) / 8)
+      };
+
+      let offset = Number(source.info.start) - 8 * including_byte.start;
+      // TODO
+      break;
+    }
+  }
+}
+
 function signed(value, bit) {
   return value > Math.pow(2, bit - 1) - 1 ? value - Math.pow(2, bit) : value;
 }

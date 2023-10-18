@@ -374,10 +374,10 @@ $(document.body).on('click', '.add_graph_data', async e => {
               data.data = {
                 label: $('#data_label').val(),
                 id: Number($('#can_data_id').val()),
-                level: 'byte',
+                type: 'byte',
                 endian: $("input[name=endian]:checked").val(),
-                byte_start: Number($("#can_start_byte").val()),
-                byte_end: Number($("#can_end_byte").val())
+                start: Number($("#can_start_byte").val()),
+                end: Number($("#can_end_byte").val())
               };
               break;
             case 'bit':
@@ -385,9 +385,9 @@ $(document.body).on('click', '.add_graph_data', async e => {
               data = {
                 label: $('#data_label').val(),
                 id: Number($('#can_data_id').val()),
-                level: 'bit',
-                bit_start: Number($("#can_start_bit").val()),
-                bit_end: Number($("#can_end_bit").val())
+                type: 'bit',
+                start: Number($("#can_start_bit").val()),
+                end: Number($("#can_end_bit").val())
               };
               break;
           }
@@ -419,6 +419,7 @@ function add_graph_data(data) {
     break;
 
     case 'can':
+      // TODO
       break;
 
     default:
