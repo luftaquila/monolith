@@ -270,7 +270,7 @@ $(document.body).on('click', '.add_graph_data', async e => {
     </div>
     <div style='margin-top: .7rem;'><label><input id='add_to_favorite' type='checkbox'></input> 즐겨찾기에 추가</label></div>
   </div>
-  <div><span style='font-weight: bold;'>데이터 배율</span>&ensp;&ensp;x <input id='mag' type='number' class='short' value=1></div>
+  <div><span style='font-weight: bold;'>데이터 배율</span>&ensp;&ensp;x <input id='scale' type='number' class='short' value=1></div>
 </div>`;
 
   Swal.fire({
@@ -350,16 +350,19 @@ $(document.body).on('click', '.add_graph_data', async e => {
           break;
       }
 
-      let mag = $('#mag').val().trim();
-      if (!mag || isNaN(Number(mag))) {
-        Swal.showValidationMessage('Invalid magnification value!');
+      let scale = $('#scale').val().trim();
+      if (!scale || isNaN(Number(scale))) {
+        Swal.showValidationMessage('Invalid scale value!');
         return false;
       }
+
+      return scale;
     }
   }).then(result => {
     if (result.isConfirmed) {
       let data = {
-        target: target_graph
+        target: target_graph,
+        scale: Number(result.value),
       };
 
       switch($("input[name=data_type]:checked").val()) {
@@ -382,7 +385,7 @@ $(document.body).on('click', '.add_graph_data', async e => {
               break;
             case 'bit':
               data.type = 'can';
-              data = {
+              data.data = {
                 label: $('#data_label').val(),
                 id: Number($('#can_data_id').val()),
                 type: 'bit',
@@ -400,31 +403,41 @@ $(document.body).on('click', '.add_graph_data', async e => {
 
 
 function add_graph_data(data) {
+  console.log(data);
   const chart = $(`#graph_canvas_${data.target}`).data('graph');
 
   switch (data.type) {
-    case 'standard':
+    case 'standard': {
       const [source, key, param] = data.data.split('/');
       const arr = log.filter(x => x.key == key);
 
-      let dataset = arr.map(k => { return { x: new Date(k.datetime).getTime(), y: k.parsed[param] } });
+      let dataset = arr.map(k => { return { x: new Date(k.datetime).getTime(), y: k.parsed[param] * data.scale } });
 
-      const chartdata = {
+      chart.data.datasets.push({
         label: data.data.replace(/\/.*\//, ' / '),
         data: dataset,
-      };
-
-      chart.data.datasets.push(chartdata);
-      chart.update();
-    break;
-
-    case 'can':
-      // TODO
+      });
       break;
+    }
+
+    case 'can': {
+      const arr = log.filter(x => (x.source === 'CAN' && x.key === data.data.id ));
+
+      let dataset = arr.map(k => { return { x: new Date(k.datetime).getTime(), y: parse_CAN({ type: data.data.type, info: data.data }, k.raw) * data.scale  } });
+
+      chart.data.datasets.push({
+        label: data.data.label,
+        data: dataset,
+      });
+      break;
+    }
 
     default:
       return;
   }
+
+  chart.update();
+
   $(`#graph_canvas_${data.target}`).removeClass('canvas_disabled');
 }
 
