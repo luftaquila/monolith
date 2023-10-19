@@ -11,6 +11,7 @@ from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
+from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.list import OneLineAvatarIconListItem
 
 import builder
@@ -19,6 +20,19 @@ class MainApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.screen = Builder.load_file('./config/layout.kv')
+
+        self.can_baudrate_menu = MDDropdownMenu(
+            caller = self.screen.ids.can_baudrate,
+            items = [
+                { "viewclass": "OneLineListItem", "text": "125 kbit/s", "on_release": lambda x="125 kbit/s":self.on_can_dropdown(x)},
+                { "viewclass": "OneLineListItem", "text": "250 kbit/s", "on_release": lambda x="250 kbit/s":self.on_can_dropdown(x)},
+                { "viewclass": "OneLineListItem", "text": "500 kbit/s", "on_release": lambda x="500 kbit/s":self.on_can_dropdown(x)},
+                { "viewclass": "OneLineListItem", "text": "1 Mbit/s", "on_release": lambda x="1 Mbit/s":self.on_can_dropdown(x)},
+            ],
+            width_mult = 2,
+            max_height = 200
+        )
+
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
@@ -53,9 +67,32 @@ class MainApp(MDApp):
 
             self.screen.ids.comport.text = build_config['ESP32']['port']
 
+            self.screen.ids.can_baudrate.set_item(build_config["STM32"]["can"]["baudrate"])
+
+
+    # update build_config.json on dropdown event
+    def on_can_dropdown(self, item):
+        builder.clean_stm32()
+        
+        self.screen.ids.can_baudrate.set_item(item)
+        self.can_baudrate_menu.dismiss()
+
+        with open("./config/build_config.json", "r+") as file:
+            build_config = json.load(file)
+
+            build_config["STM32"]["can"]["baudrate"] = item
+
+            file.seek(0)
+            json.dump(build_config, file, indent=2)
+            file.truncate()
+
+            print("INFO: build_config.json writed successfully")
+
 
     # update build_config.json on checkbox event
     def on_checkbox_active(self, checkbox, value):
+        builder.clean_stm32()
+
         if checkbox in self.screen.ids.values():
             id = list(self.screen.ids.keys())[list(self.screen.ids.values()).index(checkbox)]
 
@@ -74,6 +111,8 @@ class MainApp(MDApp):
                 file.seek(0)
                 json.dump(build_config, file, indent=2)
                 file.truncate()
+
+            print("INFO: build_config.json writed successfully")
 
 
     # update build_config.json on checkbox event

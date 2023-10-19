@@ -36,6 +36,17 @@ extern "C" {
 extern CAN_HandleTypeDef hcan1;
 
 /* USER CODE BEGIN Private defines */
+#ifdef CAN_PRESC
+#define CAN_PRESCALER CAN_PRESC
+#else
+#define CAN_PRESCALER 12
+#endif
+
+#ifdef CAN_TSEG1
+#define CAN_TIMESEG1  CAN_TSEG1
+#else
+#define CAN_TIMESEG1  CAN_BS1_11TQ
+#endif
 
 /* USER CODE END Private defines */
 

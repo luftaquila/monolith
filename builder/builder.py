@@ -42,6 +42,22 @@ def build_stm32():
         os.environ["DEBUG"] = '0' if build_config["STM32"]["debug"]["release_build"] else '1'
         os.environ["OPT"] = '-O2' if build_config["STM32"]["debug"]["release_build"] else '-Og'
 
+        if build_config["STM32"]["can"]["baudrate"] == '125 kbit/s':
+            os.environ["CAN_PRESC"] = "21"
+            os.environ["CAN_TSEG1"] = "CAN_BS1_13TQ"
+
+        elif build_config["STM32"]["can"]["baudrate"] == '250 kbit/s':
+            os.environ["CAN_PRESC"] = "12"
+            os.environ["CAN_TSEG1"] = "CAN_BS1_11TQ"
+
+        elif build_config["STM32"]["can"]["baudrate"] == '500 kbit/s':
+            os.environ["CAN_PRESC"] = "6"
+            os.environ["CAN_TSEG1"] = "CAN_BS1_11TQ"
+
+        elif build_config["STM32"]["can"]["baudrate"] == '1 Mbit/s':
+            os.environ["CAN_PRESC"] = "3"
+            os.environ["CAN_TSEG1"] = "CAN_BS1_11TQ"
+
     # step into STM32CubeMX project folder
     os.chdir('../device/TMA-1')
 
@@ -81,13 +97,6 @@ def flash_stm32():
     if ret != 0:
         print("ERROR: max retry count reached. terminating.")
         return -1
-
-    # move target executable
-    if os.path.exists('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.elf'):
-        os.makedirs('./build', exist_ok=True)
-        shutil.copyfile('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.elf', './build/telemetry.elf')
-        print("INFO: build of TMA-1 ESP32 binary completed! binary copied to build/telemetry.elf")
-        return 0
 
     print('INFO: TMA-1 STM32 binary successfully flashed. please recyle the power.')
     return 0
@@ -217,7 +226,16 @@ def clean():
     if os.path.exists('../device/telemetry/build'):
         shutil.rmtree('../device/telemetry/build')
 
-    print("clean done!")
+def clean_stm32():
+    # build directory
+    print("cleaning ./build...")
+    if os.path.exists('./build'):
+        shutil.rmtree('./build')
+
+    # STM32CubeMX build directory
+    print("cleaning ../device/TMA-1/build...")
+    if os.path.exists('../device/TMA-1/build'):
+        shutil.rmtree('../device/TMA-1/build')
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
