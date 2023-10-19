@@ -42,6 +42,22 @@ def build_stm32():
         os.environ["DEBUG"] = '0' if build_config["STM32"]["debug"]["release_build"] else '1'
         os.environ["OPT"] = '-O2' if build_config["STM32"]["debug"]["release_build"] else '-Og'
 
+        if build_config["STM32"]["can"]["baudrate"] == '125 kbit/s':
+            os.environ["CAN_PRESC"] = "21"
+            os.environ["CAN_TSEG1"] = "CAN_BS1_13TQ"
+
+        elif build_config["STM32"]["can"]["baudrate"] == '250 kbit/s':
+            os.environ["CAN_PRESC"] = "12"
+            os.environ["CAN_TSEG1"] = "CAN_BS1_11TQ"
+
+        elif build_config["STM32"]["can"]["baudrate"] == '500 kbit/s':
+            os.environ["CAN_PRESC"] = "6"
+            os.environ["CAN_TSEG1"] = "CAN_BS1_11TQ"
+
+        elif build_config["STM32"]["can"]["baudrate"] == '1 Mbit/s':
+            os.environ["CAN_PRESC"] = "3"
+            os.environ["CAN_TSEG1"] = "CAN_BS1_11TQ"
+
     # step into STM32CubeMX project folder
     os.chdir('../device/TMA-1')
 
