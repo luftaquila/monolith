@@ -232,7 +232,9 @@ $(document.body).on('click', '.add_graph_data', async e => {
     </span>
   </label>
   <div id='can_data_div' class='disabled' style='margin-top: 1rem; margin-bottom: 2rem; margin-left: 2rem;'>
+    <!--
     <select id='can_favorite' style='width: 18rem; height: 2rem;'><option value='' disabled selected>즐겨찾기에서 선택</option>${0}</select>
+    -->
     <table style='margin-top: .7rem;'>
       <tr>
         <td>레이블</td>
@@ -268,7 +270,9 @@ $(document.body).on('click', '.add_graph_data', async e => {
         <tr><td></td></tr>
       </table>
     </div>
+    <!--
     <div style='margin-top: .7rem;'><label><input id='add_to_favorite' type='checkbox'></input> 즐겨찾기에 추가</label></div>
+    -->
   </div>
   <div><span style='font-weight: bold;'>데이터 배율</span>&ensp;&ensp;x <input id='scale' type='number' class='short' value=1></div>
 </div>`;

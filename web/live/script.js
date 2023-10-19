@@ -840,7 +840,9 @@ function create_html(type, data) {
           <select id='select_data_${data.id}' style='width: 16rem; height: 2rem;'><option value='' disabled ${data.default || data.display === 'gps' || data.type === 'can' ? 'selected' : ''}>데이터 소스 선택</option>${standard_records.map(x => `<option value='${x}' ${(!data.default && data.source === x) ? 'selected' : ''}>${x}</option>`)}</select>
         </div>
         <div id='can_data_div_${data.id}' style='display: ${(!data.default && data.type === 'can') ? 'block' : 'none'}; margin-top: 1rem; margin-bottom: 1rem;'>
+          <!--
           <select id='can_favorite_${data.id}' style='width: 16rem; height: 2rem;'><option value='' disabled selected>즐겨찾기에서 선택</option>${0}</select>
+          -->
           <table style='margin-top: .7rem;'>
             <tr>
               <td>CAN ID</td>
@@ -873,7 +875,9 @@ function create_html(type, data) {
               <tr><td></td></tr>
             </table>
           </div>
+          <!--
           <div style='margin-top: .7rem;'><label><input id='add_to_favorite_${data.id}' type='checkbox'></input> 즐겨찾기에 추가</label></div>
+          -->
         </div>
       </div>
       <table id='datainfo_${data.id}' style='display: ${data.display === 'gps' || data.display === 'digital' ? 'none' : 'block'}'>
