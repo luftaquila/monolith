@@ -15,8 +15,9 @@ $('#file').change(async function() {
     let reader = new FileReader();
     reader.readAsArrayBuffer(file);
     reader.onload = function (evt) {
-      let raw = new Blob([evt.target.result], { type: 'application/octet-stream' });
+      $('#load_file_first').text(`파일 변환 중...`);
 
+      let raw = new Blob([evt.target.result], { type: 'application/octet-stream' });
       filename = file.name;
       process_log(raw);
       $('#file').closest('div.content').remove();
@@ -87,7 +88,7 @@ function init_viewer(log) {
     new kakao.maps.Polyline({
       path: gps,
       strokeWeight: 5,
-      strokeColor: '#00C40D',
+      strokeColor: '#0080FF',
       strokeOpacity: 0.7,
       strokeStyle: 'solid'
     }).setMap(map);
@@ -407,7 +408,6 @@ $(document.body).on('click', '.add_graph_data', async e => {
 
 
 function add_graph_data(data) {
-  console.log(data);
   const chart = $(`#graph_canvas_${data.target}`).data('graph');
 
   switch (data.type) {
