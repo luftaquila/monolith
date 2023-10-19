@@ -98,13 +98,6 @@ def flash_stm32():
         print("ERROR: max retry count reached. terminating.")
         return -1
 
-    # move target executable
-    if os.path.exists('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.elf'):
-        os.makedirs('./build', exist_ok=True)
-        shutil.copyfile('../device/telemetry/build/esp32.esp32.esp32/telemetry.ino.elf', './build/telemetry.elf')
-        print("INFO: build of TMA-1 ESP32 binary completed! binary copied to build/telemetry.elf")
-        return 0
-
     print('INFO: TMA-1 STM32 binary successfully flashed. please recyle the power.')
     return 0
 ##### STM32 build and flash process END #####
@@ -233,7 +226,16 @@ def clean():
     if os.path.exists('../device/telemetry/build'):
         shutil.rmtree('../device/telemetry/build')
 
-    print("clean done!")
+def clean_stm32():
+    # build directory
+    print("cleaning ./build...")
+    if os.path.exists('./build'):
+        shutil.rmtree('./build')
+
+    # STM32CubeMX build directory
+    print("cleaning ../device/TMA-1/build...")
+    if os.path.exists('../device/TMA-1/build'):
+        shutil.rmtree('../device/TMA-1/build')
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

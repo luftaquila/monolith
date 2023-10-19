@@ -72,6 +72,8 @@ class MainApp(MDApp):
 
     # update build_config.json on dropdown event
     def on_can_dropdown(self, item):
+        builder.clean_stm32()
+        
         self.screen.ids.can_baudrate.set_item(item)
         self.can_baudrate_menu.dismiss()
 
@@ -84,9 +86,13 @@ class MainApp(MDApp):
             json.dump(build_config, file, indent=2)
             file.truncate()
 
+            print("INFO: build_config.json writed successfully")
+
 
     # update build_config.json on checkbox event
     def on_checkbox_active(self, checkbox, value):
+        builder.clean_stm32()
+
         if checkbox in self.screen.ids.values():
             id = list(self.screen.ids.keys())[list(self.screen.ids.values()).index(checkbox)]
 
@@ -105,6 +111,8 @@ class MainApp(MDApp):
                 file.seek(0)
                 json.dump(build_config, file, indent=2)
                 file.truncate()
+
+            print("INFO: build_config.json writed successfully")
 
 
     # update build_config.json on checkbox event
