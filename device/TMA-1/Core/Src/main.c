@@ -47,7 +47,8 @@ extern int SYS_LOG(LOG_LEVEL level, LOG_SOURCE source, int key);
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+extern uint32_t to_uint(uint8_t *str, char garbage);
+extern uint32_t drop_point(uint8_t *str);
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
