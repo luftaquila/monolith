@@ -29,10 +29,17 @@ jobs:
         run: |
           pyinstaller builder/main.spec
 
-      - name: ls
+      - name: cleanup
         shell: cmd
-        run: tree /F
+        run: |
+          move dist/main.exe builder
+          rmdir /S /Q build dist
+
+      - name: zip artifacts
+        run: |
+          set /p tag=< ./installer/version.txt
+          Compress-Archive -Path ./ -Destination monolith-%tag%.zip
           
       - uses: actions/upload-artifact@v3.1.3
         with:
-          path: dist
+          path: monolith-%tag%.zip
