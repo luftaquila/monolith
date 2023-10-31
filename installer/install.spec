@@ -35,5 +35,5 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     uac_admin=True,
-    icon='../web/assets/logo/favicon/favicon.ico'
+    icon='../web/assets/logo/icon.ico'
 )
