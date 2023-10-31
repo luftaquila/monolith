@@ -3,6 +3,7 @@ import sys
 import shutil
 import requests
 
+os.chdir(sys._MEIPASS)
 install_path = 'C:/monolith'
 
 # format download size
@@ -37,8 +38,6 @@ def download(name, path, url):
             print()
 
 if __name__ == "__main__":
-    print()
-
     if os.path.exists(install_path):
         overwrite = input('Previous monolith installation was found. overwrite? (Y/n): ')
 
@@ -49,19 +48,19 @@ if __name__ == "__main__":
             print('Operation cancelled. Terminating.')
             sys.exit()
 
+    with open('version.txt', 'r') as file:
+        tag = file.read()
 
-    if not sys.argv[1]:
-        print('No tag specified!')
-        sys.exit()
+        try:
+            print('Installing monolith in C:/ ...')
+            download('monolith.zip', f'{install_path}/..', f'https://github.com/luftaquila/monolith/releases/download/{tag}/monolith-{tag}.zip')
 
-    tag = sys.argv[1]
+            print('Unpacking monolith...')
+            shutil.unpack_archive(f'{install_path}.zip', f'{install_path}/..')
+            os.rename(f'{install_path}-{tag[1:]}', install_path)
+            os.remove(f'{install_path}.zip')
 
-    print('Installing monolith in C:/ ...')
-    download('monolith.zip', f'{install_path}/..', f'https://github.com/luftaquila/monolith/archive/refs/tags/{tag}.zip')
+            print('Installation complete!')
 
-    print('Unpacking monolith...')
-    shutil.unpack_archive(f'{install_path}.zip', f'{install_path}/..')
-    os.rename(f'{install_path}-{tag[1:]}', install_path)
-    os.remove(f'{install_path}.zip')
-
-    print('done!')
+        except Exception as e:
+            print('Installation failed.')
