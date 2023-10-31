@@ -1,14 +1,16 @@
-name: CI/CD
+name: Release
 
 on:
   push:
     paths:
       - installer/version.txt
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  build:
-    name: build TMA-1 configuration tool
+  config_tool:
+    name: build TMA-1 config tool
     runs-on: windows-latest
     env:
       KIVY_GL_BACKEND: 'angle_sdl2'
@@ -42,10 +44,13 @@ jobs:
           tag=`cat installer/version.txt`
           echo "tag=$tag" >> $GITHUB_ENV
 
+      - name: zip artifacts
+        run: Compress-Archive -Path ./* -Destination monolith-${{ env.tag }}.zip
+
       - uses: actions/upload-artifact@v3.1.3
         with:
           name: monolith-${{ env.tag }}
-          path: .
+          path: monolith-${{ env.tag }}.zip
 
   installer:
     name: build Monolith installer
@@ -68,4 +73,32 @@ jobs:
 
       - uses: actions/upload-artifact@v3.1.3
         with:
-          name: dist/install.exe
+          name: install
+          path: dist/install.exe
+
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    needs: [config_tool, installer]
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: read version
+        shell: bash
+        run: |
+          tag=`cat installer/version.txt`
+          echo "tag=$tag" >> $GITHUB_ENV
+
+      - uses: actions/download-artifact@v3.0.2
+
+      - run: mv install/install.exe monolith-installer-${{ env.tag }}.exe
+
+      - uses: ncipollo/release-action@v1.13.0
+        with:
+          artifacts: "monolith-installer-${{ env.tag }}.exe,monolith-${{ env.tag }}/monolith-${{ env.tag }}.zip"
+          tag: ${{ env.tag }}
+          commit: ${{ github.sha }}
+          body: "[monolith-installer-${{ env.tag }}.exe](https://github.com/luftaquila/monolith/releases/download/${{ env.tag }}/monolith-installer-${{ env.tag }}.exe)"
