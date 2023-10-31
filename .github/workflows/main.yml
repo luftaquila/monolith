@@ -3,11 +3,11 @@ name: CI/CD
 on:
   push:
     paths:
-      - installer/version.txt
+      - 'installer/version.txt'
   workflow_dispatch:
 
 jobs:
-  build:
+  config_tool:
     name: build TMA-1 configuration tool
     runs-on: windows-latest
     env:
@@ -70,3 +70,29 @@ jobs:
         with:
           name: install
           path: dist/install.exe
+
+  release:
+    name: make new release
+    runs-on: ubuntu-latest
+    needs: [config_tool, installer]
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: read version
+        shell: bash
+        run: |
+          tag=`cat installer/version.txt`
+          echo "tag=$tag" >> $GITHUB_ENV
+
+      - uses: actions/download-artifact@v3.0.2
+
+      - run: tree
+
+      - uses: ncipollo/release-action@v1.13.0
+        with:
+          artifacts: "install,monolith-${{ env.tag }}"
+          tag: ${{ env.tag }}
+          commit: ${{ github.sha }}
