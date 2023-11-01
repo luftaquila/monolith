@@ -1,6 +1,16 @@
 # monolith
 ![image](/web/assets/logo/wide.jpg)
 
+<div align="center">
+<strong>
+<samp>
+  
+[English](README_EN.md) · [한국어](README.md)
+
+</samp>
+</strong>
+</div>
+
 모노리스는 대학생 자작자동차대회 출전 차량을 위한 오픈소스 DIY 데이터로깅 플랫폼입니다.
 
 가이드에 따라 데이터로거만 직접 제작하면 실시간 원격 모니터링, 데이터 분석 도구 등을 쉽게 이용할 수 있습니다.
