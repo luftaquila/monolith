@@ -5,7 +5,7 @@
 <strong>
 <samp>
 
-[English](README_EN.md) · [한국어](README.md)
+[English](README.md) · [한국어](README_KO.md)
 
 </samp>
 </strong>
@@ -13,7 +13,7 @@
 
 Monolith is an open-source DIY datalogging platform for the Student Formula and Baja.
 
-Build your own datalogger with the guide and use the real-time telemetry and data analysis tools with ease!
+Build your own datalogger and use the real-time telemetry and data analysis tools with ease!
 
 ### Main Features
 * Various types of data supported, including CAN, acceleration, GPS, digital/analog signals and wheel speeds
@@ -29,7 +29,7 @@ Monolith consists of `TMA-1` datalogger, `TMA-2` telemetry monitor and `TMA-3` d
 <br>
 
 ## TMA-1 Datalogger
-TMA-1 is attached onboard and gathers data from the car. It can record the following data:
+TMA-1 is an onboard device that gathers data from the car. It can record the following data:
 
 * CAN 2.0(A/B) bus traffic
 * 8-channel digital input signals
@@ -43,16 +43,16 @@ TMA-1 is attached onboard and gathers data from the car. It can record the follo
 Refer to the [TMA‐1 Features and Usage Guide](https://github.com/luftaquila/monolith/wiki/%5BEN%5D-TMA%E2%80%901-Features-and-Usage-Guide) for detailed explanations about each feature.
 
 ### 1-1. TMA-1 Do It Yourself!
-TMA-1 is a DIY datalogger that each user should buy components and build their own device. It is designed with commercial modules and through-hole components for easy self-built.
+TMA-1 is a DIY datalogger that each user buys components and builds their own device. It is designed with commercial modules and through-hole components for easy self build.
 
 Required components and build instructions are described in the [TMA-1 DIY Guide](https://github.com/luftaquila/monolith/wiki/%5BEN%5D-TMA%E2%80%901-DIY-Guide).
 
 <img src='https://github.com/luftaquila/monolith/assets/17094868/062e846b-619e-4b5e-a784-63690c4cd73f' style='width: 700px'>
 
 ### 1-2. TMA-1 Configuration Tool
-This GUI tool builds and uploads the firmware to the TMA-1 with configured features.
+This is a GUI tool that builds and uploads the firmware to the TMA-1 with configured features.
 
-With this tool, you can set activated features in the datalogger, synchronize TMA-1's clock to your computer time, and configure the Wi-Fi hotspot networks or the server for the telemetry.
+With this tool, you can activate features in the datalogger, synchronize TMA-1's clock to your computer time, and configure the networks for the telemetry.
 
 For the detailed information, please refer to the [TMA-1 Configuration Tool Guide](https://github.com/luftaquila/monolith/wiki/%5BEN%5D-TMA%E2%80%901-Configuration-Tool-Guide).
 
@@ -61,20 +61,20 @@ For the detailed information, please refer to the [TMA-1 Configuration Tool Guid
 <br><br>
 
 ## TMA-2 Telemetry monitor
-TMA-2 is a telemetry server that TMA-1 communicates with, and the web client for real-time data monitoring.
+TMA-2 consists of the telemetry server that TMA-1 communicates with, and the web client for real-time data monitoring.
 
 ### Server
-The TMA-1 will use the default monolith server (monolith.luftaquila.io) to transmit real-time data and there is no need to setup the server, except you want your own server.
+Users do not need to set up the server individually, except in case you want your own server. TMA-1 uses the default monolith server (monolith.luftaquila.io) for the telemetry.
 
 > The default TMA-2 server is available to the approved users only.<br>
-> There are no additional fees for registration. Just send me a school and team name, your car ID and key to mail@luftaquila.io and that's it.
+> There are no additional fees for registration. Just send me a school and team name, your desired car ID and key to mail@luftaquila.io and that's it.
 
 If you want to self-host your own server, follow the [TMA-2 Server Setup Guide](https://github.com/luftaquila/monolith/wiki/%5BEN%5D-TMA%E2%80%902-Server-Setup-Guide).
 
 ### Client
 Real-time monitoring client is served at https://monolith.luftaquila.io/live.
 
-Each user can set up their own UI with preferences. It also supports the UI export and import features.
+Each user can set up their own UI with their preferences. It also supports the UI export and import features.
 
 For the detailed information, please refer to the [TMA‐2 Client Usage Guide](https://github.com/luftaquila/monolith/wiki/%5BEN%5D-TMA%E2%80%902-Client-Usage-Guide).
 
@@ -85,9 +85,9 @@ For the detailed information, please refer to the [TMA‐2 Client Usage Guide](h
 ## TMA-3 Log Translator and Data Analysis Tool
 TMA-1 datalogger stores the log in the SD card in a binary format, according to the predefined [protocol](https://github.com/luftaquila/monolith/wiki/%5BEN%5D-Log-Protocol).
 
-TMA-3 is a set of tools that can translate binary logs to human-readable format(JSON/CSV) and visualize with graphs and map.
+TMA-3 is a set of tools that can translate binary logs to human-readable format(JSON/CSV) and visualize the collected data into graphs and a map.
 
-These services are web applications that can be instantly accessed via https://monolith.luftaquila.io.
+All these features are web application services that can be instantly accessed at https://monolith.luftaquila.io.
 
 For the detailed information, please refer to the [TMA‐3 Data Analysis Tool Guide](https://github.com/luftaquila/monolith/wiki/%5BEN%5D-TMA%E2%80%903-Data-Analysis-Tool-Guide).
 
