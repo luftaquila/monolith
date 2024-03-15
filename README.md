@@ -118,3 +118,13 @@ LUFT-AQUILA wrote this project. As long as you retain this notice,
 you can do whatever you want with this stuff. If we meet someday,
 and you think this stuff is worth it, you can buy me a beer in return.
 ```
+
+<br>
+
+<hr>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=luftaquila/monolith&type=Date&theme=dark" />
+  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=luftaquila/monolith&type=Date" />
+  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=star-history/star-history&type=Date" />
+</picture>

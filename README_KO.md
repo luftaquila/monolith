@@ -125,3 +125,13 @@ and you think this stuff is worth it, you can buy me a beer in return.
 이 프로젝트의 내용물은 얼마든지 자유롭게 사용할 수 있습니다.
 
 이 프로젝트가 마음에 든다면, 언젠가 우리가 만나게 되었을 때 맥주 한 잔 사 주세요.
+
+<br>
+
+<hr>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=luftaquila/monolith&type=Date&theme=dark" />
+  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=luftaquila/monolith&type=Date" />
+  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=star-history/star-history&type=Date" />
+</picture>
