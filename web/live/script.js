@@ -140,7 +140,7 @@ function update_display(target, data) {
     }
 
     case 'gps': {
-      let pos = new kakao.maps.LatLng(data.lat, data.lon);
+      let pos = new kakao.maps.LatLng(data.parsed.lat, data.parsed.lon);
       maps[target.id].path.push(pos);
       maps[target.id].line.setPath(maps[target.id].path);
       maps[target.id].map.panTo(pos);
