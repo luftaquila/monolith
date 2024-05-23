@@ -9,6 +9,32 @@ on:
   workflow_dispatch:
 
 jobs:
+  image:
+    name: export KiCAD images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: install KiCAD
+
+        run: |
+          sudo add-apt-repository ppa:kicad/kicad-8.0-releases
+          sudo apt-get update
+          sudo apt-get install -y kicad
+
+      - name: prepare image generation
+        run: mkdir -p kicad
+
+      - name: generate images
+        run: |
+          kicad-cli sch export svg device/hardware/TMA-1.kicad_sch -o kicad --exclude-drawing-sheet --no-background-color
+          kicad-cli pcb export svg device/hardware/TMA-1.kicad_pcb -o kicad/artwork.svg --layers "B.Cu,F.Cu,F.Silkscreen,B.Silkscreen,User.Drawings,Edge.Cuts" --exclude-drawing-sheet
+
+      - uses: actions/upload-artifact@v3.1.3
+        with:
+          name: kicad
+          path: kicad
+
   config_tool:
     name: build TMA-1 config tool
     runs-on: windows-latest
