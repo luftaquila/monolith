@@ -15,30 +15,42 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: install KiCAD
+      - name: Cache KiCAD
+        uses: actions/cache@v4
+        id: cache-kicad
+        with:
+            path: "/var/cache/apt"
+            key: kicad-8.0
 
+      - name: Install KiCAD
+        env:
+          CACHE_HIT: ${{steps.cache-kicad.outputs.cache-hit}}
         run: |
-          sudo add-apt-repository ppa:kicad/kicad-8.0-releases
-          sudo apt-get update
-          sudo apt-get install -y kicad
-
-      - name: prepare image generation
-        run: mkdir -p kicad
+            if [[ "$CACHE_HIT" == 'true' ]]; then
+              sudo cp --verbose --force --recursive ~/kicad/* /
+            else
+              sudo add-apt-repository ppa:kicad/kicad-8.0-releases
+              sudo apt-get update
+              sudo apt-get install -y kicad
+              mkdir -p ~/kicad
+              sudo dpkg -L kicad | while IFS= read -r f; do if test -f $f; then echo $f; fi; done | xargs cp --parents --target-directory ~/kicad/
+            fi
 
       - name: generate images
         run: |
-          kicad-cli sch export svg device/hardware/TMA-1.kicad_sch -o kicad --exclude-drawing-sheet --no-background-color
-          kicad-cli pcb export svg device/hardware/TMA-1.kicad_pcb -o kicad/artwork.svg --layers "B.Cu,F.Cu,F.Silkscreen,B.Silkscreen,User.Drawings,Edge.Cuts" --exclude-drawing-sheet
+          mkdir -p kicad_svg
+          kicad-cli sch export svg device/hardware/TMA-1.kicad_sch -o kicad_svg --exclude-drawing-sheet --no-background-color
+          kicad-cli pcb export svg device/hardware/TMA-1.kicad_pcb -o kicad_svg/artwork.svg --layers "B.Cu,F.Cu,F.Silkscreen,B.Silkscreen,User.Drawings,Edge.Cuts" --exclude-drawing-sheet
 
       - uses: int128/upload-artifact-wiki-action@v1
         id: upload-artifact-wiki-action
         with:
-          path: kicad/*.svg
+          path: kicad_svg/*.svg
 
       - uses: actions/upload-artifact@v4
         with:
           name: kicad
-          path: kicad
+          path: kicad_svg
 
   config_tool:
     name: build TMA-1 config tool
