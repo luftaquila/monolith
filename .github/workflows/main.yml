@@ -124,6 +124,7 @@ jobs:
 
       - uses: ncipollo/release-action@v1.13.0
         with:
+          skipIfReleaseExists: true
           artifacts: "monolith-installer-${{ env.tag }}.exe,monolith-${{ env.tag }}/monolith-${{ env.tag }}.zip"
           tag: ${{ env.tag }}
           commit: ${{ github.sha }}
