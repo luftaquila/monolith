@@ -30,6 +30,11 @@ jobs:
           kicad-cli sch export svg device/hardware/TMA-1.kicad_sch -o kicad --exclude-drawing-sheet --no-background-color
           kicad-cli pcb export svg device/hardware/TMA-1.kicad_pcb -o kicad/artwork.svg --layers "B.Cu,F.Cu,F.Silkscreen,B.Silkscreen,User.Drawings,Edge.Cuts" --exclude-drawing-sheet
 
+      - uses: int128/upload-artifact-wiki-action@v1
+        id: upload-artifact-wiki-action
+        with:
+          path: kicad/*.svg
+
       - uses: actions/upload-artifact@v3.1.3
         with:
           name: kicad
