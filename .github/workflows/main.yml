@@ -2,10 +2,6 @@ name: Release
 
 on:
   push:
-    paths:
-      - installer/version.txt
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -19,7 +15,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-kicad
         with:
-            path: "/var/cache/apt"
+            path: "~/kicad"
             key: kicad-8.0
 
       - name: Install KiCAD
@@ -116,11 +112,12 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: install
+          name: installer
           path: dist/install.exe
 
   release:
     name: release
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [config_tool, installer]
     env:
