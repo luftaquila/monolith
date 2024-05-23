@@ -11,42 +11,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache KiCAD
-        uses: actions/cache@v4
-        id: cache-kicad
-        with:
-            path: "~/kicad"
-            key: kicad-8.0
-
-      - name: Install KiCAD
-        env:
-          CACHE_HIT: ${{steps.cache-kicad.outputs.cache-hit}}
+      - name: install KiCAD
         run: |
-            if [[ "$CACHE_HIT" == 'true' ]]; then
-              sudo cp --verbose --force --recursive ~/kicad/* /
-            else
-              sudo add-apt-repository ppa:kicad/kicad-8.0-releases
-              sudo apt-get update
-              sudo apt-get install -y kicad
-              mkdir -p ~/kicad
-              sudo dpkg -L kicad | while IFS= read -r f; do if test -f $f; then echo $f; fi; done | xargs cp --parents --target-directory ~/kicad/
-            fi
+          sudo add-apt-repository ppa:kicad/kicad-8.0-releases
+          sudo apt-get update
+          sudo apt-get install -y kicad
 
       - name: generate images
         run: |
-          mkdir -p kicad_svg
-          kicad-cli sch export svg device/hardware/TMA-1.kicad_sch -o kicad_svg --exclude-drawing-sheet --no-background-color
-          kicad-cli pcb export svg device/hardware/TMA-1.kicad_pcb -o kicad_svg/artwork.svg --layers "B.Cu,F.Cu,F.Silkscreen,B.Silkscreen,User.Drawings,Edge.Cuts" --exclude-drawing-sheet
+          mkdir -p kicad
+          kicad-cli sch export svg device/hardware/TMA-1.kicad_sch -o kicad --exclude-drawing-sheet --no-background-color
+          kicad-cli pcb export svg device/hardware/TMA-1.kicad_pcb -o kicad/artwork.svg --layers "B.Cu,F.Cu,F.Silkscreen,B.Silkscreen,User.Drawings,Edge.Cuts" --exclude-drawing-sheet
 
       - uses: int128/upload-artifact-wiki-action@v1
         id: upload-artifact-wiki-action
         with:
-          path: kicad_svg/*.svg
+          path: kicad/*.svg
 
       - uses: actions/upload-artifact@v4
         with:
           name: kicad
-          path: kicad_svg
+          path: kicad
 
   config_tool:
     name: build TMA-1 config tool
@@ -134,7 +119,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
 
-      - run: mv install/install.exe monolith-installer-${{ env.tag }}.exe
+      - run: mv installer/install.exe monolith-installer-${{ env.tag }}.exe
 
       - uses: ncipollo/release-action@v1
         with:
