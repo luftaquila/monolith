@@ -173,7 +173,7 @@ def config_arduino():
                 print("  cached file detected. skipping download...")
 
             else:
-                download('arduino-cli.zip', path["cache"], 'https://downloads.arduino.cc/arduino-cli/nightly/arduino-cli_nightly-latest_Windows_64bit.zip')
+                download('arduino-cli.zip', path["cache"], 'https://downloads.arduino.cc/arduino-cli/arduino-cli_latest_Windows_64bit.zip')
             print("  extracting arduino-cli...")
 
             shutil.unpack_archive(f'{path["cache"]}/arduino-cli.zip', f'{path["cache"]}/arduino')
@@ -184,10 +184,10 @@ def config_arduino():
             os.environ["PATH"] = os.getenv("PATH") + f';{path["toolchain_abs"]}\\arduino;'
 
             spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'core', 'update-index'])
-            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'core', 'install', 'esp32:esp32'])
-            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'ArduinoJson'])
-            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'RingBuffer'])
-            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'WebSockets'])
+            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'core', 'install', 'esp32:esp32@2.0.17'])
+            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'ArduinoJson@7.1.0'])
+            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'RingBuffer@1.0.5'])
+            spawn(['arduino-cli', '--config-file', './config/arduino-cli.yaml', 'lib', 'install', 'WebSockets@2.4.1'])
 
             print("arduino-cli configured!")
 
