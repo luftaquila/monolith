@@ -44,7 +44,7 @@ async function process_log(raw) {
   while (index < buffer.length) {
     let converted = translate(buffer.slice(index, index + log_size));
 
-    if (converted) {
+    if (!(converted instanceof Error)) {
       converted.datetime = new Date(file_date.getTime() + converted.timestamp).format('yyyy-mm-dd HH:MM:ss.l');
       log.push(converted);
     } else {
