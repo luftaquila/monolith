@@ -1,0 +1,2 @@
+all:
+	wokwi-cli .

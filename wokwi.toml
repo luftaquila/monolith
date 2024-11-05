@@ -1,0 +1,6 @@
+# Wokwi Configuration File
+# Reference: https://docs.wokwi.com/vscode/project-config
+[wokwi]
+version = 1
+firmware = 'target/xtensa-esp32s3-none-elf/release/monolith'
+elf = 'target/xtensa-esp32s3-none-elf/release/monolith'
