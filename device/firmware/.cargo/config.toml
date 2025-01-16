@@ -1,9 +1,8 @@
 [target.xtensa-esp32s3-none-elf]
 runner = "espflash flash --monitor"
 
-
 [env]
-ESP_LOG="info"
+ESP_LOG="INFO"
 
 [build]
 rustflags = [
@@ -13,7 +12,4 @@ rustflags = [
 target = "xtensa-esp32s3-none-elf"
 
 [unstable]
-build-std = ["core"]
-
-[alias]
-flash = "run --release"
+build-std = ["alloc", "core"]

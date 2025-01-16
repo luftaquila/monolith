@@ -1,32 +1,60 @@
 [package]
 name = "monolith"
 version = "0.1.0"
-authors = ["luftaquila <mail@luftaquila.io>"]
 edition = "2021"
+authors = ["luftaquila <mail@luftaquila.io>"]
 license = "Beerware"
 repository = "https://github.com/luftaquila/monolith"
-description = "DIY datalogger with telemetry for Student Formula/Baja"
+description = "Telemetry datalogger for Student Formula/Baja"
+
+[[bin]]
+name = "monolith"
+path = "./src/bin/main.rs"
 
 [dependencies]
-esp-backtrace = { version = "0.14.2", features = [
-    "esp32s3",
-    "exception-handler",
-    "panic-handler",
-    "println",
+critical-section = "1.2.0"
+embedded-io = "0.6.1"
+esp-alloc = { version = "0.6.0" }
+esp-backtrace = { version = "0.15.0", features = [
+  "esp32s3",
+  "exception-handler",
+  "panic-handler",
+  "println",
 ] }
-esp-hal = { version = "0.21.0", features = [ "esp32s3" ] }
-esp-println = { version = "0.12.0", features = ["esp32s3", "log"] }
-log = { version = "0.4.22" }
+esp-hal = { version = "0.23.1", features = ["esp32s3", "unstable"] }
+esp-println = { version = "0.13.0", features = ["esp32s3", "log"] }
+esp-wifi = { version = "0.12.0", default-features = false, features = [
+  "esp-alloc",
+  "esp32s3",
+  "log",
+  "utils",
+  "wifi",
+] }
+heapless = { version = "0.8.0", default-features = false }
+log = { version = "0.4.21" }
+smoltcp = { version = "0.12.0", default-features = false, features = [
+  "medium-ethernet",
+  "multicast",
+  "proto-dhcpv4",
+  "proto-dns",
+  "proto-ipv4",
+  "socket-dns",
+  "socket-icmp",
+  "socket-raw",
+  "socket-tcp",
+  "socket-udp",
+] }
+
 [profile.dev]
 # Rust debug is too slow.
 # For debug builds always builds with some optimization
 opt-level = "s"
 
 [profile.release]
-codegen-units = 1 # LLVM can perform better optimizations using a single thread
-debug = 2
+codegen-units    = 1     # LLVM can perform better optimizations using a single thread
+debug            = 2
 debug-assertions = false
-incremental = false
-lto = 'fat'
-opt-level = 's'
-overflow-checks = false
+incremental      = false
+lto              = 'fat'
+opt-level        = 's'
+overflow-checks  = false
