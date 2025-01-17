@@ -4,8 +4,8 @@ PATH := $(HOME)/.rustup/toolchains/esp/xtensa-esp-elf/esp-14.2.0_20240906/xtensa
 build:
 	cargo build --release
 
-flash:
-	cargo flash
+run:
+	cargo run --release
 
 sim: build
 	wokwi-cli .
