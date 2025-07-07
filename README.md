@@ -1,4 +1,8 @@
+> [!IMPORTANT]
+> Monolith [v2](https://github.com/luftaquila/monolith/tree/v2) is now under development and will be released in a few months!
+
 # monolith
+
 ![image](/web/assets/logo/wide.jpg)
 
 <div align="center">

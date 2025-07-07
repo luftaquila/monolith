@@ -1,4 +1,8 @@
+> [!IMPORTANT]
+> 현재 모노리스 [v2](https://github.com/luftaquila/monolith/tree/v2)가 개발 중이며, 몇 달 이내로 릴리즈될 예정입니다!
+
 # monolith
+
 ![image](/web/assets/logo/wide.jpg)
 
 <div align="center">
