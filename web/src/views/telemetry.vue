@@ -7,7 +7,7 @@
   import {term} from '@/service/terminal';
   import {state, times, cons, telemetry, fmt, digit} from '@/service/state';
   import {views, units, colors} from '@/service/ui';
-  import {map, line, path, speed, course} from '@/service/telemetry';
+  import {map, line, path, speed, course, attitude} from '@/service/telemetry';
   import {init_map} from '@/service/map';
 
   import uPlot from 'uplot';
@@ -44,6 +44,14 @@
     }
 
     init_chart();
+
+    attitude.value.loadBodyFromGLTF('shuttle.glb', {
+      scale: 0.5,
+      centerXY: true,
+      keepArrow: true,
+      floorGap: 0,
+      placeOnFloor: true
+    });
   });
 
   const axis = {
@@ -99,7 +107,7 @@
           v = d[d.length - 1];
         }
 
-        if (isNaN(v) || !v) {
+        if (isNaN(v) || v === undefined || v === null) {
           return '-';
         } else {
           return `${digit(v)} ${o.unit}`;
@@ -250,6 +258,7 @@
       <div v-if="views.gyro.display.telemetry" class="card">
         <div class="font-semibold text-xl mb-4">Gyroscope</div>
         <div class="chart" :ref="container.gyro"></div>
+        <Attitude3D ref="attitude" :show-grid="true" />
       </div>
 
       <div class="card">

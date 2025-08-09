@@ -12,6 +12,8 @@ export const course = ref("0.0°");
 
 let current_pos = null;
 
+export const attitude = ref(null);
+
 export function update_telemetry(data) {
   if (data.state) {
     Object.entries(data.state).forEach(([key, value]) => {
@@ -64,14 +66,27 @@ export function update_telemetry(data) {
   }
 
   if (data.gyro) {
-    telemetry.gyro[0].push(times.boot.raw + data.gyro.timestamp / 1000);
-    telemetry.gyro[1].push(convert.accel_to_g(data.gyro.gyro.accel_x));
-    telemetry.gyro[2].push(convert.accel_to_g(data.gyro.gyro.accel_y));
-    telemetry.gyro[3].push(convert.accel_to_g(data.gyro.gyro.accel_z));
-    // telemetry.gyro[4].push(data.gyro.gyro.temperature);
-    telemetry.gyro[4].push(convert.gyro_to_dps(data.gyro.gyro.gyro_x));
-    telemetry.gyro[5].push(convert.gyro_to_dps(data.gyro.gyro.gyro_y));
-    telemetry.gyro[6].push(convert.gyro_to_dps(data.gyro.gyro.gyro_z));
+    const gyro = {
+      ts: times.boot.raw + data.gyro.timestamp / 1000,
+      accel: {
+        x: convert.accel_to_g(data.gyro.gyro.accel_x),
+        y: convert.accel_to_g(data.gyro.gyro.accel_y),
+        z: convert.accel_to_g(data.gyro.gyro.accel_z),
+      },
+      gyro: {
+        x: convert.gyro_to_dps(data.gyro.gyro.gyro_x),
+        y: convert.gyro_to_dps(data.gyro.gyro.gyro_y),
+        z: convert.gyro_to_dps(data.gyro.gyro.gyro_z),
+      }
+    };
+
+    telemetry.gyro[0].push(gyro.ts);
+    telemetry.gyro[1].push(gyro.accel.x);
+    telemetry.gyro[2].push(gyro.accel.y);
+    telemetry.gyro[3].push(gyro.accel.z);
+    telemetry.gyro[4].push(gyro.gyro.x);
+    telemetry.gyro[5].push(gyro.gyro.y);
+    telemetry.gyro[6].push(gyro.gyro.z);
 
     if (telemetry.chart.gyro) {
       telemetry.chart.gyro.setData(telemetry.gyro);
@@ -80,6 +95,8 @@ export function update_telemetry(data) {
         max: new Date().getTime() / 1000
       });
     }
+
+    attitude.value?.imu(gyro);
   }
 
   if (data.gps) {

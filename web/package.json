@@ -16,6 +16,7 @@
         "primeicons": "^7.0.0",
         "primevue": "^4.3.1",
         "tailwindcss-primeui": "^0.5.0",
+        "three": "^0.179.1",
         "uplot": "1.6.32",
         "vue": "^3.4.34",
         "vue-router": "^4.4.0"
