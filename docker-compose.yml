@@ -1,0 +1,46 @@
+name: monolith
+
+services:
+  nginx:
+    image: nginx:latest
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.monolith.rule=Host(`monolith.luftaquila.io`)
+      - traefik.http.routers.monolith.entrypoints=websecure
+      - traefik.http.routers.monolith.tls=true
+      - traefik.http.routers.monolith.priority=2
+      - traefik.http.services.monolith.loadbalancer.server.port=80
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./web:/var/public
+    networks:
+      - traefik
+    restart: unless-stopped
+
+  monolith:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    expose:
+      - 9512
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.monolith-sio.rule=Host(`monolith.luftaquila.io`) && PathPrefix(`/socket.io`)
+      - traefik.http.routers.monolith-sio.entrypoints=websecure
+      - traefik.http.routers.monolith-sio.tls=true
+      - traefik.http.routers.monolith-sio.priority=3
+      - traefik.http.services.monolith-sio.loadbalancer.server.port=9512
+
+      - traefik.http.routers.monolith-sio-http.rule=Host(`monolith.luftaquila.io`)
+      - traefik.http.routers.monolith-sio-http.entrypoints=web
+      - traefik.http.routers.monolith-sio-http.priority=3
+      - traefik.http.routers.monolith-sio-http.service=monolith-sio
+    volumes:
+      - ./server/config.json:/home/node/monolith/config.json
+    networks:
+      - traefik
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true
