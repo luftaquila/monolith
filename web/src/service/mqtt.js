@@ -25,6 +25,8 @@ export function init_mqtt() {
         mqtt_client = null;
     }
 
+    first_auth_fail = true;
+
     if (!localStorage.getItem('server/addr')) {
         localStorage.setItem('server/addr', 'v2.monolith.luftaquila.io');
     }
@@ -52,6 +54,10 @@ export function init_mqtt() {
                 first_auth_fail = false;
                 ToastEventBus.emit('add', { severity: 'error', summary: 'Authentication Failed', group: 'br', life: 5000 });
             }
+
+            // Wrong credentials won't fix themselves; stop the default 1s auto-reconnect
+            // loop so a stale tab doesn't flood the broker with failed connects.
+            mqtt_client.end(true);
         } else {
             ToastEventBus.emit('add', { severity: 'error', summary: 'Server Error', detail: e, group: 'br', life: 5000 });
         }
