@@ -1,6 +1,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include <stdbool.h>
+
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "mqtt_client.h"
@@ -242,14 +244,14 @@ static inline void log_prepare(uint8_t type, log_t *log) {
 }
 
 static inline int LOG(uint8_t type, log_t *log) {
-  if (logqueue == NULL) return 0;
   log_prepare(type, log);
+  if (logqueue == NULL) return 0;
   return xQueueSend(logqueue, log, 0);
 }
 
 static inline int LOG_FROM_ISR(uint8_t type, log_t *log) {
-  if (logqueue == NULL) return 0;
   log_prepare(type, log);
+  if (logqueue == NULL) return 0;
   return xQueueSendFromISR(logqueue, log, NULL);
 }
 

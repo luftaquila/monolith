@@ -12,6 +12,26 @@ extern struct timeval boot;
 
 char logpath[64];
 
+static bool queue_init(void) {
+  if (logqueue == NULL) {
+    logqueue = xQueueCreate(2560, sizeof(log_t));
+  }
+
+  if (syslogqueue == NULL) {
+    syslogqueue = xQueueCreate(32, sizeof(log_t));
+  }
+
+  if (canlogqueue == NULL) {
+    canlogqueue = xQueueCreate(1024, sizeof(log_t));
+  }
+
+  if (cantxqueue == NULL) {
+    cantxqueue = xQueueCreate(4, sizeof(twai_message_t));
+  }
+
+  return logqueue != NULL && syslogqueue != NULL && canlogqueue != NULL && cantxqueue != NULL;
+}
+
 /*******************************************************************************
  * save log queue to SD card every 1000 ms
  ******************************************************************************/
@@ -61,6 +81,11 @@ static void task_sdcard(void *pvParameters) {
  * init SDIO, mount filesystem and create task
  ******************************************************************************/
 void sdcard_init(void) {
+  if (queue_init() != true) {
+    FATAL_LOG(&init, SD, "queue create failure");
+    goto finish;
+  }
+
   esp_vfs_fat_sdmmc_mount_config_t mount_config = {
     .format_if_mount_failed   = false,
     .max_files                = 4,
@@ -106,16 +131,12 @@ void sdcard_init(void) {
 
   if (fd < 0) {
     FATAL_LOG(&init, SD, "file open failure");
+    goto finish;
   }
-
-  // create log queue and sdcard task
-  logqueue    = xQueueCreate(2560, sizeof(log_t));
-  syslogqueue = xQueueCreate(32, sizeof(log_t));
-  canlogqueue = xQueueCreate(1024, sizeof(log_t));
-  cantxqueue  = xQueueCreate(4, sizeof(twai_message_t));
 
   if (xTaskCreate(task_sdcard, "sdcard", 4096, (void *)fd, 7, NULL) != pdPASS) {
     FATAL_LOG(&init, SD, "task create failure");
+    close(fd);
     goto finish;
   }
 
