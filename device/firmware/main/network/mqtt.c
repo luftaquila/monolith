@@ -34,10 +34,21 @@ static void free_queue(void) {
 }
 
 static void restore_queue(void) {
-  logqueue    = xQueueCreate(2560, sizeof(log_t));
-  syslogqueue = xQueueCreate(32, sizeof(log_t));
-  canlogqueue = xQueueCreate(1024, sizeof(log_t));
-  cantxqueue  = xQueueCreate(4, sizeof(twai_message_t));
+  if (IS_OK(&logbuf.run, SD) && logqueue == NULL) {
+    logqueue = xQueueCreate(2560, sizeof(log_t));
+  }
+
+  if (syslogqueue == NULL) {
+    syslogqueue = xQueueCreate(32, sizeof(log_t));
+  }
+
+  if (canlogqueue == NULL) {
+    canlogqueue = xQueueCreate(1024, sizeof(log_t));
+  }
+
+  if (cantxqueue == NULL) {
+    cantxqueue = xQueueCreate(4, sizeof(twai_message_t));
+  }
 }
 
 static void task_file_upload(void *arg) {

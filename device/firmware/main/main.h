@@ -256,11 +256,12 @@ static inline int LOG_FROM_ISR(uint8_t type, log_t *log) {
 }
 
 static inline void SYSLOG(const char *msg) {
-  if (logqueue == NULL || syslogqueue == NULL) return;
-  log_t log;
+  if (logqueue == NULL && syslogqueue == NULL) return;
+  log_t log = { 0 };
   strncpy(log.payload.system_event.msg, msg, sizeof(log.payload.system_event.msg));  // no need to null-terminate
-  LOG(LOG_TYPE_SYSTEM, &log);
-  xQueueSend(syslogqueue, &log, 0);
+  log_prepare(LOG_TYPE_SYSTEM, &log);
+  if (logqueue != NULL) xQueueSend(logqueue, &log, 0);
+  if (syslogqueue != NULL) xQueueSend(syslogqueue, &log, 0);
 }
 
 static inline void ERROR_LOG(state_t *state, state_component_t component, const char *msg) {
