@@ -34,10 +34,21 @@ static void free_queue(void) {
 }
 
 static void restore_queue(void) {
-  logqueue    = xQueueCreate(2560, sizeof(log_t));
-  syslogqueue = xQueueCreate(32, sizeof(log_t));
-  canlogqueue = xQueueCreate(1024, sizeof(log_t));
-  cantxqueue  = xQueueCreate(4, sizeof(twai_message_t));
+  if (sdcard_log_writer_active() && logqueue == NULL) {
+    logqueue = xQueueCreate(2560, sizeof(log_t));
+  }
+
+  if (syslogqueue == NULL) {
+    syslogqueue = xQueueCreate(32, sizeof(log_t));
+  }
+
+  if (canlogqueue == NULL) {
+    canlogqueue = xQueueCreate(1024, sizeof(log_t));
+  }
+
+  if (cantxqueue == NULL) {
+    cantxqueue = xQueueCreate(4, sizeof(twai_message_t));
+  }
 }
 
 static void task_file_upload(void *arg) {
@@ -393,7 +404,11 @@ static void mqtt_handle_data(esp_mqtt_event_handle_t evt) {
       }
 
       memcpy(message.data, evt->data, message.data_length_code);
-      if (!file_op_busy) xQueueSend(cantxqueue, &message, 0);
+
+      if (!file_op_busy) {
+        QueueHandle_t q = cantxqueue;
+        if (q != NULL) xQueueSend(q, &message, 0);
+      }
     }
 
     else if (STREQL(dir[2], "ls")) {  // list files

@@ -1,6 +1,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include <stdbool.h>
+
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "mqtt_client.h"
@@ -17,6 +19,8 @@ extern QueueHandle_t canlogqueue;
 extern QueueHandle_t cantxqueue;
 extern esp_mqtt_client_handle_t mqtt;
 extern volatile bool file_op_busy;
+
+bool sdcard_log_writer_active(void);
 
 /***** nvs storage *****/
 typedef struct {
@@ -242,23 +246,24 @@ static inline void log_prepare(uint8_t type, log_t *log) {
 }
 
 static inline int LOG(uint8_t type, log_t *log) {
-  if (logqueue == NULL) return 0;
   log_prepare(type, log);
+  if (logqueue == NULL) return 0;
   return xQueueSend(logqueue, log, 0);
 }
 
 static inline int LOG_FROM_ISR(uint8_t type, log_t *log) {
-  if (logqueue == NULL) return 0;
   log_prepare(type, log);
+  if (logqueue == NULL) return 0;
   return xQueueSendFromISR(logqueue, log, NULL);
 }
 
 static inline void SYSLOG(const char *msg) {
-  if (logqueue == NULL || syslogqueue == NULL) return;
-  log_t log;
+  if (logqueue == NULL && syslogqueue == NULL) return;
+  log_t log = { 0 };
   strncpy(log.payload.system_event.msg, msg, sizeof(log.payload.system_event.msg));  // no need to null-terminate
-  LOG(LOG_TYPE_SYSTEM, &log);
-  xQueueSend(syslogqueue, &log, 0);
+  log_prepare(LOG_TYPE_SYSTEM, &log);
+  if (logqueue != NULL) xQueueSend(logqueue, &log, 0);
+  if (syslogqueue != NULL) xQueueSend(syslogqueue, &log, 0);
 }
 
 static inline void ERROR_LOG(state_t *state, state_component_t component, const char *msg) {
