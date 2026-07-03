@@ -11,6 +11,11 @@
 extern struct timeval boot;
 
 char logpath[64];
+static TaskHandle_t sdcard_task_handle = NULL;
+
+bool sdcard_log_writer_active(void) {
+  return sdcard_task_handle != NULL;
+}
 
 static bool telemetry_queue_init(void) {
   if (syslogqueue == NULL) {
@@ -59,8 +64,18 @@ static void task_sdcard(void *pvParameters) {
       continue;
     }
 
+    QueueHandle_t q = logqueue;
+
+    if (q == NULL) {
+      if (!IS_FATAL(&logbuf.run, SD)) {
+        FATAL_LOG(&logbuf.run, SD, "log queue unavailable");
+      }
+      xTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(200));
+      continue;
+    }
+
     do {
-      if ((ret = xQueueReceive(logqueue, &log, 0)) == pdTRUE) {
+      if ((ret = xQueueReceive(q, &log, 0)) == pdTRUE) {
         write(fd, &log, sizeof(log));
         write_count++;
       }
@@ -144,7 +159,9 @@ void sdcard_init(void) {
     goto finish;
   }
 
-  if (xTaskCreate(task_sdcard, "sdcard", 4096, (void *)fd, 7, NULL) != pdPASS) {
+  TaskHandle_t task = NULL;
+
+  if (xTaskCreate(task_sdcard, "sdcard", 4096, (void *)fd, 7, &task) != pdPASS) {
     FATAL_LOG(&init, SD, "task create failure");
     close(fd);
     QueueHandle_t q = logqueue;
@@ -152,6 +169,8 @@ void sdcard_init(void) {
     if (q) vQueueDelete(q);
     goto finish;
   }
+
+  sdcard_task_handle = task;
 
   INFO(SD, "log file: %s", logpath);
 

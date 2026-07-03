@@ -20,6 +20,8 @@ extern QueueHandle_t cantxqueue;
 extern esp_mqtt_client_handle_t mqtt;
 extern volatile bool file_op_busy;
 
+bool sdcard_log_writer_active(void);
+
 /***** nvs storage *****/
 typedef struct {
   struct {

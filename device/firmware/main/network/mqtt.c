@@ -34,7 +34,7 @@ static void free_queue(void) {
 }
 
 static void restore_queue(void) {
-  if (IS_OK(&logbuf.run, SD) && logqueue == NULL) {
+  if (sdcard_log_writer_active() && logqueue == NULL) {
     logqueue = xQueueCreate(2560, sizeof(log_t));
   }
 
@@ -404,7 +404,11 @@ static void mqtt_handle_data(esp_mqtt_event_handle_t evt) {
       }
 
       memcpy(message.data, evt->data, message.data_length_code);
-      if (!file_op_busy) xQueueSend(cantxqueue, &message, 0);
+
+      if (!file_op_busy) {
+        QueueHandle_t q = cantxqueue;
+        if (q != NULL) xQueueSend(q, &message, 0);
+      }
     }
 
     else if (STREQL(dir[2], "ls")) {  // list files
